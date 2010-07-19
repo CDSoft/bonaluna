@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
+<title>BonaLuna</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 5951 2009-05-18 18:03:10Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left{
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: left }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="bonaluna">
+<h1 class="title">BonaLuna</h1>
+<h2 class="subtitle" id="a-compact-lua-extension">A compact Lua extension</h2>
+
+<!-- BonaLuna -->
+<!-- Copyright (C) 2010 Christophe Delord
+http://www.cdsoft.fr/bonaluna.html -->
+<!-- BonaLuna is based on Lua 5.2 work 3
+Copyright (C) 2010 Lua.org, PUC-Rio. -->
+<!-- Freely available under the terms of the Lua license. -->
+<div class="sidebar">
+<p class="first sidebar-title">Based on <a class="reference external" href="http://www.lua.org/work">Lua 5.2 work 3</a></p>
+<img alt="http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png" src="http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png" />
+<p class="last">Copyright (C) 2010 <a class="reference external" href="http://www.lua.org">Lua.org</a>, PUC-Rio.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Christophe Delord</td>
+</tr>
+<tr class="field"><th class="field-name">Contact:</th><td class="field-body"><a class="reference external" href="mailto:cdelord&#37;&#52;&#48;cdsoft&#46;fr">cdelord<span>&#64;</span>cdsoft<span>&#46;</span>fr</a></td>
+</tr>
+<tr class="field"><th class="field-name">Web:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bonaluna.html">http://cdsoft.fr/bonaluna.html</a></td>
+</tr>
+<tr class="field"><th class="field-name">License:</th><td class="field-body"><div class="first last line-block">
+<div class="line">Copyright (C) 2010 Christophe Delord,
+<a class="reference external" href="http://cdsoft.fr/bonaluna.html">CDSoft.fr</a></div>
+<div class="line">Freely available under the terms of the
+<a class="reference external" href="http://www.lua.org/license.html#5">Lua license</a></div>
+</div>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">0.1</td>
+</tr>
+<tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
+in a single executable.</td>
+</tr>
+</tbody>
+</table>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="auto-toc simple">
+<li><a class="reference internal" href="#lua" id="id4">1&nbsp;&nbsp;&nbsp;Lua</a></li>
+<li><a class="reference internal" href="#bonaluna-packages" id="id5">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a><ul class="auto-toc">
+<li><a class="reference internal" href="#fs-file-system" id="id6">2.1&nbsp;&nbsp;&nbsp;fs: File System</a></li>
+<li><a class="reference internal" href="#ps-processes" id="id7">2.2&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
+<li><a class="reference internal" href="#sys-system-management" id="id8">2.3&nbsp;&nbsp;&nbsp;sys: System management</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples" id="id9">3&nbsp;&nbsp;&nbsp;Examples</a></li>
+</ul>
+</div>
+<div class="section" id="lua">
+<h1><a class="toc-backref" href="#id4">1&nbsp;&nbsp;&nbsp;Lua</a></h1>
+<p>The original Lua interpretor and documentation is available
+at <a class="reference external" href="http://www.lua.org">http://www.lua.org</a>.</p>
+<p>BonaLuna is based on Lua 5.2 work 3.</p>
+</div>
+<div class="section" id="bonaluna-packages">
+<h1><a class="toc-backref" href="#id5">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a></h1>
+<div class="section" id="fs-file-system">
+<h2><a class="toc-backref" href="#id6">2.1&nbsp;&nbsp;&nbsp;fs: File System</a></h2>
+<div class="section" id="functions">
+<h3>Functions</h3>
+<dl class="docutils">
+<dt>fs.getcwd</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>fs.getcwd()</cite> returns the current working directory.</div>
+</div>
+</dd>
+<dt>fs.chdir</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>fs.chdir(path)</cite> changes the current directory to <cite>path</cite>.</div>
+</div>
+</dd>
+<dt>fs.dir</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>fs.dir(path)</cite> returns the list of files and directories in
+<cite>path</cite>.</div>
+<div class="line"><cite>fs.dir()</cite> returns the list of files and directories in the
+current directory.</div>
+</div>
+</dd>
+<dt>fs.mkdir</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>fs.mkdir(path) creates a new directory `path</cite>.</div>
+</div>
+</dd>
+<dt>fs.rename</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>fs.rename(old_name, new_name)</cite> renames the file <cite>old_name</cite> to
+<cite>new_name</cite>.</div>
+</div>
+</dd>
+<dt>fs.remove</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>fs.remove(name)</cite> deletes the file <cite>name</cite>.</div>
+</div>
+</dd>
+<dt>fs.stat</dt>
+<dd><div class="first line-block">
+<div class="line"><cite>fs.stat(name)</cite> reads attributes of the file <cite>name</cite>.
+Attributes are:</div>
+</div>
+<blockquote class="last">
+<ul class="simple">
+<li><cite>name</cite>: name</li>
+<li>type: &quot;file&quot; or &quot;directory&quot;</li>
+<li><cite>size</cite>: size in bytes</li>
+<li><cite>mtime</cite>, <cite>atime</cite>, <cite>ctime</cite>: modification, access and creation
+times.</li>
+<li>mode: file permissions</li>
+<li>uR, uW, uX: user Read/Write/eXecute permissions</li>
+<li>gR, gW, gX: group Read/Write/eXecute permissions</li>
+<li>oR, oW, oX: other Read/Write/eXecute permissions</li>
+</ul>
+</blockquote>
+</dd>
+<dt>fs.chmod</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>fs.chmod(name, other_file_name)</cite> sets file <cite>name</cite> permissions as
+file <cite>other_file_name</cite> (string containing the name of another
+file).</div>
+<div class="line"><cite>fs.chmod(name, bit1, ..., bitn) sets file `name</cite> permissions as
+<cite>bit1</cite> or ... or <cite>bitn</cite> (integers).</div>
+</div>
+</dd>
+<dt>fs.touch</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>fs.touch(name)</cite> sets the access time and the modification time
+of file <cite>name</cite> with the current time.</div>
+<div class="line"><cite>fs.touch(name, number)</cite> sets the access time and the
+modification time of file <cite>name</cite> with <cite>number</cite>.</div>
+<div class="line"><cite>fs.touch(name, other_name)</cite> sets the access time and the
+modification time of file <cite>name</cite> with the times of file
+<cite>other_name</cite>.</div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="section" id="constants">
+<h3>Constants</h3>
+<dl class="docutils">
+<dt>fs.sep</dt>
+<dd>Directory separator (/ or \)</dd>
+<dt>fs.uR, fs.uW, fs.uX</dt>
+<dd>User Read/Write/eXecute mask for <cite>fs.chmod</cite></dd>
+<dt>fs.gR, fs.gW, fs.gX</dt>
+<dd>Group Read/Write/eXecute mask for <cite>fs.chmod</cite></dd>
+<dt>fs.oR, fs.oW, fs.oX</dt>
+<dd>Other Read/Write/eXecute mask for <cite>fs.chmod</cite></dd>
+<dt>fs.aR, fs.aW, fs.aX</dt>
+<dd>All Read/Write/eXecute mask for <cite>fs.chmod</cite></dd>
+</dl>
+</div>
+</div>
+<div class="section" id="ps-processes">
+<h2><a class="toc-backref" href="#id7">2.2&nbsp;&nbsp;&nbsp;ps: Processes</a></h2>
+<div class="section" id="id1">
+<h3>Functions</h3>
+<dl class="docutils">
+<dt>ps.sleep</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>ps.sleep(n)</cite> sleeps for <cite>n</cite> seconds.</div>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="sys-system-management">
+<h2><a class="toc-backref" href="#id8">2.3&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
+<div class="section" id="id2">
+<h3>Functions</h3>
+<dl class="docutils">
+<dt>sys.hostname:</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>sys.hostname()</cite> returns the host name.</div>
+</div>
+</dd>
+<dt>sys.domainname:</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>sys.domainname()</cite> returns the domain name.</div>
+</div>
+</dd>
+<dt>sys.hostid:</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>sys.hostid()</cite> returns the host id.</div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="section" id="id3">
+<h3>Constants</h3>
+<dl class="docutils">
+<dt>sys.platform</dt>
+<dd><cite>&quot;Linux&quot;</cite> or <cite>&quot;Windows&quot;</cite></dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h1><a class="toc-backref" href="#id9">3&nbsp;&nbsp;&nbsp;Examples</a></h1>
+<p>This documentation has been generated by a BonaLuna script.
+<a class="reference external" href="bonaluna.lua">bonaluna.lua</a> also contains some tests.</p>
+</div>
+</div>
+</body>
+</html>
