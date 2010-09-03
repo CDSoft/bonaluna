@@ -3,7 +3,7 @@
 Copyright (C) 2010 Christophe Delord
 http://cdsoft.fr/bonaluna.html
 
-BonaLuna is based on Lua 5.2 work 3
+BonaLuna is based on Lua 5.2 work 4
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -266,7 +266,8 @@ static const luaL_Reg fslib[] =
 
 LUAMOD_API int luaopen_fs (lua_State *L)
 {
-    luaL_register(L, LUA_FSLIBNAME, fslib);
+    //luaL_register(L, LUA_FSLIBNAME, fslib);
+    luaL_newlib(L, fslib);
 #define STRING(NAME, VAL) lua_pushliteral(L, VAL); lua_setfield(L, -2, NAME)
 #define INTEGER(NAME, VAL) lua_pushinteger(L, VAL); lua_setfield(L, -2, NAME)
     /* File separator */
@@ -322,7 +323,8 @@ static const luaL_Reg pslib[] =
 
 LUAMOD_API int luaopen_ps (lua_State *L)
 {
-    luaL_register(L, LUA_PSLIBNAME, pslib);
+    //luaL_register(L, LUA_PSLIBNAME, pslib);
+    luaL_newlib(L, pslib);
     return 1;
 }
 
@@ -383,7 +385,8 @@ static const luaL_Reg blsyslib[] =
 
 LUAMOD_API int luaopen_sys (lua_State *L)
 {
-    luaL_register(L, LUA_SYSLIBNAME, blsyslib);
+    //luaL_register(L, LUA_SYSLIBNAME, blsyslib);
+    luaL_newlib(L, blsyslib);
 #define STRING(NAME, VAL) lua_pushliteral(L, VAL); lua_setfield(L, -2, NAME)
     STRING("platform", BONALUNA_PLATFORM);
 #undef STRING

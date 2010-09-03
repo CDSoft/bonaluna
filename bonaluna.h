@@ -3,7 +3,7 @@
 Copyright (C) 2010 Christophe Delord
 http://cdsoft.fr/bonaluna.html
 
-BonaLuna is based on Lua 5.2 work 3
+BonaLuna is based on Lua 5.2 work 4
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.

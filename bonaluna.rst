@@ -3,7 +3,7 @@
 ..  Copyright (C) 2010 Christophe Delord
     http://www.cdsoft.fr/bonaluna.html
 
-..  BonaLuna is based on Lua 5.2 work 3
+..  BonaLuna is based on Lua 5.2 work 4
     Copyright (C) 2010 Lua.org, PUC-Rio.
 
 ..  Freely available under the terms of the Lua license.
@@ -15,7 +15,7 @@
  A compact Lua extension
 -------------------------
 
-.. sidebar:: Based on `Lua 5.2 work 3 <http://www.lua.org/work>`__
+.. sidebar:: Based on `Lua 5.2 work 4 <http://www.lua.org/work>`__
 
     .. image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
 
@@ -30,7 +30,7 @@
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
 
-:Version: 0.1
+:Version: 0.2
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -47,7 +47,7 @@ Lua
 The original Lua interpretor and documentation is available
 at http://www.lua.org.
 
-BonaLuna is based on Lua 5.2 work 3.
+BonaLuna is based on Lua 5.2 work 4.
 
 BonaLuna packages
 =================

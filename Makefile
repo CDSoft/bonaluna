@@ -3,19 +3,19 @@
 # Copyright (C) 2010 Christophe Delord
 # http://cdsoft.fr/bonaluna.html
 #
-# BonaLuna is based on Lua 5.2 work 3
+# BonaLuna is based on Lua 5.2 work 4
 # Copyright (C) 2010 Lua.org, PUC-Rio.
 #
 # Freely available under the terms of the Lua license.
 
-VERSION = 0.1
+VERSION = 0.2
 
-LUA_SRC = lua-5.2.0-work3
+LUA_SRC = lua-5.2.0-work4
 LUA_URL = http://www.lua.org/work/$(LUA_SRC).tar.gz
 
 PATCH = patch
-BONALUNA_PATCH = $(PATCH)/one.c $(PATCH)/linit.c $(PATCH)/lua.c
-BONALUNA_SRC = bonaluna.c bonaluna.h
+BONALUNA_PATCH = $(PATCH)/linit.c $(PATCH)/lua.c $(PATCH)/lvm.c $(PATCH)/lparser.c
+BONALUNA_SRC = bonaluna.c bonaluna.h bl.c
 
 CC_OPTS = -O3 -std=gnu99
 CC_LIBS = -lm
@@ -65,7 +65,7 @@ $(BL): $(LUA_SRC) $(BONALUNA_PATCH) $(BONALUNA_SRC)
 		-I. -I$(PATCH) \
 		-I$(LUA_SRC)/include \
 		-I$(LUA_SRC)/src \
-		$(PATCH)/one.c -o $@ \
+		bl.c -o $@ \
 		$(CC_LIBS)
 	strip $@
 
@@ -98,6 +98,14 @@ $(PATCH)/linit.c: $(LUA_SRC)/src/linit.c
 			}                                        \
 		{print}                                      \
 	' $< > $@
+
+$(PATCH)/lvm.c: $(LUA_SRC)/src/lvm.c
+	mkdir -p $(dir $@)
+	sed 's/pushclosure/lvm_pushclosure/g' $< > $@
+
+$(PATCH)/lparser.c: $(LUA_SRC)/src/lparser.c
+	mkdir -p $(dir $@)
+	sed 's/pushclosure/lparser_pushclosure/g' $< > $@
 
 bonaluna.html: $(BL) bonaluna.lua
 	$(BL) bonaluna.lua
