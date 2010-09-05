@@ -30,7 +30,7 @@
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
 
-:Version: 0.2
+:Version: 0.3.2
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
