@@ -1,7 +1,7 @@
 /* BonaLuna
 
 Copyright (C) 2010 Christophe Delord
-http://cdsoft.fr/bonaluna.html
+http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.2 work 4
 Copyright (C) 2010 Lua.org, PUC-Rio.

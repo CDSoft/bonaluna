@@ -1,7 +1,7 @@
 --[[ BonaLuna test and documentation generator
 
 Copyright (C) 2010 Christophe Delord
-http://cdsoft.fr/bonaluna.html
+http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.2 work 4
 Copyright (C) 2010 Lua.org, PUC-Rio.
@@ -27,7 +27,7 @@ doc([[
 ..  BonaLuna
 
 ..  Copyright (C) 2010 Christophe Delord
-    http://www.cdsoft.fr/bonaluna.html
+    http://www.cdsoft.fr/bl/bonaluna.html
 
 ..  BonaLuna is based on Lua 5.2 work 4
     Copyright (C) 2010 Lua.org, PUC-Rio.
@@ -49,12 +49,13 @@ doc([[
 
 :Author: Christophe Delord
 :Contact: cdelord@cdsoft.fr
-:Web: http://cdsoft.fr/bonaluna.html
+:Web: http://cdsoft.fr/bl/bonaluna.html
 :License:
     | Copyright (C) 2010 Christophe Delord,
-      `CDSoft.fr <http://cdsoft.fr/bonaluna.html>`__
+      `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
+:Download: http://cdsoft.fr/bl/bonaluna-]]..BONALUNA_VERSION..[[.tgz
 
 :Version: ]]..BONALUNA_VERSION..[[
 
