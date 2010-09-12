@@ -29,9 +29,9 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-0.3.3.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-0.4.tgz
 
-:Version: 0.3.3
+:Version: 0.4
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -80,6 +80,11 @@ fs.rename
 
 fs.remove
     | `fs.remove(name)` deletes the file `name`.
+
+fs.copy
+    | `fs.copy(source_name, target_name)` copies file file
+      `source_name` to `target_name`. The attributes and 
+      times are preserved.
 
 fs.stat
     | `fs.stat(name)` reads attributes of the file `name`.

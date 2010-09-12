@@ -182,6 +182,32 @@ do
 end
 
 doc [[
+fs.copy
+    | `fs.copy(source_name, target_name)` copies file file
+      `source_name` to `target_name`. The attributes and 
+      times are preserved.
+]]
+
+do
+    local content = string.rep(
+        "I don't remember the question, but for sure, the answer is 42!\n",
+        42*1000)
+    local f = assert(io.open("answer", "wb"))
+    f:write(content)
+    f:close()
+    assert(fs.touch("answer", 42))
+    assert(fs.chmod("answer", fs.aR))
+    assert(fs.copy("answer", "answer-2"))
+    f = assert(io.open("answer-2", "rb"))
+    assert(f:read("*a") == content)
+    f:close()
+    assert(fs.stat("answer-2").mode == fs.stat("answer").mode)
+    assert(fs.stat("answer-2").mtime == 42)
+    fs.remove("answer")
+    fs.remove("answer-2")
+end
+
+doc [[
 fs.stat
     | `fs.stat(name)` reads attributes of the file `name`.
       Attributes are:

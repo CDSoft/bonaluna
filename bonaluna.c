@@ -12,6 +12,7 @@ Freely available under the terms of the Lua license.
 #include "bonaluna.h"
 
 #include "dirent.h"
+#include "errno.h"
 #include "sys/stat.h"
 #include "unistd.h"
 #include "utime.h"
@@ -21,6 +22,7 @@ Freely available under the terms of the Lua license.
 #endif
 
 #define BL_PATHSIZE 1024
+#define BL_BUFSIZE  (64*1024)
 
 static int bl_pushresult(lua_State *L, int i, const char *filename)
 {
@@ -148,6 +150,57 @@ static int fs_rename(lua_State *L)
     return bl_pushresult(L, rename(fromname, toname) == 0, fromname);
 }
 
+static int fs_copy(lua_State *L)
+{
+    const char *fromname = luaL_checkstring(L, 1);
+    const char *toname = luaL_checkstring(L, 2);
+    int _en;
+    FILE *from, *to;
+    int n;
+    char buffer[BL_BUFSIZE];
+    struct stat st;
+    struct utimbuf t;
+    from = fopen(fromname, "rb");
+    if (!from) return bl_pushresult(L, 0, fromname);
+    to = fopen(toname, "wb");
+    if (!to)
+    {
+        _en = errno;
+        fclose(from);
+        errno = _en;
+        return bl_pushresult(L, 0, toname);
+    }
+    while (n = fread(buffer, sizeof(char), BL_BUFSIZE, from))
+    {
+        if (fwrite(buffer, sizeof(char), n, to) != n)
+        {
+            _en = errno;
+            fclose(from);
+            fclose(to);
+            remove(toname);
+            errno = _en;
+            return bl_pushresult(L, 0, toname);
+        }
+    }
+    if (ferror(from))
+    {
+        _en = errno;
+        fclose(from);
+        fclose(to);
+        remove(toname);
+        errno = _en;
+        return bl_pushresult(L, 0, toname);
+    }
+    fclose(from);
+    fclose(to);
+    if (stat(fromname, &st) != 0) return bl_pushresult(L, 0, fromname);
+    t.actime = st.st_atime;
+    t.modtime = st.st_mtime;
+    return bl_pushresult(L, 
+        utime(toname, &t) == 0 && chmod(toname, st.st_mode) == 0,
+        toname);
+}
+
 static int fs_mkdir(lua_State *L)
 {
     const char *path = luaL_checkstring(L, 1);
@@ -261,6 +314,7 @@ static const luaL_Reg fslib[] =
     {"stat",        fs_stat},
     {"chmod",       fs_chmod},
     {"touch",       fs_touch},
+    {"copy",        fs_copy},
     {NULL, NULL}
 };
 

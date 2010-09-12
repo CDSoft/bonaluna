@@ -8,7 +8,7 @@
 #
 # Freely available under the terms of the Lua license.
 
-VERSION = 0.3.3
+VERSION = 0.4
 
 LUA_SRC = lua-5.2.0-work4
 LUA_URL = http://www.lua.org/work/$(LUA_SRC).tar.gz
