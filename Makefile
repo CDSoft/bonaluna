@@ -3,14 +3,14 @@
 # Copyright (C) 2010 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
-# BonaLuna is based on Lua 5.2 work 4
+# BonaLuna is based on Lua 5.2 work 5
 # Copyright (C) 2010 Lua.org, PUC-Rio.
 #
 # Freely available under the terms of the Lua license.
 
-VERSION = 0.4
+VERSION = 0.4.1
 
-LUA_SRC = lua-5.2.0-work4
+LUA_SRC = lua-5.2.0-work5
 LUA_URL = http://www.lua.org/work/$(LUA_SRC).tar.gz
 
 PATCH = patch

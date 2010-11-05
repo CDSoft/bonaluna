@@ -3,7 +3,7 @@
 ..  Copyright (C) 2010 Christophe Delord
     http://www.cdsoft.fr/bl/bonaluna.html
 
-..  BonaLuna is based on Lua 5.2 work 4
+..  BonaLuna is based on Lua 5.2 work 5
     Copyright (C) 2010 Lua.org, PUC-Rio.
 
 ..  Freely available under the terms of the Lua license.
@@ -15,7 +15,7 @@
  A compact Lua extension
 -------------------------
 
-.. sidebar:: Based on `Lua 5.2 work 4 <http://www.lua.org/work>`__
+.. sidebar:: Based on `Lua 5.2 work 5 <http://www.lua.org/work>`__
 
     .. image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
 
@@ -29,9 +29,9 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-0.4.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-0.4.1.tgz
 
-:Version: 0.4
+:Version: 0.4.1
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -48,7 +48,7 @@ Lua
 The original Lua interpretor and documentation is available
 at http://www.lua.org.
 
-BonaLuna is based on Lua 5.2 work 4.
+BonaLuna is based on Lua 5.2 work 5.
 
 BonaLuna packages
 =================
@@ -72,7 +72,7 @@ fs.dir
       current directory.
 
 fs.mkdir
-    | `fs.mkdir(path) creates a new directory `path`.
+    | `fs.mkdir(path)` creates a new directory `path`.
 
 fs.rename
     | `fs.rename(old_name, new_name)` renames the file `old_name` to
@@ -82,8 +82,8 @@ fs.remove
     | `fs.remove(name)` deletes the file `name`.
 
 fs.copy
-    | `fs.copy(source_name, target_name)` copies file file
-      `source_name` to `target_name`. The attributes and 
+    | `fs.copy(source_name, target_name)` copies file
+      `source_name` to `target_name`. The attributes and
       times are preserved.
 
 fs.stat
@@ -149,13 +149,13 @@ sys: System management
 Functions
 ~~~~~~~~~
 
-sys.hostname:
+sys.hostname
     | `sys.hostname()` returns the host name.
 
-sys.domainname:
+sys.domainname
     | `sys.domainname()` returns the domain name.
 
-sys.hostid:
+sys.hostid
     | `sys.hostid()` returns the host id.
 
 Constants
