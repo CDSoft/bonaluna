@@ -3,7 +3,7 @@
 Copyright (C) 2010 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2 work 5
+BonaLuna is based on Lua 5.2 alpha
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -11,14 +11,14 @@ Freely available under the terms of the Lua license.
 --]]
 
 do
-    local bluna_rst = "bonaluna.rst"
+    local bl_rst = "bonaluna.rst"
     function doc(txt)
-        local f = assert(io.open(bluna_rst, "a"))
+        local f = assert(io.open(bl_rst, "a"))
         f:write(txt)
         f:write("\n")
         f:close()
     end
-    os.remove(bluna_rst)
+    os.remove(bl_rst)
 end
 
 BONALUNA_VERSION = assert(io.popen(arg[-1].." -v")):read("*l"):gsub("BonaLuna%s([%d%.]+).*", "%1")
@@ -29,7 +29,7 @@ doc([[
 ..  Copyright (C) 2010 Christophe Delord
     http://www.cdsoft.fr/bl/bonaluna.html
 
-..  BonaLuna is based on Lua 5.2 work 5
+..  BonaLuna is based on Lua 5.2 alpha
     Copyright (C) 2010 Lua.org, PUC-Rio.
 
 ..  Freely available under the terms of the Lua license.
@@ -41,7 +41,7 @@ doc([[
  A compact Lua extension
 -------------------------
 
-.. sidebar:: Based on `Lua 5.2 work 5 <http://www.lua.org/work>`__
+.. sidebar:: Based on `Lua 5.2 alpha <http://www.lua.org/work>`__
 
     .. image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
 
@@ -77,7 +77,7 @@ Lua
 The original Lua interpretor and documentation is available
 at http://www.lua.org.
 
-BonaLuna is based on ]].._VERSION..[[ work 5.
+BonaLuna is based on ]].._VERSION..[[ alpha.
 
 BonaLuna packages
 =================
