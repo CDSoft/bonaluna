@@ -8,16 +8,16 @@
 #
 # Freely available under the terms of the Lua license.
 
-VERSION = 0.4.2
+VERSION = 0.5.0
 
 LUA_SRC = lua-5.2.0-alpha
 LUA_URL = http://www.lua.org/work/$(LUA_SRC).tar.gz
 
 PATCH = patch
 BONALUNA_PATCH = $(PATCH)/linit.c $(PATCH)/lua.c $(PATCH)/lvm.c $(PATCH)/lparser.c
-BONALUNA_SRC = bonaluna.c bonaluna.h bl.c
+BONALUNA_SRC = bonaluna.c bonaluna.h bl.c struct.c
 
-CC_OPTS = -O3 -std=gnu99
+CC_OPTS = -O2 -std=gnu99
 CC_LIBS = -lm
 
 LUA_CONF =
@@ -84,19 +84,21 @@ $(PATCH)/one.c: $(LUA_SRC)/etc/one.c
 	echo "" >> $@
 	echo "/* BonaLuna libraries */" >> $@
 	echo "#include \"bonaluna.c\"" >> $@
+	echo "#include \"struct.c\"" >> $@
 
 $(PATCH)/linit.c: $(LUA_SRC)/src/linit.c
 	mkdir -p $(dir $@)
-	awk '                                            \
-		/lauxlib.h/ {                                \
-			print "#include \"bonaluna.h\""          \
-		}                                            \
-		/LUA_MATHLIBNAME/ {                          \
-			print "  {LUA_FSLIBNAME,  luaopen_fs},"; \
-			print "  {LUA_PSLIBNAME,  luaopen_ps},"; \
-			print "  {LUA_SYSLIBNAME, luaopen_sys}," \
-			}                                        \
-		{print}                                      \
+	awk '                                                \
+		/lauxlib.h/ {                                    \
+			print "#include \"bonaluna.h\""              \
+		}                                                \
+		/LUA_MATHLIBNAME/ {                              \
+			print "  {LUA_FSLIBNAME,  luaopen_fs},";     \
+			print "  {LUA_PSLIBNAME,  luaopen_ps},";     \
+			print "  {LUA_SYSLIBNAME, luaopen_sys},";    \
+			print "  {LUA_STRUCTLIBNAME, luaopen_struct},"; \
+			}                                            \
+		{print}                                          \
 	' $< > $@
 
 $(PATCH)/lvm.c: $(LUA_SRC)/src/lvm.c

@@ -52,6 +52,7 @@ Freely available under the terms of the Lua license.
 
 /* BonaLuna libraries */
 #include "bonaluna.c"
+#include "struct.c"
 
 /* lua */
 #include "lua.c"

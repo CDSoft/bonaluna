@@ -29,9 +29,9 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-0.4.2.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-0.5.0.tgz
 
-:Version: 0.4.2
+:Version: 0.5.0
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -163,6 +163,25 @@ Constants
 
 sys.platform
     `"Linux"` or `"Windows"`
+
+struct: (un)pack structures
+---------------------------
+
+The struct package is taken from
+`Library for Converting Data to and from C Structs for Lua 5.1 <http://www.inf.puc-rio.br/~roberto/struct/>`_
+and adapted for BonaLuna.
+
+Functions
+~~~~~~~~~
+
+struct.pack
+    | `struct.pack(fmt, d1, d2, ...)` returns a string containing the values `d1`, `d2`, etc. packed according to the format string `fmt`.
+
+struct.unpack
+    | `struct.unpack(fmt, s, [i])` returns the values packed in string `s` according to the format string `fmt`. An optional `i` marks where in `s` to start reading (default is 1). After the read values, this function also returns the index in `s` where it stopped reading, which is also where you should start to read the rest of the string.
+
+struct.size
+    | `struct.size(fmt)` returns the size of a string formatted according to the format string `fmt`. For obvious reasons, the format string cannot contain neither the option `s` nor the option `c0`.
 
 Examples
 ========

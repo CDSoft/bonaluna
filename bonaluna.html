@@ -337,9 +337,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-0.4.2.tgz">http://cdsoft.fr/bl/bonaluna-0.4.2.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-0.5.0.tgz">http://cdsoft.fr/bl/bonaluna-0.5.0.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">0.4.2</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">0.5.0</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -349,26 +349,27 @@ in a single executable.</td>
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title first">Table of Contents</p>
 <ul class="auto-toc simple">
-<li><a class="reference internal" href="#lua" id="id4">1&nbsp;&nbsp;&nbsp;Lua</a></li>
-<li><a class="reference internal" href="#bonaluna-packages" id="id5">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a><ul class="auto-toc">
-<li><a class="reference internal" href="#fs-file-system" id="id6">2.1&nbsp;&nbsp;&nbsp;fs: File System</a></li>
-<li><a class="reference internal" href="#ps-processes" id="id7">2.2&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
-<li><a class="reference internal" href="#sys-system-management" id="id8">2.3&nbsp;&nbsp;&nbsp;sys: System management</a></li>
+<li><a class="reference internal" href="#lua" id="id5">1&nbsp;&nbsp;&nbsp;Lua</a></li>
+<li><a class="reference internal" href="#bonaluna-packages" id="id6">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a><ul class="auto-toc">
+<li><a class="reference internal" href="#fs-file-system" id="id7">2.1&nbsp;&nbsp;&nbsp;fs: File System</a></li>
+<li><a class="reference internal" href="#ps-processes" id="id8">2.2&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
+<li><a class="reference internal" href="#sys-system-management" id="id9">2.3&nbsp;&nbsp;&nbsp;sys: System management</a></li>
+<li><a class="reference internal" href="#struct-un-pack-structures" id="id10">2.4&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#examples" id="id9">3&nbsp;&nbsp;&nbsp;Examples</a></li>
+<li><a class="reference internal" href="#examples" id="id11">3&nbsp;&nbsp;&nbsp;Examples</a></li>
 </ul>
 </div>
 <div class="section" id="lua">
-<h1><a class="toc-backref" href="#id4">1&nbsp;&nbsp;&nbsp;Lua</a></h1>
+<h1><a class="toc-backref" href="#id5">1&nbsp;&nbsp;&nbsp;Lua</a></h1>
 <p>The original Lua interpretor and documentation is available
 at <a class="reference external" href="http://www.lua.org">http://www.lua.org</a>.</p>
 <p>BonaLuna is based on Lua 5.2 alpha.</p>
 </div>
 <div class="section" id="bonaluna-packages">
-<h1><a class="toc-backref" href="#id5">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a></h1>
+<h1><a class="toc-backref" href="#id6">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a></h1>
 <div class="section" id="fs-file-system">
-<h2><a class="toc-backref" href="#id6">2.1&nbsp;&nbsp;&nbsp;fs: File System</a></h2>
+<h2><a class="toc-backref" href="#id7">2.1&nbsp;&nbsp;&nbsp;fs: File System</a></h2>
 <div class="section" id="functions">
 <h3>Functions</h3>
 <dl class="docutils">
@@ -471,7 +472,7 @@ modification time of file <cite>name</cite> with the times of file
 </div>
 </div>
 <div class="section" id="ps-processes">
-<h2><a class="toc-backref" href="#id7">2.2&nbsp;&nbsp;&nbsp;ps: Processes</a></h2>
+<h2><a class="toc-backref" href="#id8">2.2&nbsp;&nbsp;&nbsp;ps: Processes</a></h2>
 <div class="section" id="id1">
 <h3>Functions</h3>
 <dl class="docutils">
@@ -484,7 +485,7 @@ modification time of file <cite>name</cite> with the times of file
 </div>
 </div>
 <div class="section" id="sys-system-management">
-<h2><a class="toc-backref" href="#id8">2.3&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
+<h2><a class="toc-backref" href="#id9">2.3&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
 <div class="section" id="id2">
 <h3>Functions</h3>
 <dl class="docutils">
@@ -513,9 +514,35 @@ modification time of file <cite>name</cite> with the times of file
 </dl>
 </div>
 </div>
+<div class="section" id="struct-un-pack-structures">
+<h2><a class="toc-backref" href="#id10">2.4&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></h2>
+<p>The struct package is taken from
+<a class="reference external" href="http://www.inf.puc-rio.br/~roberto/struct/">Library for Converting Data to and from C Structs for Lua 5.1</a>
+and adapted for BonaLuna.</p>
+<div class="section" id="id4">
+<h3>Functions</h3>
+<dl class="docutils">
+<dt>struct.pack</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>struct.pack(fmt, d1, d2, ...)</cite> returns a string containing the values <cite>d1</cite>, <cite>d2</cite>, etc. packed according to the format string <cite>fmt</cite>.</div>
+</div>
+</dd>
+<dt>struct.unpack</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>struct.unpack(fmt, s, [i])</cite> returns the values packed in string <cite>s</cite> according to the format string <cite>fmt</cite>. An optional <cite>i</cite> marks where in <cite>s</cite> to start reading (default is 1). After the read values, this function also returns the index in <cite>s</cite> where it stopped reading, which is also where you should start to read the rest of the string.</div>
+</div>
+</dd>
+<dt>struct.size</dt>
+<dd><div class="first last line-block">
+<div class="line"><cite>struct.size(fmt)</cite> returns the size of a string formatted according to the format string <cite>fmt</cite>. For obvious reasons, the format string cannot contain neither the option <cite>s</cite> nor the option <cite>c0</cite>.</div>
+</div>
+</dd>
+</dl>
+</div>
+</div>
 </div>
 <div class="section" id="examples">
-<h1><a class="toc-backref" href="#id9">3&nbsp;&nbsp;&nbsp;Examples</a></h1>
+<h1><a class="toc-backref" href="#id11">3&nbsp;&nbsp;&nbsp;Examples</a></h1>
 <p>This documentation has been generated by a BonaLuna script.
 <a class="reference external" href="bonaluna.lua">bonaluna.lua</a> also contains some tests.</p>
 </div>

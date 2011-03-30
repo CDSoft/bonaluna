@@ -23,3 +23,6 @@ LUAMOD_API int (luaopen_ps) (lua_State *L);
 
 #define LUA_SYSLIBNAME "sys"
 LUAMOD_API int (luaopen_sys) (lua_State *L);
+
+#define LUA_STRUCTLIBNAME "struct"
+LUAMOD_API int (luaopen_struct) (lua_State *L);
