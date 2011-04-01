@@ -380,6 +380,57 @@ do
 end
 
 doc [[
+rl: readline
+------------
+
+The rl (readline) package is taken from
+`ilua <https://github.com/ilua>`_
+and adapted for BonaLuna.
+]]
+
+doc [[
+Functions
+~~~~~~~~~
+
+rl.read
+    | `rl.read(prompt)` prints `prompt` and returns the string entered by the user.
+
+rl.add
+    | `rl.add(line)` adds `line` to the readline history.
+
+]]
+
+doc [[
+struct: (un)pack structures
+---------------------------
+
+The struct package is taken from
+`Library for Converting Data to and from C Structs for Lua 5.1 <http://www.inf.puc-rio.br/~roberto/struct/>`_
+and adapted for BonaLuna.
+]]
+
+doc [[
+Functions
+~~~~~~~~~
+]]
+
+doc [[
+struct.pack
+    | `struct.pack(fmt, d1, d2, ...)` returns a string containing the values `d1`, `d2`, etc. packed according to the format string `fmt`.
+
+struct.unpack
+    | `struct.unpack(fmt, s, [i])` returns the values packed in string `s` according to the format string `fmt`. An optional `i` marks where in `s` to start reading (default is 1). After the read values, this function also returns the index in `s` where it stopped reading, which is also where you should start to read the rest of the string.
+
+struct.size
+    | `struct.size(fmt)` returns the size of a string formatted according to the format string `fmt`. For obvious reasons, the format string cannot contain neither the option `s` nor the option `c0`.
+]]
+
+do
+    assert(struct.unpack("f", struct.pack("f", 1.0)) == 1.0)
+    assert(struct.unpack("I4", struct.pack("f", 1.0)) == 0x3F800000)
+end
+
+doc [[
 sys: System management
 ----------------------
 ]]
@@ -415,36 +466,6 @@ Constants
 sys.platform
     `"Linux"` or `"Windows"`
 ]]
-
-doc [[
-struct: (un)pack structures
----------------------------
-
-The struct package is taken from
-`Library for Converting Data to and from C Structs for Lua 5.1 <http://www.inf.puc-rio.br/~roberto/struct/>`_
-and adapted for BonaLuna.
-]]
-
-doc [[
-Functions
-~~~~~~~~~
-]]
-
-doc [[
-struct.pack
-    | `struct.pack(fmt, d1, d2, ...)` returns a string containing the values `d1`, `d2`, etc. packed according to the format string `fmt`.
-
-struct.unpack
-    | `struct.unpack(fmt, s, [i])` returns the values packed in string `s` according to the format string `fmt`. An optional `i` marks where in `s` to start reading (default is 1). After the read values, this function also returns the index in `s` where it stopped reading, which is also where you should start to read the rest of the string.
-
-struct.size
-    | `struct.size(fmt)` returns the size of a string formatted according to the format string `fmt`. For obvious reasons, the format string cannot contain neither the option `s` nor the option `c0`.
-]]
-
-do
-    assert(struct.unpack("f", struct.pack("f", 1.0)) == 1.0)
-    assert(struct.unpack("I4", struct.pack("f", 1.0)) == 0x3F800000)
-end
 
 doc [[
 Examples

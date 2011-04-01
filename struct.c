@@ -318,7 +318,7 @@ static int b_unpack (lua_State *L) {
 
 
 
-static const luaL_Reg thislib[] = {
+static const luaL_Reg structlib[] = {
   {"pack", b_pack},
   {"unpack", b_unpack},
   {NULL, NULL}
@@ -327,7 +327,7 @@ static const luaL_Reg thislib[] = {
 
 LUAMOD_API int luaopen_struct (lua_State *L)
 {
-    luaL_newlib(L, thislib);
+    luaL_newlib(L, structlib);
     return 1;
 }
 

@@ -8,7 +8,7 @@
 #
 # Freely available under the terms of the Lua license.
 
-VERSION = 0.5.0
+VERSION = 0.6.0
 
 LUA_SRC = lua-5.2.0-alpha
 LUA_URL = http://www.lua.org/work/$(LUA_SRC).tar.gz
@@ -78,14 +78,6 @@ $(PATCH)/lua.c: $(LUA_SRC)/src/lua.c
 		{print}                                            \
 	' $< > $@
 
-$(PATCH)/one.c: $(LUA_SRC)/etc/one.c
-	mkdir -p $(dir $@)
-	cp $< $@
-	echo "" >> $@
-	echo "/* BonaLuna libraries */" >> $@
-	echo "#include \"bonaluna.c\"" >> $@
-	echo "#include \"struct.c\"" >> $@
-
 $(PATCH)/linit.c: $(LUA_SRC)/src/linit.c
 	mkdir -p $(dir $@)
 	awk '                                                \
@@ -97,6 +89,7 @@ $(PATCH)/linit.c: $(LUA_SRC)/src/linit.c
 			print "  {LUA_PSLIBNAME,  luaopen_ps},";     \
 			print "  {LUA_SYSLIBNAME, luaopen_sys},";    \
 			print "  {LUA_STRUCTLIBNAME, luaopen_struct},"; \
+			print "  {LUA_RLLIBNAME, luaopen_readline},"; \
 			}                                            \
 		{print}                                          \
 	' $< > $@
