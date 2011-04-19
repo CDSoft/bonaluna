@@ -1,6 +1,6 @@
 ..  BonaLuna
 
-..  Copyright (C) 2010 Christophe Delord
+..  Copyright (C) 2010-2011 Christophe Delord
     http://www.cdsoft.fr/bl/bonaluna.html
 
 ..  BonaLuna is based on Lua 5.2 alpha
@@ -25,13 +25,13 @@
 :Contact: cdelord@cdsoft.fr
 :Web: http://cdsoft.fr/bl/bonaluna.html
 :License:
-    | Copyright (C) 2010 Christophe Delord,
+    | Copyright (C) 2010-2011 Christophe Delord,
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-0.6.0.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-0.6.1.tgz
 
-:Version: 0.6.0
+:Version: 0.6.1
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.

@@ -1,6 +1,6 @@
 # BonaLuna
 #
-# Copyright (C) 2010 Christophe Delord
+# Copyright (C) 2010-2011 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
 # BonaLuna is based on Lua 5.2 alpha
@@ -8,7 +8,7 @@
 #
 # Freely available under the terms of the Lua license.
 
-VERSION = 0.6.0
+VERSION = 0.6.1
 
 LUA_SRC = lua-5.2.0-alpha
 LUA_URL = http://www.lua.org/work/$(LUA_SRC).tar.gz
@@ -103,6 +103,6 @@ $(PATCH)/lparser.c: $(LUA_SRC)/src/lparser.c
 	sed 's/pushclosure/lparser_pushclosure/g' $< > $@
 
 bonaluna.html: $(BL) bonaluna.lua
-	$(BL) bonaluna.lua
+	./$(BL) bonaluna.lua
 	LANG=en rst2html --section-numbering --language=en --cloak-email-addresses bonaluna.rst > $@
 
