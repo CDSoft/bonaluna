@@ -11,7 +11,7 @@ Freely available under the terms of the Lua license.
 --]]
 
 do
-    local bl_rst = "bonaluna.rst"
+    local bl_rst = "../doc/bonaluna.rst"
     function doc(txt)
         local f = assert(io.open(bl_rst, "a"))
         f:write(txt)
@@ -77,7 +77,7 @@ Lua
 The original Lua interpretor and documentation is available
 at http://www.lua.org.
 
-BonaLuna is based on ]].._VERSION..[[ alpha.
+BonaLuna is based on `]].._VERSION..[[ alpha <lua/contents.html>`__.
 
 BonaLuna packages
 =================
@@ -101,8 +101,18 @@ fs.chdir
     | `fs.chdir(path)` changes the current directory to `path`.
 ]]
 
+function rm_rf(path)
+    local files = fs.dir(path)
+    if files then
+        for i = 1, #files do
+            fs.remove(path..fs.sep..files[i].name)
+        end
+    end
+    fs.remove(path)
+end
+
 do
-    os.execute("rm -rf foo")
+    rm_rf "foo"
     local old_path = assert(fs.getcwd())
     assert(fs.mkdir("foo"))
     assert(fs.chdir("foo"))
@@ -113,7 +123,7 @@ do
     assert(fs.getcwd() == new_path)
     assert(fs.chdir(old_path))
     assert(fs.getcwd() == old_path)
-    os.execute("rm -rf foo")
+    rm_rf "foo"
 end
 
 doc [[
@@ -135,7 +145,7 @@ fs.remove
 ]]
 
 do
-    os.execute("rm -rf foo")
+    rm_rf "foo"
     assert(fs.mkdir("foo"))
     io.open("foo/file1.c", "w"):close()
     assert(fs.mkdir("foo/bar"))
@@ -178,7 +188,7 @@ do
     check_foo3(fs.dir("foo"))
     assert(fs.remove("foo/file3.lua"))
     assert(#fs.dir("foo")==0)
-    os.execute("rm -rf foo")
+    rm_rf "foo"
 end
 
 doc [[
@@ -203,6 +213,10 @@ do
     f:close()
     assert(fs.stat("answer-2").mode == fs.stat("answer").mode)
     assert(fs.stat("answer-2").mtime == 42)
+    if sys.platform == "Windows" then
+        assert(fs.chmod("answer", fs.aR, fs.aW))
+        assert(fs.chmod("answer-2", fs.aR, fs.aW))
+    end
     fs.remove("answer")
     fs.remove("answer-2")
 end
@@ -243,7 +257,7 @@ do
             assert(st.oX == attrs.oX)
         end
     end
-    os.execute("rm -rf foo")
+    rm_rf "foo"
     fs.mkdir("foo")
     check("foo", { name="foo", type="directory",
                    mtime=os.time(), atime=os.time(), ctime=os.time(),
@@ -251,7 +265,7 @@ do
                    gR=true, gW=false, gX=true,
                    oR=true, oW=false, oX=true,
     })
-    os.execute("rm -rf foo")
+    rm_rf "foo"
 end
 
 doc [[
@@ -466,6 +480,68 @@ Constants
 sys.platform
     `"Linux"` or `"Windows"`
 ]]
+
+doc [[
+Self running scripts
+====================
+
+It is possible to add scripts to the BonaLuna interpretor
+to make a single executable file containing the interpretor
+and some BonaLuna scripts.
+
+This feature is inspired by `srlua`.
+
+`glue.lua` parameters
+---------------------
+
+`read:original_interpretor`
+    reads the initial interpretor
+
+`lua:script.lua`
+    adds a script to be executed at runtime
+
+`lua:script.lua=realname.lua`
+    as above but stored under a different name
+
+`str:name=value`
+    creates a global variable holding a string
+
+`str:name=@filename`
+    as above but the string is the content of a file
+
+`file:name`
+    adds a file to be created at runtime (the file is not overwritten if it already exists)
+
+`file:name=realname`
+    as above but stored under a different name
+
+`dir:name`
+    creates a directory at runtime
+
+`write:new_executable`
+    write a new executable containing the original interpretor and all the added items
+
+]]
+
+do
+    local stub = arg[-1]
+    os.remove "/tmp/hello.exe"
+    os.remove "/tmp/hello.flag2"
+    os.remove "/tmp/hello.dir"
+    local f = io.open("/tmp/hello.lua", "w")
+    f:write [[ print(my_constant*14) ]]
+    f:close()
+    f = io.open("/tmp/exit.lua", "w")
+    f:write [[ os.exit() ]]
+    f:close()
+    f = io.open("/tmp/hello.flag", "w")
+    f:write [[ hi ]]
+    f:close()
+    os.execute(stub.." ../tools/glue.lua read:"..stub.." file:/tmp/hello.flag2=/tmp/hello.flag dir:/tmp/hello.dir str:my_constant=3 lua:hello.lua=/tmp/hello.lua lua:exit.lua=/tmp/exit.lua write:/tmp/hello.exe >/dev/null")
+    assert(tonumber(io.popen("/tmp/hello.exe"):read("*a")) == 42)
+    assert(io.open("/tmp/hello.flag2", "rb"):read("*a") == [[ hi ]])
+    assert(fs.stat("/tmp/hello.dir").type == "directory")
+end
 
 doc [[
 Examples

@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.7: http://docutils.sourceforge.net/" />
 <title>BonaLuna</title>
 <style type="text/css">
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 5951 2009-05-18 18:03:10Z milde $
+:Id: $Id: html4css1.css 6253 2010-03-02 00:24:53Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -157,15 +157,21 @@ h2.subtitle {
 hr.docutils {
   width: 75% }
 
-img.align-left, .figure.align-left{
+img.align-left, .figure.align-left, object.align-left {
   clear: left ;
   float: left ;
   margin-right: 1em }
 
-img.align-right, .figure.align-right {
+img.align-right, .figure.align-right, object.align-right {
   clear: right ;
   float: right ;
   margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 
 .align-left {
   text-align: left }
@@ -337,9 +343,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-0.6.1.tgz">http://cdsoft.fr/bl/bonaluna-0.6.1.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-1.0.0.tgz">http://cdsoft.fr/bl/bonaluna-1.0.0.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">0.6.1</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">1.0.0</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -358,14 +364,18 @@ in a single executable.</td>
 <li><a class="reference internal" href="#sys-system-management" id="id12">2.5&nbsp;&nbsp;&nbsp;sys: System management</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#examples" id="id13">3&nbsp;&nbsp;&nbsp;Examples</a></li>
+<li><a class="reference internal" href="#self-running-scripts" id="id13">3&nbsp;&nbsp;&nbsp;Self running scripts</a><ul class="auto-toc">
+<li><a class="reference internal" href="#glue-lua-parameters" id="id14">3.1&nbsp;&nbsp;&nbsp;<cite>glue.lua</cite> parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples" id="id15">4&nbsp;&nbsp;&nbsp;Examples</a></li>
 </ul>
 </div>
 <div class="section" id="lua">
 <h1><a class="toc-backref" href="#id6">1&nbsp;&nbsp;&nbsp;Lua</a></h1>
 <p>The original Lua interpretor and documentation is available
 at <a class="reference external" href="http://www.lua.org">http://www.lua.org</a>.</p>
-<p>BonaLuna is based on Lua 5.2 alpha.</p>
+<p>BonaLuna is based on <a class="reference external" href="lua/contents.html">Lua 5.2 alpha</a>.</p>
 </div>
 <div class="section" id="bonaluna-packages">
 <h1><a class="toc-backref" href="#id7">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a></h1>
@@ -563,8 +573,38 @@ and adapted for BonaLuna.</p>
 </div>
 </div>
 </div>
+<div class="section" id="self-running-scripts">
+<h1><a class="toc-backref" href="#id13">3&nbsp;&nbsp;&nbsp;Self running scripts</a></h1>
+<p>It is possible to add scripts to the BonaLuna interpretor
+to make a single executable file containing the interpretor
+and some BonaLuna scripts.</p>
+<p>This feature is inspired by <cite>srlua</cite>.</p>
+<div class="section" id="glue-lua-parameters">
+<h2><a class="toc-backref" href="#id14">3.1&nbsp;&nbsp;&nbsp;<cite>glue.lua</cite> parameters</a></h2>
+<dl class="docutils">
+<dt><cite>read:original_interpretor</cite></dt>
+<dd>reads the initial interpretor</dd>
+<dt><cite>lua:script.lua</cite></dt>
+<dd>adds a script to be executed at runtime</dd>
+<dt><cite>lua:script.lua=realname.lua</cite></dt>
+<dd>as above but stored under a different name</dd>
+<dt><cite>str:name=value</cite></dt>
+<dd>creates a global variable holding a string</dd>
+<dt><cite>str:name=&#64;filename</cite></dt>
+<dd>as above but the string is the content of a file</dd>
+<dt><cite>file:name</cite></dt>
+<dd>adds a file to be created at runtime (the file is not overwritten if it already exists)</dd>
+<dt><cite>file:name=realname</cite></dt>
+<dd>as above but stored under a different name</dd>
+<dt><cite>dir:name</cite></dt>
+<dd>creates a directory at runtime</dd>
+<dt><cite>write:new_executable</cite></dt>
+<dd>write a new executable containing the original interpretor and all the added items</dd>
+</dl>
+</div>
+</div>
 <div class="section" id="examples">
-<h1><a class="toc-backref" href="#id13">3&nbsp;&nbsp;&nbsp;Examples</a></h1>
+<h1><a class="toc-backref" href="#id15">4&nbsp;&nbsp;&nbsp;Examples</a></h1>
 <p>This documentation has been generated by a BonaLuna script.
 <a class="reference external" href="bonaluna.lua">bonaluna.lua</a> also contains some tests.</p>
 </div>

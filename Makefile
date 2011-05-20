@@ -1,108 +1,38 @@
 # BonaLuna
-#
-# Copyright (C) 2010-2011 Christophe Delord
-# http://cdsoft.fr/bl/bonaluna.html
-#
-# BonaLuna is based on Lua 5.2 alpha
-# Copyright (C) 2010 Lua.org, PUC-Rio.
-#
-# Freely available under the terms of the Lua license.
 
-VERSION = 0.6.1
+BUILD = build.sh
+DEPENDENCIES = Makefile VERSION src/$(BUILD) $(wildcard src/*.c) $(wildcard src/*.h) $(wildcard src/*.lua) $(wildcard tools/*.lua)
 
-LUA_SRC = lua-5.2.0-alpha
-LUA_URL = http://www.lua.org/work/$(LUA_SRC).tar.gz
-
-PATCH = patch
-BONALUNA_PATCH = $(PATCH)/linit.c $(PATCH)/lua.c $(PATCH)/lvm.c $(PATCH)/lparser.c
-BONALUNA_SRC = bonaluna.c bonaluna.h bl.c struct.c
-
-CC_OPTS = -O2 -std=gnu99
-CC_LIBS = -lm
-
-LUA_CONF =
-BONALUNA_CONF = -DVERSION=\"$(VERSION)\"
-
-UNAME=$(shell uname)
+UNAME = $(shell uname)
 
 ifneq "$(findstring Linux,$(UNAME))" ""
-PLATFORM = Linux
-BL       = bl
-LUA_CONF += -DLUA_USE_POSIX -DLUA_USE_DLOPEN -DLUA_USE_READLINE
-CC_LIBS  += -ldl -lreadline
-DOC      = bonaluna.html
+
+all: bl bl64 bl.exe
+
+bl: $(DEPENDENCIES)
+	cd src && $(BUILD) linux $@ gcc 32
+	mv src/$@ $@
+
+bl64: $(DEPENDENCIES)
+	cd src && $(BUILD) linux64 $@ gcc 64
+	mv src/$@ $@
+
+bl.exe: $(DEPENDENCIES)
+	cd src && $(BUILD) win32 $@ i586-mingw32msvc-gcc 32
+	mv src/$@ $@
+
 endif
+
 ifneq "$(findstring MINGW32,$(UNAME))" ""
-PLATFORM = Windows
-BL       = bl.exe
-CC_LIBS  += -lws2_32
-endif
 
-ifneq "$(PLATFORM)" ""
-$(info **************************)
-$(info * BonaLuna for $(PLATFORM))
-$(info **************************)
-BONALUNA_CONF += -DBONALUNA_PLATFORM=\"$(PLATFORM)\"
-else
-$(error Unknown platform: $(UNAME))
-endif
+all: bl.exe
 
-all: $(BL) $(DOC)
+bl.exe: $(DEPENDENCIES)
+	cd src && $(BUILD) win32 $@ gcc 32
+	mv src/$@ $@
+
+endif
 
 clean:
-	rm -f $(BL)
-	rm -rf $(LUA_SRC) $(PATCH)
-
-$(LUA_SRC): $(notdir $(LUA_URL))
-	tar xzf $<
-	touch $@
-
-$(notdir $(LUA_URL)):
-	wget $(LUA_URL) -O $@
-
-$(BL): $(LUA_SRC) $(BONALUNA_PATCH) $(BONALUNA_SRC)
-	gcc $(CC_OPTS) $(LUA_CONF) $(BONALUNA_CONF) \
-		-I. -I$(PATCH) \
-		-I$(LUA_SRC)/include \
-		-I$(LUA_SRC)/src \
-		bl.c -o $@ \
-		$(CC_LIBS)
-	strip $@
-
-$(PATCH)/lua.c: $(LUA_SRC)/src/lua.c
-	mkdir -p $(dir $@)
-	awk '                                                  \
-		/LUA_COPYRIGHT/ {                                  \
-			print "printf(\"%s\\n\", BONALUNA_COPYRIGHT);" \
-		}                                                  \
-		{print}                                            \
-	' $< > $@
-
-$(PATCH)/linit.c: $(LUA_SRC)/src/linit.c
-	mkdir -p $(dir $@)
-	awk '                                                \
-		/lauxlib.h/ {                                    \
-			print "#include \"bonaluna.h\""              \
-		}                                                \
-		/LUA_MATHLIBNAME/ {                              \
-			print "  {LUA_FSLIBNAME,  luaopen_fs},";     \
-			print "  {LUA_PSLIBNAME,  luaopen_ps},";     \
-			print "  {LUA_SYSLIBNAME, luaopen_sys},";    \
-			print "  {LUA_STRUCTLIBNAME, luaopen_struct},"; \
-			print "  {LUA_RLLIBNAME, luaopen_readline},"; \
-			}                                            \
-		{print}                                          \
-	' $< > $@
-
-$(PATCH)/lvm.c: $(LUA_SRC)/src/lvm.c
-	mkdir -p $(dir $@)
-	sed 's/pushclosure/lvm_pushclosure/g' $< > $@
-
-$(PATCH)/lparser.c: $(LUA_SRC)/src/lparser.c
-	mkdir -p $(dir $@)
-	sed 's/pushclosure/lparser_pushclosure/g' $< > $@
-
-bonaluna.html: $(BL) bonaluna.lua
-	./$(BL) bonaluna.lua
-	LANG=en rst2html --section-numbering --language=en --cloak-email-addresses bonaluna.rst > $@
-
+	cd src && $(BUILD) --clean
+	rm -f bl bl64 bl.exe

@@ -55,6 +55,9 @@ Freely available under the terms of the Lua license.
 #include "struct.c"
 #include "readline.c"
 
+/* BonaLuna "glue" */
+#include "glue.c"
+
 /* lua */
 #include "lua.c"
 

@@ -29,9 +29,9 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-0.6.1.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-1.0.0.tgz
 
-:Version: 0.6.1
+:Version: 1.0.0
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -48,7 +48,7 @@ Lua
 The original Lua interpretor and documentation is available
 at http://www.lua.org.
 
-BonaLuna is based on Lua 5.2 alpha.
+BonaLuna is based on `Lua 5.2 alpha <lua/contents.html>`__.
 
 BonaLuna packages
 =================
@@ -199,6 +199,46 @@ Constants
 
 sys.platform
     `"Linux"` or `"Windows"`
+
+Self running scripts
+====================
+
+It is possible to add scripts to the BonaLuna interpretor
+to make a single executable file containing the interpretor
+and some BonaLuna scripts.
+
+This feature is inspired by `srlua`.
+
+`glue.lua` parameters
+---------------------
+
+`read:original_interpretor`
+    reads the initial interpretor
+
+`lua:script.lua`
+    adds a script to be executed at runtime
+
+`lua:script.lua=realname.lua`
+    as above but stored under a different name
+
+`str:name=value`
+    creates a global variable holding a string
+
+`str:name=@filename`
+    as above but the string is the content of a file
+
+`file:name`
+    adds a file to be created at runtime (the file is not overwritten if it already exists)
+
+`file:name=realname`
+    as above but stored under a different name
+
+`dir:name`
+    creates a directory at runtime
+
+`write:new_executable`
+    write a new executable containing the original interpretor and all the added items
+
 
 Examples
 ========

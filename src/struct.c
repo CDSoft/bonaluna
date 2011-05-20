@@ -33,7 +33,7 @@
         read number as the string length
 ** s - zero-terminated string
 ** f - float
-** d - doulbe
+** d - double
 ** ' ' - ignored
 */
 
