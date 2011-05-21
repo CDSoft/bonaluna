@@ -76,6 +76,17 @@ static int glue(lua_State *L, char **argv)
 
     /* open the glue */
     f = fopen(argv[0], "rb");
+    if (f == NULL)
+    {
+        char exename[BL_PATHSIZE];
+#ifdef __MINGW32__
+        if (!GetModuleFileName(NULL, exename, sizeof(exename))) cant("find", argv[0]);
+        f = fopen(exename, "rb");
+#else
+        sprintf(exename, "/proc/%d/exe", getpid());
+        f = fopen(exename, "rb");
+#endif
+    }
     if (f==NULL) cant("open", argv[0]);
 
     /* search for the start block */
