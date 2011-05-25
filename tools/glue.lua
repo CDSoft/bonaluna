@@ -14,15 +14,15 @@ glue.lua usage:
     write:bl2.exe           write a new executable
 ]]
 
-START_SIG       = 0x474C5545
-END_SIG         = 0x23454E44
+START_SIG       = 0x45554C47
+END_SIG         = 0x444E4523
 
-LUA_BLOCK       = 0x234C5541
-STRING_BLOCK    = 0x23535452
-FILE_BLOCK      = 0x23524553
-DIR_BLOCK       = 0x23444952
+LUA_BLOCK       = 0x41554C23
+STRING_BLOCK    = 0x52545323
+FILE_BLOCK      = 0x53455223
+DIR_BLOCK       = 0x52494423
 
-compile = true -- also define COMPILE in glue.c
+COMPILE = true  -- also define COMPILE in glue.c
 
 stub = nil      -- BonaLuna executable
 glue = ""       -- additional blocks
@@ -83,7 +83,7 @@ function do_lua(name)
     local script_name, real_name = string.match(name, "^(.+)=(.+)$")
     if not script_name then script_name = name real_name = name end
     local content
-    if not compile then
+    if not COMPILE then
         local f = assert(io.open(real_name, "rb"))
         content = assert(f:read "*a")
         f:close()

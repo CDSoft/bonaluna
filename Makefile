@@ -7,7 +7,7 @@ UNAME = $(shell uname)
 
 ifneq "$(findstring Linux,$(UNAME))" ""
 
-all: bl bl64 bl.exe
+all: bl.exe bl bl64
 
 bl: $(DEPENDENCIES)
 	cd src && $(BUILD) linux $@ gcc 32

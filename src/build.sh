@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# TODO: doc : doc bl + lua
-#           /doc : doc bl avec un lien vers ./lua/content.html
-#           /doc/lua : doc lua
-
 BUILD=build
 
 LUA_SRC=lua-5.2.0-alpha
@@ -217,13 +213,11 @@ cp $TARGET/$BL .
 # Documentation and tests
 #########################
 
-if [ $PLATFORM = Linux ]
+./$BL bonaluna.lua || error "Non regression tests failed"
+RST2HTML=$(which rst2html 2>/dev/null || which rst2html.py 2>/dev/null)
+if [ -x "$RST2HTML" ]
 then
-    ./$BL bonaluna.lua || error "Non regression tests failed"
-    if [ -x /usr/bin/rst2html ]
-    then
-        mkdir -p ../doc/lua
-        cp -f $LUA_SRC/doc/* ../doc/lua/
-        LANG=en rst2html --section-numbering --language=en --cloak-email-addresses ../doc/bonaluna.rst > ../doc/bonaluna.html
-    fi
+    mkdir -p ../doc/lua
+    cp -f $LUA_SRC/doc/* ../doc/lua/
+    LANG=en $RST2HTML --section-numbering --language=en --cloak-email-addresses ../doc/bonaluna.rst > ../doc/bonaluna.html
 fi

@@ -525,22 +525,31 @@ This feature is inspired by `srlua`.
 
 do
     local stub = arg[-1]
-    os.remove "/tmp/hello.exe"
-    os.remove "/tmp/hello.flag2"
-    os.remove "/tmp/hello.dir"
-    local f = io.open("/tmp/hello.lua", "w")
-    f:write [[ print(my_constant*14) ]]
+    rm_rf "tmp"
+    assert(fs.mkdir "tmp")
+    local f = io.open("tmp/hello.lua", "w")
+    f:write [[
+        assert(arg[-1]:gsub(".*"..fs.sep, "") == "hello.exe")
+        assert(arg[0] == "hello.lua")
+        assert(arg[1] == "a")
+        assert(arg[2] == "b")
+        assert(arg[3] == "c")
+        print(my_constant*14)
+    ]]
     f:close()
-    f = io.open("/tmp/exit.lua", "w")
+    f = io.open("tmp/exit.lua", "w")
     f:write [[ os.exit() ]]
     f:close()
-    f = io.open("/tmp/hello.flag", "w")
+    f = io.open("tmp/hello.flag", "w")
     f:write [[ hi ]]
     f:close()
-    os.execute(stub.." ../tools/glue.lua read:"..stub.." file:/tmp/hello.flag2=/tmp/hello.flag dir:/tmp/hello.dir str:my_constant=3 lua:hello.lua=/tmp/hello.lua lua:exit.lua=/tmp/exit.lua write:/tmp/hello.exe >/dev/null")
-    assert(tonumber(io.popen("/tmp/hello.exe"):read("*a")) == 42)
-    assert(io.open("/tmp/hello.flag2", "rb"):read("*a") == [[ hi ]])
-    assert(fs.stat("/tmp/hello.dir").type == "directory")
+    if sys.platform == 'Windows' then null = "> NUL" else null = "> /dev/null" end
+    os.execute(stub.." ../tools/glue.lua read:"..stub.." file:tmp/hello.flag2=tmp/hello.flag dir:tmp/hello.dir str:my_constant=3 lua:hello.lua=tmp/hello.lua lua:exit.lua=tmp/exit.lua write:tmp/hello.exe "..null)
+    assert(fs.stat("tmp/hello.exe"))
+    assert(tonumber(io.popen("tmp"..fs.sep.."hello.exe a b c"):read("*a")) == 42)
+    assert(io.open("tmp/hello.flag2", "rb"):read("*a") == [[ hi ]])
+    assert(fs.stat("tmp/hello.dir").type == "directory")
+    rm_rf "tmp"
 end
 
 doc [[
