@@ -98,7 +98,8 @@ function do_lua(name)
     local f = assert(io.open(real_name, "rb"))
     local content = assert(f:read "*a")
     f:close()
-    local compiled_content = string.dump(assert(loadstring(content, name)))
+    content = content:gsub("^#!.-([\r\n])", "%1")  -- loadstring doesn't like "#!..."
+    local compiled_content = string.dump(assert(loadstring(content, script_name)))
     local compressed_content = lzo.compress(content)
     local compressed_compiled_content = lzo.compress(compiled_content)
 

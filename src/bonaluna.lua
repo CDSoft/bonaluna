@@ -649,7 +649,7 @@ do
             rm_rf "tmp"
             assert(fs.mkdir "tmp")
             local f = io.open("tmp/hello.lua", "w")
-            f:write [[
+            f:write [[#! the shebang that loadstring doesn't like
                 assert(fs.basename(arg[-1]) == "hello.exe")
                 assert(arg[0] == "hello.lua")
                 assert(arg[1] == "a")
@@ -659,6 +659,7 @@ do
                 print(my_constant*14)
             ]]
             f:write("\n--"..string.rep("a big compressible and useless comment...", 10000).."\n")
+            f:write("z = [["..string.rep("a big compressible and useless string...", 10000).."]]\n")
             f:close()
             f = io.open("tmp/exit.lua", "w")
             f:write [[ os.exit() ]]

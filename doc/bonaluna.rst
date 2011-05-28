@@ -29,9 +29,9 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-1.1.0.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-1.1.1.tgz
 
-:Version: 1.1.0
+:Version: 1.1.1
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
