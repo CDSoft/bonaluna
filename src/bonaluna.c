@@ -218,7 +218,7 @@ static int fs_stat(lua_State *L)
     if (stat(path, &buf)==0)
     {
 #define STRING(VAL, ATTR) lua_pushstring(L, VAL); lua_setfield(L, -2, ATTR)
-#define INTEGER(VAL, ATTR) lua_pushinteger(L, VAL); lua_setfield(L, -2, ATTR)
+#define INTEGER(VAL, ATTR) lua_pushunsigned(L, VAL); lua_setfield(L, -2, ATTR)
         lua_newtable(L); /* stat */
         STRING(path, "name");
         INTEGER(buf.st_size, "size");
@@ -303,8 +303,57 @@ static int fs_touch(lua_State *L)
     return bl_pushresult(L, utime(path, &t) == 0, path);
 }
 
+static int fs_basename(lua_State *L)
+{
+    char path[BL_PATHSIZE];
+    strncpy(path, luaL_checkstring(L, 1), BL_PATHSIZE);
+    path[BL_PATHSIZE] = '\0';
+    char *p = path;
+    while (*p) p++;
+    while (p>path && (*(p-1)=='/' || *(p-1)=='\\')) *--p = '\0';
+    while (p>path && (*(p-1)!='/' && *(p-1)!='\\')) p--;
+    lua_pushstring(L, p);
+    return 1;
+}
+
+static int fs_dirname(lua_State *L)
+{
+    char path[BL_PATHSIZE];
+    strncpy(path, luaL_checkstring(L, 1), BL_PATHSIZE);
+    path[BL_PATHSIZE] = '\0';
+    char *p = path;
+    while (*p) p++;
+    while (p>path && (*(p-1)=='/' || *(p-1)=='\\')) *--p = '\0';
+    while (p>path && (*(p-1)!='/' && *(p-1)!='\\')) *--p = '\0';
+    while (p>path && (*(p-1)=='/' || *(p-1)=='\\')) *--p = '\0';
+    lua_pushstring(L, path);
+    return 1;
+}
+
+static int fs_absname(lua_State *L)
+{
+    char path[BL_PATHSIZE];
+    const char *name = luaL_checkstring(L, 1);
+    if (  name[0] == '/' || name[0] == '\\'
+       || name[0] && name[1] == ':'
+       )
+    {
+        /* already an absolute path */
+        lua_pushstring(L, name);
+        return 1;
+    }
+    getcwd(path, BL_PATHSIZE);
+    strncat(path, LUA_DIRSEP, BL_PATHSIZE-strlen(path));
+    strncat(path, name, BL_PATHSIZE-strlen(path));
+    lua_pushstring(L, path);
+    return 1;
+}
+
 static const luaL_Reg fslib[] =
 {
+    {"basename",    fs_basename},
+    {"dirname",     fs_dirname},
+    {"absname",     fs_absname},
     {"getcwd",      fs_getcwd},
     {"chdir",       fs_chdir},
     {"dir",         fs_dir},
@@ -323,7 +372,7 @@ LUAMOD_API int luaopen_fs (lua_State *L)
     //luaL_register(L, LUA_FSLIBNAME, fslib);
     luaL_newlib(L, fslib);
 #define STRING(NAME, VAL) lua_pushliteral(L, VAL); lua_setfield(L, -2, NAME)
-#define INTEGER(NAME, VAL) lua_pushinteger(L, VAL); lua_setfield(L, -2, NAME)
+#define INTEGER(NAME, VAL) lua_pushunsigned(L, VAL); lua_setfield(L, -2, NAME)
     /* File separator */
     STRING("sep", LUA_DIRSEP);
     /* File permission bits */
@@ -346,6 +395,7 @@ LUAMOD_API int luaopen_fs (lua_State *L)
     INTEGER("oX", S_IXOTH);
 #endif
 #undef STRING
+#undef INTEGER
     return 1;
 }
 
@@ -424,7 +474,7 @@ static int sys_hostid(lua_State *L)
 #ifdef __MINGW32__
     return bl_pusherror(L, "gethostid not defined by mingw");
 #else
-    lua_pushinteger(L, gethostid());
+    lua_pushunsigned(L, gethostid());
     return 1;
 #endif
 }
@@ -444,6 +494,138 @@ LUAMOD_API int luaopen_sys (lua_State *L)
 #define STRING(NAME, VAL) lua_pushliteral(L, VAL); lua_setfield(L, -2, NAME)
     STRING("platform", BONALUNA_PLATFORM);
 #undef STRING
+    return 1;
+}
+
+/*******************************************************************/
+/* lzo: lzo compression library                                    */
+/*******************************************************************/
+
+static int bl_lzo_adler(lua_State *L)
+{
+    lzo_uint32 adler;
+    const lzo_bytep buf;
+    lzo_uint len;
+    if (lua_isnoneornil(L, 2))
+    {
+        adler = 0;
+        buf = luaL_checkstring(L, 1);
+        len = lua_rawlen(L, 1);
+    }
+    else
+    {
+        adler = luaL_checknumber(L, 1);
+        buf = luaL_checkstring(L, 2);
+        len = lua_rawlen(L, 2);
+    }
+    lua_pushunsigned(L, lzo_adler32(adler, buf, len));
+    return 1;
+}
+
+#define LZO_SIG 0x004F5A4C
+
+typedef struct
+{
+    lzo_uint32  sig;
+    lzo_uint32  len;
+} t_lzo_header;
+
+#define HEAP_ALLOC(var,size) \
+    lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
+
+static int bl_lzo_compress(lua_State *L)
+{
+    HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
+    const lzo_bytep src = luaL_checkstring(L, 1);
+    lzo_uint src_len = lua_rawlen(L, 1);
+    lzo_uint dst_len = src_len + src_len/16 + 64 + 3 + sizeof(t_lzo_header);
+    lzo_bytep dst = (lzo_bytep)malloc(sizeof(lzo_byte)*dst_len);
+
+    int r = lzo1x_1_compress(src, src_len, dst+sizeof(t_lzo_header), &dst_len, wrkmem);
+    if (r != LZO_E_OK)
+    {
+        free(dst);
+        lua_pushnil(L);
+        lua_pushfstring(L, "lzo error - compression failed: %d", r);
+        return 2;
+    }
+    lua_pop(L, 1);
+    ((t_lzo_header*)dst)->sig = LZO_SIG;
+    ((t_lzo_header*)dst)->len = src_len;
+
+    lua_pushlstring(L, dst, (size_t)(dst_len+sizeof(t_lzo_header)));
+    free(dst);
+
+    return 1;
+}
+
+static int bl_lzo_decompress(lua_State *L)
+{
+    const lzo_bytep src = luaL_checkstring(L, 1);
+    lzo_uint src_len = lua_rawlen(L, 1);
+    if (((t_lzo_header*)src)->sig != LZO_SIG)
+    {
+        lua_pushnil(L);
+        lua_pushstring(L, "lzo error - not a compressed string");
+        return 2;
+    }
+    lzo_uint dst_len = ((t_lzo_header*)src)->len;
+    lzo_bytep dst = (lzo_bytep)malloc(sizeof(lzo_byte)*dst_len);
+
+    int r = lzo1x_decompress_safe(src+sizeof(t_lzo_header), src_len-sizeof(t_lzo_header), dst, &dst_len, NULL);
+    if (r != LZO_E_OK)
+    {
+        free(dst);
+        lua_pushnil(L);
+        lua_pushfstring(L, "lzo error - decompression failed: %d", r);
+        return 2;
+    }
+    lua_pop(L, 1);
+
+    lua_pushlstring(L, dst, (size_t)dst_len);
+    free(dst);
+    return 1;
+}
+
+#define LZO_E_NOT_LZO 1
+
+static int C_lzo_decompress(const lzo_bytep src, lzo_uint src_len, lzo_bytep *dst, lzo_uint *dst_len)
+{
+    if (((t_lzo_header*)src)->sig != LZO_SIG) return LZO_E_NOT_LZO;
+    *dst_len = ((t_lzo_header*)src)->len;
+    *dst = (lzo_bytep)malloc(sizeof(lzo_byte)*(*dst_len));
+    int r = lzo1x_decompress_safe(src+sizeof(t_lzo_header), src_len-sizeof(t_lzo_header), *dst, dst_len, NULL);
+    if (r != LZO_E_OK)
+    {
+        free(*dst);
+        return r;
+    }
+    return LZO_E_OK;
+}
+
+static const luaL_Reg lzolib[] =
+{
+    {"adler", bl_lzo_adler},
+    {"compress", bl_lzo_compress},
+    {"decompress", bl_lzo_decompress},
+    {NULL, NULL}
+};
+
+LUAMOD_API int luaopen_lzo (lua_State *L)
+{
+    if (lzo_init() != LZO_E_OK)
+    {
+        luaL_error(L, "lzo error - lzo_init() failed !!!");
+    }
+    luaL_newlib(L, lzolib);
+#define STRING(NAME, VAL) lua_pushstring(L, VAL); lua_setfield(L, -2, NAME)
+#define INTEGER(NAME, VAL) lua_pushunsigned(L, VAL); lua_setfield(L, -2, NAME)
+    STRING("copyright", lzo_copyright());
+    INTEGER("version", lzo_version());
+    STRING("version_string", lzo_version_string());
+    STRING("version_date", lzo_version_date());
+#undef STRING
+#undef INTEGER
     return 1;
 }
 

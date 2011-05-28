@@ -29,3 +29,6 @@ LUAMOD_API int (luaopen_struct) (lua_State *L);
 
 #define LUA_RLLIBNAME "rl"
 LUAMOD_API int (luaopen_readline) (lua_State *L);
+
+#define LUA_LZOLIBNAME "lzo"
+LUAMOD_API int (luaopen_lzo) (lua_State *L);

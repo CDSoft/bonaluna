@@ -4,6 +4,8 @@ BUILD=build
 
 LUA_SRC=lua-5.2.0-alpha
 LUA_URL=http://www.lua.org/work/$LUA_SRC.tar.gz
+LZO_SRC=minilzo.205
+LZO_URL=http://www.oberhumer.com/opensource/lzo/download/minilzo-2.05.tar.gz
 
 function error()
 {
@@ -74,11 +76,15 @@ BONALUNA_CONF="$BONALUNA_CONF -DBONALUNA_PLATFORM=\"$PLATFORM\""
 [ -e $(basename $LUA_URL) ] || wget $LUA_URL
 [ -e $LUA_SRC ] || tar xzf $(basename $LUA_URL)
 
+[ -e $(basename $LZO_URL) ] || wget $LZO_URL
+[ -e $LZO_SRC ] || tar xzf $(basename $LZO_URL)
+
 # Target initialisation
 #######################
 
 mkdir -p $TARGET
 cp -f $LUA_SRC/src/* $TARGET/
+cp -f $LZO_SRC/*.{c,h} $TARGET/
 
 # BonaLuna patches
 ##################
@@ -107,6 +113,7 @@ awk '
         print "  {LUA_SYSLIBNAME, luaopen_sys},"
         print "  {LUA_STRUCTLIBNAME, luaopen_struct},"
         print "  {LUA_RLLIBNAME, luaopen_readline},"
+        print "  {LUA_LZOLIBNAME, luaopen_lzo},"
         }
     {print}
 ' $LUA_SRC/src/linit.c > $TARGET/linit.c
@@ -200,6 +207,11 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
     {print}
 ' $TARGET/linit.c > /tmp/linit.c
 [ $BITS = 64 ] && mv /tmp/linit.c $TARGET/linit.c
+
+# LZO patches
+#############
+
+sed -i 's/__LZO_IN_MINLZO/__LZO_IN_MINILZO/g' $TARGET/minilzo.c
 
 # Compilation
 #############

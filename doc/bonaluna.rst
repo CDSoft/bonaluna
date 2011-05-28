@@ -29,9 +29,9 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-1.0.2.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-1.1.0.tgz
 
-:Version: 1.0.2
+:Version: 1.1.0
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -116,6 +116,15 @@ fs.touch
       modification time of file `name` with the times of file
       `other_name`.
 
+fs.basename
+    `fs.basename(path)` return the last component of path.
+
+fs.dirname
+    `fs.dirname(path)` return all but the last component of path.
+
+fs.absname
+    `fs.absname(path)` return the absolute path name of path.
+
 Constants
 ~~~~~~~~~
 
@@ -133,6 +142,42 @@ fs.oR, fs.oW, fs.oX
 
 fs.aR, fs.aW, fs.aX
     All Read/Write/eXecute mask for `fs.chmod`
+
+lzo: compression library
+------------------------
+
+The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__
+and is inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
+
+Functions
+~~~~~~~~~
+
+lzo.adler
+    | `lzo.adler(adler, buf)` computes the Adler-32 checksum of `buf`
+       using `adler` as initial value.
+    | `lzo.adler(buf)` computes the Adler-32 checksum of `buf`
+       using `0` as initial value.
+
+lzo.compress
+    | `lzo.compress(data)` compresses `data` and returns the compressed string.
+
+lzo.decompress
+    | `lzo.decompress(data)` decompresses `data` and returns the decompressed string.
+
+Constants
+~~~~~~~~~
+
+lzo.copyright
+    miniLZO copyright string
+
+lzo.version
+    miniLZO version number
+
+lzo.version_string
+    miniLZO version string
+
+lzo.version_date
+    miniLZO version date
 
 ps: Processes
 -------------
@@ -207,10 +252,31 @@ It is possible to add scripts to the BonaLuna interpretor
 to make a single executable file containing the interpretor
 and some BonaLuna scripts.
 
-This feature is inspired by `srlua`.
+This feature is inspired by
+`srlua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua>`__.
 
 `glue.lua` parameters
 ---------------------
+
+`compile:on`
+    turn compilation on
+
+`compile:off`
+    turn compilation off
+
+`compile:min`
+    turn compilation on when chunks are smaller than sources
+    (this is the default value)
+
+`compress:on`
+    turn compression on
+
+`compress:off`
+    turn compression off
+
+`compress:min`
+    turn compression on when chunks are smaller than sources
+    (this is the default value)
 
 `read:original_interpretor`
     reads the initial interpretor
@@ -228,7 +294,8 @@ This feature is inspired by `srlua`.
     as above but the string is the content of a file
 
 `file:name`
-    adds a file to be created at runtime (the file is not overwritten if it already exists)
+    adds a file to be created at runtime
+    (the file is not overwritten if it already exists)
 
 `file:name=realname`
     as above but stored under a different name
@@ -237,7 +304,11 @@ This feature is inspired by `srlua`.
     creates a directory at runtime
 
 `write:new_executable`
-    write a new executable containing the original interpretor and all the added items
+    write a new executable containing the original interpretor
+    and all the added items
+
+When a path starts with `:`, it is relative to the executable path otherwise
+it is relative to the current working directory.
 
 
 Examples

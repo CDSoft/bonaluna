@@ -102,13 +102,15 @@ fs.chdir
 ]]
 
 function rm_rf(path)
-    local files = fs.dir(path)
-    if files then
-        for i = 1, #files do
-            fs.remove(path..fs.sep..files[i].name)
+    if fs.stat(path) then
+        local files = fs.dir(path)
+        if files then
+            for i = 1, #files do
+                assert(fs.remove(path..fs.sep..files[i].name))
+            end
         end
+        assert(fs.remove(path))
     end
-    fs.remove(path)
 end
 
 do
@@ -347,6 +349,33 @@ do
 end
 
 doc [[
+fs.basename
+    `fs.basename(path)` return the last component of path.
+
+fs.dirname
+    `fs.dirname(path)` return all but the last component of path.
+
+fs.absname
+    `fs.absname(path)` return the absolute path name of path.
+]]
+
+do
+    assert(fs.basename("/usr/bin/bash") == "bash")
+    assert(fs.basename("/usr/bin/") == "bin")
+    assert(fs.basename("C:\\bin\\bl.exe") == "bl.exe")
+    assert(fs.basename("bl") == "bl")
+    assert(fs.basename("/") == "")
+    assert(fs.dirname("/usr/bin/bash") == "/usr/bin")
+    assert(fs.dirname("/usr/bin/") == "/usr")
+    assert(fs.dirname("C:\\bin\\bl.exe") == "C:\\bin")
+    assert(fs.dirname("bl") == "")
+    assert(fs.dirname("/") == "")
+    assert(fs.absname("/usr/bin/bash") == "/usr/bin/bash")
+    assert(fs.absname("C:\\foo.txt") == "C:\\foo.txt")
+    assert(fs.absname("foo/bar") == fs.getcwd()..fs.sep.."foo/bar")
+end
+
+doc [[
 Constants
 ~~~~~~~~~
 
@@ -364,6 +393,66 @@ fs.oR, fs.oW, fs.oX
 
 fs.aR, fs.aW, fs.aX
     All Read/Write/eXecute mask for `fs.chmod`
+]]
+
+doc [[
+lzo: compression library
+------------------------
+
+The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__
+and is inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
+]]
+
+doc [[
+Functions
+~~~~~~~~~
+
+lzo.adler
+    | `lzo.adler(adler, buf)` computes the Adler-32 checksum of `buf`
+       using `adler` as initial value.
+    | `lzo.adler(buf)` computes the Adler-32 checksum of `buf`
+       using `0` as initial value.
+
+lzo.compress
+    | `lzo.compress(data)` compresses `data` and returns the compressed string.
+
+lzo.decompress
+    | `lzo.decompress(data)` decompresses `data` and returns the decompressed string.
+]]
+
+do
+    local a = "This is a test string"
+    local b = "And this is another test string"
+    local big = string.rep("a lot of bytes; ", 10000)
+    assert(lzo.adler(a) == 1362364332)
+    assert(lzo.adler(b) == 2993425295)
+    assert(lzo.adler(a..b) == 4051899195)
+    assert(lzo.adler(a) == lzo.adler(0, a))
+    assert(lzo.adler(a..b) == lzo.adler(lzo.adler(a), b))
+    assert(lzo.decompress(lzo.compress(a)) == a)
+    assert(lzo.decompress(lzo.compress(b)) == b)
+    assert(lzo.decompress(lzo.compress(big)) == big)
+    assert(#lzo.compress(big)/#big < 0.01)
+    assert(#lzo.compress("") == 11) -- same header size on all platforms
+    local ok, err = lzo.decompress("not an LZO string")
+    assert(ok == nil and err == "lzo error - not a compressed string")
+end
+
+doc [[
+Constants
+~~~~~~~~~
+
+lzo.copyright
+    miniLZO copyright string
+
+lzo.version
+    miniLZO version number
+
+lzo.version_string
+    miniLZO version string
+
+lzo.version_date
+    miniLZO version date
 ]]
 
 doc [[
@@ -489,10 +578,31 @@ It is possible to add scripts to the BonaLuna interpretor
 to make a single executable file containing the interpretor
 and some BonaLuna scripts.
 
-This feature is inspired by `srlua`.
+This feature is inspired by
+`srlua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua>`__.
 
 `glue.lua` parameters
 ---------------------
+
+`compile:on`
+    turn compilation on
+
+`compile:off`
+    turn compilation off
+
+`compile:min`
+    turn compilation on when chunks are smaller than sources
+    (this is the default value)
+
+`compress:on`
+    turn compression on
+
+`compress:off`
+    turn compression off
+
+`compress:min`
+    turn compression on when chunks are smaller than sources
+    (this is the default value)
 
 `read:original_interpretor`
     reads the initial interpretor
@@ -510,7 +620,8 @@ This feature is inspired by `srlua`.
     as above but the string is the content of a file
 
 `file:name`
-    adds a file to be created at runtime (the file is not overwritten if it already exists)
+    adds a file to be created at runtime
+    (the file is not overwritten if it already exists)
 
 `file:name=realname`
     as above but stored under a different name
@@ -519,36 +630,72 @@ This feature is inspired by `srlua`.
     creates a directory at runtime
 
 `write:new_executable`
-    write a new executable containing the original interpretor and all the added items
+    write a new executable containing the original interpretor
+    and all the added items
+
+When a path starts with `:`, it is relative to the executable path otherwise
+it is relative to the current working directory.
 
 ]]
 
 do
     local stub = arg[-1]
-    rm_rf "tmp"
-    assert(fs.mkdir "tmp")
-    local f = io.open("tmp/hello.lua", "w")
-    f:write [[
-        assert(arg[-1]:gsub(".*"..fs.sep, "") == "hello.exe")
-        assert(arg[0] == "hello.lua")
-        assert(arg[1] == "a")
-        assert(arg[2] == "b")
-        assert(arg[3] == "c")
-        print(my_constant*14)
-    ]]
-    f:close()
-    f = io.open("tmp/exit.lua", "w")
-    f:write [[ os.exit() ]]
-    f:close()
-    f = io.open("tmp/hello.flag", "w")
-    f:write [[ hi ]]
-    f:close()
-    if sys.platform == 'Windows' then null = "> NUL" else null = "> /dev/null" end
-    os.execute(stub.." ../tools/glue.lua read:"..stub.." file:tmp/hello.flag2=tmp/hello.flag dir:tmp/hello.dir str:my_constant=3 lua:hello.lua=tmp/hello.lua lua:exit.lua=tmp/exit.lua write:tmp/hello.exe "..null)
-    assert(fs.stat("tmp/hello.exe"))
-    assert(tonumber(io.popen("tmp"..fs.sep.."hello.exe a b c"):read("*a")) == 42)
-    assert(io.open("tmp/hello.flag2", "rb"):read("*a") == [[ hi ]])
-    assert(fs.stat("tmp/hello.dir").type == "directory")
+    local compress, compile
+    local big_file = string.rep("what a big file", 10000)
+    local big_str = string.rep("what a big string", 10000)
+    for _, compress in ipairs{'on', 'off', 'min'} do
+        for _, compile in ipairs{'on', 'off', 'min'} do
+
+            rm_rf "tmp"
+            assert(fs.mkdir "tmp")
+            local f = io.open("tmp/hello.lua", "w")
+            f:write [[
+                assert(fs.basename(arg[-1]) == "hello.exe")
+                assert(arg[0] == "hello.lua")
+                assert(arg[1] == "a")
+                assert(arg[2] == "b")
+                assert(arg[3] == "c")
+                assert(big_str == string.rep("what a big string", 10000))
+                print(my_constant*14)
+            ]]
+            f:write("\n--"..string.rep("a big compressible and useless comment...", 10000).."\n")
+            f:close()
+            f = io.open("tmp/exit.lua", "w")
+            f:write [[ os.exit() ]]
+            f:close()
+            f = io.open("tmp/hello.flag", "w")
+            f:write [[ hi ]]
+            f:close()
+            f = io.open("tmp/hello.big_file", "w")
+            f:write(big_file)
+            f:close()
+            f = io.open("tmp/hello.big_str", "w")
+            f:write(big_str)
+            f:close()
+            os.execute(stub.." ../tools/glue.lua -q"..
+                " compile:"..compile..
+                " compress:"..compress..
+                " read:"..stub..
+                " file::/hello.flag2=tmp/hello.flag"..
+                " file::/hello.big_file2=tmp/hello.big_file"..
+                " str:big_str=@tmp/hello.big_str"..
+                " dir:tmp/hello.dir"..
+                " str:my_constant=3"..
+                " lua:hello.lua=tmp/hello.lua"..
+                " lua:exit.lua=tmp/exit.lua"..
+                " write:tmp/hello.exe")
+            assert(fs.stat("tmp/hello.exe"))
+            assert(tonumber(io.popen("tmp"..fs.sep.."hello.exe a b c"):read("*a")) == 42)
+            f = io.open("tmp/hello.flag2", "rb")
+            assert(f:read("*a") == [[ hi ]])
+            f:close()
+            f = io.open("tmp/hello.big_file", "rb")
+            assert(f:read("*a") == big_file)
+            f:close()
+            assert(fs.stat("tmp/hello.dir").type == "directory")
+
+        end
+    end
     rm_rf "tmp"
 end
 

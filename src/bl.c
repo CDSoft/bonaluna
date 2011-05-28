@@ -51,6 +51,7 @@ Freely available under the terms of the Lua license.
 #include "linit.c"
 
 /* BonaLuna libraries */
+#include "minilzo.c"
 #include "bonaluna.c"
 #include "struct.c"
 #include "readline.c"

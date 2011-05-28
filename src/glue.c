@@ -25,9 +25,6 @@ typedef enum
     DIR_BLOCK       = 0x52494423,
 } t_block_type;
 
-/* also define compile in glue.lua */
-#define COMPILE
-
 typedef struct
 {
     t_block_sig sig;
@@ -46,7 +43,6 @@ typedef struct
     unsigned int size;
 } t_end_block;
 
-static int dostring (lua_State *L, const char *s, const char *name);
 static int docall (lua_State *L, int narg, int nres);
 static int report (lua_State *L, int status);
 
@@ -103,15 +99,23 @@ static int glue(lua_State *L, char **argv)
     char *name, *data;
     struct stat st;
     long int end;
-    char exename[BL_PATHSIZE];
+    char path[BL_PATHSIZE];
+    char *path_end; // pointer to the end of the path in the executable name
+    char *p;
 
     /* collect arguments */
-    if (!GetModuleFileName(NULL, exename, sizeof(exename))) cant("find", argv[0]);
-    glue_setarg(L, argv, exename);
+    if (!GetModuleFileName(NULL, path, sizeof(path))) cant("find", argv[0]);
+    glue_setarg(L, argv, path);
 
     /* open the glue */
-    f = fopen(exename, "rb");
+    f = fopen(path, "rb");
     if (f==NULL) cant("open", argv[0]);
+
+    /* path = dirname of the executable */
+    path_end = NULL;
+    for (p=path; *p; p++)
+        if (*p==*LUA_DIRSEP)
+            path_end = p+1;
 
     /* search for the start block */
     if (fseek(f, -sizeof(t_end_block), SEEK_END) != 0) cant("seek", argv[0]);
@@ -139,45 +143,91 @@ static int glue(lua_State *L, char **argv)
         return 0;
     }
 
+#define READ_DATA()                                                                                 \
+{                                                                                                   \
+    name = (char*)malloc(block.name_len);                                                           \
+    if (fread(name, sizeof(char), block.name_len, f) != block.name_len) cant("read", argv[0]);      \
+    if (*name == ':')                                                                               \
+    {                                                                                               \
+        if (*(name+1) != '\\' && *(name+1) != '/') luaL_error(L, "bad path: %s", name);             \
+        strcpy(path_end, name+2);                                                                   \
+        free(name);                                                                                 \
+        name = path;                                                                                \
+    }                                                                                               \
+    if (block.data_len == 0)                                                                        \
+    {                                                                                               \
+        data = NULL;                                                                                \
+    }                                                                                               \
+    else                                                                                            \
+    {                                                                                               \
+        data = (char*)malloc(block.data_len);                                                       \
+        if (fread(data, sizeof(char), block.data_len, f) != block.data_len) cant("read", argv[0]);  \
+        lzo_bytep uncompressed;                                                                     \
+        lzo_uint uncompressed_len;                                                                  \
+        int r = C_lzo_decompress(data, block.data_len, &uncompressed, &uncompressed_len);           \
+        if (r == LZO_E_NOT_LZO)                                                                     \
+        {                                                                                           \
+            /* The data was not compressed */                                                       \
+        }                                                                                           \
+        else if (r == LZO_E_OK)                                                                     \
+        {                                                                                           \
+            /* The data was compressed */                                                           \
+            free(data);                                                                             \
+            data = uncompressed;                                                                    \
+            block.data_len = uncompressed_len;                                                      \
+        }                                                                                           \
+        else                                                                                        \
+        {                                                                                           \
+            /* Decompression error */                                                               \
+            luaL_error(L, "corrupted data in %s (%s, LZO error: %d)", argv[0], name, r);            \
+        }                                                                                           \
+    }                                                                                               \
+}
+
+#define FREE_DATA()                 \
+{                                   \
+    if (name != path) free(name);   \
+    if (data) free(data);           \
+}
+
     /* load the blocks */
     while (ftell(f) < end && fread(&block, sizeof(block), 1, f) == 1)
     {
         switch (block.type)
         {
             case LUA_BLOCK:
-                name = (char*)malloc(block.name_len);
-                if (fread(name, sizeof(char), block.name_len, f) != block.name_len) cant("read", argv[0]);
+                READ_DATA();
                 glue_setarg0(L, name);
-                //printf("Run %s\n", name);
-                data = (char*)malloc(block.data_len);
-                if (fread(data, sizeof(char), block.data_len, f) != block.data_len) cant("read", argv[0]);
-                #ifdef COMPILE
+                //printf("Run %s\n%s\n", name, data);
+                /* check LUA_SIGNATURE to identify precompiled chunks */
+                if (data[0]=='\033' && data[1]=='L' && data[2]=='u' && data[3]=='a')
+                {
+                    /* precompiled chunk */
                     status = luaL_loadbuffer(L, data, block.data_len, name);
                     if (status == LUA_OK) status = docall(L, 0, 0);
                     status = report(L, status);
-                #else
-                    status = dostring(L, data, name);
-                #endif
-                free(name);
-                free(data);
+                }
+                else
+                {
+                    /* plain Lua source */
+                    //status = dostring(L, data, name);
+                    status = luaL_loadbuffer(L, data, block.data_len, name);
+                    if (status == LUA_OK) status = docall(L, 0, 0);
+                    status = report(L, status);
+
+                }
+                FREE_DATA();
                 if (status != LUA_OK) return 0;
                 break;
             case STRING_BLOCK:
-                name = (char*)malloc(block.name_len);
-                if (fread(name, sizeof(char), block.name_len, f) != block.name_len) cant("read", argv[0]);
+                READ_DATA();
                 //printf("Load %s\n", name);
-                data = (char*)malloc(block.data_len);
-                if (fread(data, sizeof(char), block.data_len, f) != block.data_len) cant("read", argv[0]);
                 lua_pushlstring(L, data, block.data_len);
                 lua_setglobal(L, name);
-                free(name);
-                free(data);
+                FREE_DATA();
                 break;
             case FILE_BLOCK:
-                name = (char*)malloc(block.name_len);
-                if (fread(name, sizeof(char), block.name_len, f) != block.name_len) cant("read", argv[0]);
-                data = (char*)malloc(block.data_len);
-                if (fread(data, sizeof(char), block.data_len, f) != block.data_len) cant("read", argv[0]);
+                READ_DATA()
                 //printf("File %s\n", name);
                 if (stat(name, &st) < 0)
                 {
@@ -186,12 +236,10 @@ static int glue(lua_State *L, char **argv)
                     if (fwrite(data, sizeof(char), block.data_len, fd) != block.data_len) cant("write", name);
                     fclose(fd);
                 }
-                free(name);
-                free(data);
+                FREE_DATA();
                 break;
             case DIR_BLOCK:
-                name = (char*)malloc(block.name_len);
-                if (fread(name, sizeof(char), block.name_len, f) != block.name_len) cant("read", argv[0]);
+                READ_DATA();
                 //printf("Dir %s\n", name);
                 if (stat(name, &st) < 0)
                 {
@@ -202,7 +250,7 @@ static int glue(lua_State *L, char **argv)
                         if (mkdir(name, 0755)!=0) cant("mkdir", name);
                     #endif
                 }
-                free(name);
+                FREE_DATA();
                 break;
             default:
                 /* Bad block type */

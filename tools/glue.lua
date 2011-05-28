@@ -3,6 +3,16 @@
 usage = [[
 glue.lua usage:
 
+    -q  quiet
+    -v  verbose
+
+    compile:on              turn compilation on
+    compile:off             turn compilation off
+    compile:min             turn compilation on when chunks are smaller than sources
+    compress:on             turn compression on
+    compress:off            turn compression off
+    compress:min            turn compression on when chunks are smaller than sources
+
     read:bl.exe             read bl.exe and its current glue
     lua:script.lua          add a new script
     lua:script.lua=realname add a new script with a different name
@@ -22,10 +32,24 @@ STRING_BLOCK    = 0x52545323
 FILE_BLOCK      = 0x53455223
 DIR_BLOCK       = 0x52494423
 
-COMPILE = true  -- also define COMPILE in glue.c
+compress        = 'min'
+compile         = 'min'
 
 stub = nil      -- BonaLuna executable
 glue = ""       -- additional blocks
+
+verbose = true
+
+function log(...)
+    if verbose then
+        print(...)
+    end
+end
+
+function err(...)
+    print(...)
+    os.exit(1)
+end
 
 function do_read(exe)
     local f = assert(io.open(exe, "rb"))
@@ -34,40 +58,28 @@ function do_read(exe)
     local end_sig, size = struct.unpack("I4I4", string.sub(data, #data-8+1))
     glue = struct.pack("I4", START_SIG)
     if end_sig ~= END_SIG then
-        print("", exe.." is empty")
+        log("", exe.." is empty")
         stub = data
         return
     end
     stub = string.sub(data, 1, #data-size)
     data = string.sub(data, #data-size+1)
     local start_sig = struct.unpack("I4", data)
-    if start_sig ~= START_SIG then
-        print("Unrecognized start signature in "..exe)
-        os.exit(1)
-    end
+    if start_sig ~= START_SIG then err("Unrecognized start signature in "..exe) end
     data = string.sub(data, 4+1)
     while #data > 8 do
         local block_type, name_len, data_len, name = struct.unpack("I4I4I4s", data)
-        if block_type == LUA_BLOCK then print("", "lua", name)
-        elseif block_type == STRING_BLOCK then print("", "str", name)
-        elseif block_type == FILE_BLOCK then print("", "file", name)
-        elseif block_type == DIR_BLOCK then print("", "dir", name)
-        else
-            print("Unrecognized block in "..exe)
-            os.exit(1)
-        end
+        if block_type == LUA_BLOCK then log("", "lua", name)
+        elseif block_type == STRING_BLOCK then log("", "str", name)
+        elseif block_type == FILE_BLOCK then log("", "file", name)
+        elseif block_type == DIR_BLOCK then log("", "dir", name)
+        else err("Unrecognized block in "..exe) end
         glue = glue .. string.sub(data, 1, 4*3+name_len+data_len)
         data = string.sub(data, 4*3+name_len+data_len+1)
     end
     local end_sig, size = struct.unpack("I4I4", string.sub(data, #data-8))
-    if end_sig ~= END_SIG then
-        print("Unrecognized end signature in "..exe)
-        os.exit(1)
-    end
-    if size ~= #glue+4*2 then
-        print("Invalid size in "..exe)
-        os.exit(1)
-    end
+    if end_sig ~= END_SIG then err("Unrecognized end signature in "..exe) end
+    if size ~= #glue+4*2 then err("Invalid size in "..exe) end
 end
 
 function do_write(exe)
@@ -82,28 +94,64 @@ end
 function do_lua(name)
     local script_name, real_name = string.match(name, "^(.+)=(.+)$")
     if not script_name then script_name = name real_name = name end
-    local content
-    if not COMPILE then
-        local f = assert(io.open(real_name, "rb"))
-        content = assert(f:read "*a")
-        f:close()
-    else
-        local chunk = assert(loadfile(real_name))
-        content = string.dump(chunk)
+
+    local f = assert(io.open(real_name, "rb"))
+    local content = assert(f:read "*a")
+    f:close()
+    local compiled_content = string.dump(assert(loadstring(content, name)))
+    local compressed_content = lzo.compress(content)
+    local compressed_compiled_content = lzo.compress(compiled_content)
+
+    --print(string.rep("-", 50))
+    --print("content                    ", #content)
+    --print("compiled_content           ", #compiled_content)
+    --print("compressed_content         ", #compressed_content)
+    --print("compressed_compiled_content", #compressed_compiled_content)
+
+    if compressed_content then assert(lzo.decompress(compressed_content) == content) end
+    if compressed_compiled_content then assert(lzo.decompress(compressed_compiled_content) == compiled_content) end
+
+    if compiled_content then
+        if (compile=='min' and #compiled_content < #content)
+        or (compile=='on') then
+            content = compiled_content
+        end
     end
-    glue = glue .. struct.pack("I4I4I4ss", LUA_BLOCK, #script_name+1, #content+1, script_name, content)
+
+    if compressed_content then
+        if (compress=='min' and #compressed_content < #content)
+        or (compress=='on') then
+            content = compressed_content
+        end
+    end
+
+    if compressed_compiled_content then
+        if (compile=='min' and compress=='min' and #compressed_compiled_content < #content)
+        or (compile=='min' and compress=='on' and #compressed_compiled_content < #content)
+        or (compile=='on' and compress=='min' and #compressed_compiled_content < #content)
+        or (compile=='on' and compress=='on') then
+            content = compressed_compiled_content
+        end
+    end
+
+    --print("compile", compile, "compress", compress, "=>", #content)
+
+    glue = glue .. struct.pack("I4I4I4sc0", LUA_BLOCK, #script_name+1, #content, script_name, content)
 end
 
 function do_str(name_value)
     local name, value = string.match(name_value, "^([%w_]+)=(.*)$")
-    if not name then
-        print("Invalid string")
-        os.exit(1)
-    end
+    if not name then err("Invalid string") end
     if string.sub(value, 1, 1) == "@" then
         local f = assert(io.open(string.sub(value, 2), "rb"))
         value = assert(f:read "*a")
         f:close()
+    end
+    local compressed_value = lzo.compress(value)
+    if compressed_value then
+        if (compress=='min' and #compressed_value < #value) or (compress=='on') then
+            value = compressed_value
+        end
     end
     glue = glue .. struct.pack("I4I4I4sc0", STRING_BLOCK, #name+1, #value, name, value)
 end
@@ -114,6 +162,12 @@ function do_file(name)
     local f = assert(io.open(realname, "rb"))
     local content = assert(f:read "*a")
     f:close()
+    local compressed_content = lzo.compress(content)
+    if compressed_content then
+        if (compress=='min' and #compressed_content < #content) or (compress=='on') then
+            content = compressed_content
+        end
+    end
     glue = glue .. struct.pack("I4I4I4sc0", FILE_BLOCK, #filename+1, #content, filename, content)
 end
 
@@ -122,16 +176,19 @@ function do_dir(name)
 end
 
 for i, cmd in ipairs(arg) do
-    action, param = string.match(cmd, "^(%w+):(.*)$")
-    print(action, param)
-    if action == "read" then do_read(param)
-    elseif action == "write" then do_write(param)
-    elseif action == "lua" then do_lua(param)
-    elseif action == "str" then do_str(param)
-    elseif action == "file" then do_file(param)
-    elseif action == "dir" then do_dir(param)
+    if cmd == '-q' then verbose = false
+    elseif cmd == '-v' then verbose = true
     else
-        print("Unrecognized parameter: "..cmd)
-        os.exit(1)
+        action, param = string.match(cmd, "^(%w+):(.*)$")
+        log(action, param)
+        if action == "compile" and (param == 'min' or param == 'on' or param == 'off') then compile = param
+        elseif action == "compress" and (param == 'min' or param == 'on' or param == 'off') then compress = param
+        elseif action == "read" then do_read(param)
+        elseif action == "write" then do_write(param)
+        elseif action == "lua" then do_lua(param)
+        elseif action == "str" then do_str(param)
+        elseif action == "file" then do_file(param)
+        elseif action == "dir" then do_dir(param)
+        else err("Unrecognized parameter: "..cmd) end
     end
 end
