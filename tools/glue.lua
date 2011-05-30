@@ -1,7 +1,7 @@
 #!/usr/bin/env bl
 
 usage = [[
-glue.lua usage:
+usage:
 
     -q  quiet
     -v  verbose
@@ -22,6 +22,10 @@ glue.lua usage:
     file:name=realname      add a file with name 'name', the content is in a file
     dir:name                create a directory
     write:bl2.exe           write a new executable
+
+example:
+    bl glue.lua read:bl.exe lua:glue.lua write:glue.exe
+        glues bl.exe and glue.lua into a self-running glue.exe executable
 ]]
 
 START_SIG       = 0x45554C47
@@ -100,17 +104,14 @@ function do_lua(name)
     f:close()
     content = content:gsub("^#!.-([\r\n])", "%1")  -- loadstring doesn't like "#!..."
     local compiled_content = string.dump(assert(loadstring(content, script_name)))
-    local compressed_content = lzo.compress(content)
-    local compressed_compiled_content = lzo.compress(compiled_content)
+    local compressed_content = lz.compress(content)
+    local compressed_compiled_content = lz.compress(compiled_content)
 
     --print(string.rep("-", 50))
     --print("content                    ", #content)
     --print("compiled_content           ", #compiled_content)
     --print("compressed_content         ", #compressed_content)
     --print("compressed_compiled_content", #compressed_compiled_content)
-
-    if compressed_content then assert(lzo.decompress(compressed_content) == content) end
-    if compressed_compiled_content then assert(lzo.decompress(compressed_compiled_content) == compiled_content) end
 
     if compiled_content then
         if (compile=='min' and #compiled_content < #content)
@@ -148,7 +149,7 @@ function do_str(name_value)
         value = assert(f:read "*a")
         f:close()
     end
-    local compressed_value = lzo.compress(value)
+    local compressed_value = lz.compress(value)
     if compressed_value then
         if (compress=='min' and #compressed_value < #value) or (compress=='on') then
             value = compressed_value
@@ -163,7 +164,7 @@ function do_file(name)
     local f = assert(io.open(realname, "rb"))
     local content = assert(f:read "*a")
     f:close()
-    local compressed_content = lzo.compress(content)
+    local compressed_content = lz.compress(content)
     if compressed_content then
         if (compress=='min' and #compressed_content < #content) or (compress=='on') then
             content = compressed_content
@@ -174,6 +175,11 @@ end
 
 function do_dir(name)
     glue = glue .. struct.pack("I4I4I4s", DIR_BLOCK, #name+1, 0, name)
+end
+
+if #arg == 0 then
+    print(usage)
+    os.exit()
 end
 
 for i, cmd in ipairs(arg) do

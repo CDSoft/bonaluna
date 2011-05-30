@@ -162,14 +162,9 @@ static int glue(lua_State *L, char **argv)
     {                                                                                               \
         data = (char*)malloc(block.data_len);                                                       \
         if (fread(data, sizeof(char), block.data_len, f) != block.data_len) cant("read", argv[0]);  \
-        lzo_bytep uncompressed;                                                                     \
-        lzo_uint uncompressed_len;                                                                  \
-        int r = C_lzo_decompress(data, block.data_len, &uncompressed, &uncompressed_len);           \
-        if (r == LZO_E_NOT_LZO)                                                                     \
-        {                                                                                           \
-            /* The data was not compressed */                                                       \
-        }                                                                                           \
-        else if (r == LZO_E_OK)                                                                     \
+        char *uncompressed;                                                                         \
+        size_t uncompressed_len;                                                                    \
+        if (lz_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len))          \
         {                                                                                           \
             /* The data was compressed */                                                           \
             free(data);                                                                             \
@@ -178,8 +173,7 @@ static int glue(lua_State *L, char **argv)
         }                                                                                           \
         else                                                                                        \
         {                                                                                           \
-            /* Decompression error */                                                               \
-            luaL_error(L, "corrupted data in %s (%s, LZO error: %d)", argv[0], name, r);            \
+            /* The data was not compressed */                                                       \
         }                                                                                           \
     }                                                                                               \
 }

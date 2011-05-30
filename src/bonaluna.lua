@@ -396,64 +396,61 @@ fs.aR, fs.aW, fs.aX
 ]]
 
 doc [[
-lzo: compression library
+lz: compression library
 ------------------------
 
 The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__
-and is inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
+and `QuickLZ <http://www.quicklz.com/>`__.
+It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
 ]]
 
 doc [[
 Functions
 ~~~~~~~~~
 
-lzo.adler
-    | `lzo.adler(adler, buf)` computes the Adler-32 checksum of `buf`
+lz.adler
+    | `lz.adler(adler, buf)` computes the Adler-32 checksum of `buf`
        using `adler` as initial value.
-    | `lzo.adler(buf)` computes the Adler-32 checksum of `buf`
+    | `lz.adler(buf)` computes the Adler-32 checksum of `buf`
        using `0` as initial value.
 
-lzo.compress
-    | `lzo.compress(data)` compresses `data` and returns the compressed string.
+lz.lzo, lz.qlz, lz.best
+    | `lz.lzo()` selects the LZO compression library.
+    | `lz.qlz()` selects the QuickLZ compression library.
+    | `lz.best()` selects both compression libraries and choose the best.
 
-lzo.decompress
-    | `lzo.decompress(data)` decompresses `data` and returns the decompressed string.
+lz.compress
+    | `lz.compress(data)` compresses `data` and returns the compressed string.
+
+lz.decompress
+    | `lz.decompress(data)` decompresses `data` and returns the decompressed string.
 ]]
+
+lz.lzo()
+lz.compress("abc")
 
 do
     local a = "This is a test string"
     local b = "And this is another test string"
-    local big = string.rep("a lot of bytes; ", 10000)
-    assert(lzo.adler(a) == 1362364332)
-    assert(lzo.adler(b) == 2993425295)
-    assert(lzo.adler(a..b) == 4051899195)
-    assert(lzo.adler(a) == lzo.adler(0, a))
-    assert(lzo.adler(a..b) == lzo.adler(lzo.adler(a), b))
-    assert(lzo.decompress(lzo.compress(a)) == a)
-    assert(lzo.decompress(lzo.compress(b)) == b)
-    assert(lzo.decompress(lzo.compress(big)) == big)
-    assert(#lzo.compress(big)/#big < 0.01)
-    assert(#lzo.compress("") == 11) -- same header size on all platforms
-    local ok, err = lzo.decompress("not an LZO string")
-    assert(ok == nil and err == "lzo error - not a compressed string")
+    local big = string.rep("a lot of bytes; ", 100000)
+    for _, method in ipairs{lz.lzo, lz.qlz, lz.best} do
+        method()
+        assert(lz.adler(a) == 1362364332)
+        assert(lz.adler(b) == 2993425295)
+        assert(lz.adler(a..b) == 4051899195)
+        assert(lz.adler(a) == lz.adler(0, a))
+        assert(lz.adler(a..b) == lz.adler(lz.adler(a), b))
+        assert(lz.decompress(lz.compress(a)) == a)
+        assert(lz.decompress(lz.compress(b)) == b)
+        assert(lz.decompress(lz.compress(big)) == big)
+        assert(#lz.compress(big) < #big)
+        local ok, err = lz.decompress("not a compressed string")
+        assert(ok == nil and err == "lz: not a compressed string")
+    end
+    lz.lzo() assert(#lz.compress("") == 11) -- same LZO header size on all platforms
+    lz.qlz() assert(#lz.compress("") == 8) -- same LZO header size on all platforms
+    lz.best()
 end
-
-doc [[
-Constants
-~~~~~~~~~
-
-lzo.copyright
-    miniLZO copyright string
-
-lzo.version
-    miniLZO version number
-
-lzo.version_string
-    miniLZO version string
-
-lzo.version_date
-    miniLZO version date
-]]
 
 doc [[
 ps: Processes
@@ -584,25 +581,13 @@ This feature is inspired by
 `glue.lua` parameters
 ---------------------
 
-`compile:on`
-    turn compilation on
+`compile:on|off|min`
+    turn compilation on, off or on when chunks are smaller than sources
+    (`min` is the default value)
 
-`compile:off`
-    turn compilation off
-
-`compile:min`
-    turn compilation on when chunks are smaller than sources
-    (this is the default value)
-
-`compress:on`
-    turn compression on
-
-`compress:off`
-    turn compression off
-
-`compress:min`
-    turn compression on when chunks are smaller than sources
-    (this is the default value)
+`compress:on|off|min`
+    turn compression on, off or on when chunks are smaller than sources
+    (`min` is the default value)
 
 `read:original_interpretor`
     reads the initial interpretor

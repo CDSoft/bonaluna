@@ -29,9 +29,9 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-1.1.1.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-1.1.2.tgz
 
-:Version: 1.1.1
+:Version: 1.1.2
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -143,41 +143,32 @@ fs.oR, fs.oW, fs.oX
 fs.aR, fs.aW, fs.aX
     All Read/Write/eXecute mask for `fs.chmod`
 
-lzo: compression library
+lz: compression library
 ------------------------
 
 The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__
-and is inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
+and `QuickLZ <http://www.quicklz.com/>`__.
+It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
 
 Functions
 ~~~~~~~~~
 
-lzo.adler
-    | `lzo.adler(adler, buf)` computes the Adler-32 checksum of `buf`
+lz.adler
+    | `lz.adler(adler, buf)` computes the Adler-32 checksum of `buf`
        using `adler` as initial value.
-    | `lzo.adler(buf)` computes the Adler-32 checksum of `buf`
+    | `lz.adler(buf)` computes the Adler-32 checksum of `buf`
        using `0` as initial value.
 
-lzo.compress
-    | `lzo.compress(data)` compresses `data` and returns the compressed string.
+lz.lzo, lz.qlz, lz.best
+    | `lz.lzo()` selects the LZO compression library.
+    | `lz.qlz()` selects the QuickLZ compression library.
+    | `lz.best()` selects both compression libraries and choose the best.
 
-lzo.decompress
-    | `lzo.decompress(data)` decompresses `data` and returns the decompressed string.
+lz.compress
+    | `lz.compress(data)` compresses `data` and returns the compressed string.
 
-Constants
-~~~~~~~~~
-
-lzo.copyright
-    miniLZO copyright string
-
-lzo.version
-    miniLZO version number
-
-lzo.version_string
-    miniLZO version string
-
-lzo.version_date
-    miniLZO version date
+lz.decompress
+    | `lz.decompress(data)` decompresses `data` and returns the decompressed string.
 
 ps: Processes
 -------------
@@ -258,25 +249,13 @@ This feature is inspired by
 `glue.lua` parameters
 ---------------------
 
-`compile:on`
-    turn compilation on
+`compile:on|off|min`
+    turn compilation on, off or on when chunks are smaller than sources
+    (`min` is the default value)
 
-`compile:off`
-    turn compilation off
-
-`compile:min`
-    turn compilation on when chunks are smaller than sources
-    (this is the default value)
-
-`compress:on`
-    turn compression on
-
-`compress:off`
-    turn compression off
-
-`compress:min`
-    turn compression on when chunks are smaller than sources
-    (this is the default value)
+`compress:on|off|min`
+    turn compression on, off or on when chunks are smaller than sources
+    (`min` is the default value)
 
 `read:original_interpretor`
     reads the initial interpretor

@@ -6,6 +6,8 @@ LUA_SRC=lua-5.2.0-alpha
 LUA_URL=http://www.lua.org/work/$LUA_SRC.tar.gz
 LZO_SRC=minilzo.205
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/minilzo-2.05.tar.gz
+QLZ_SRC=quicklz
+QLZ_URL=http://www.quicklz.com/
 
 function error()
 {
@@ -79,12 +81,19 @@ BONALUNA_CONF="$BONALUNA_CONF -DBONALUNA_PLATFORM=\"$PLATFORM\""
 [ -e $(basename $LZO_URL) ] || wget $LZO_URL
 [ -e $LZO_SRC ] || tar xzf $(basename $LZO_URL)
 
+mkdir -p $QLZ_SRC
+(   cd $QLZ_SRC
+    [ -e $QLZ_SRC.c ] || wget $QLZ_URL/$QLZ_SRC.c
+    [ -e $QLZ_SRC.h ] || wget $QLZ_URL/$QLZ_SRC.h
+)
+
 # Target initialisation
 #######################
 
 mkdir -p $TARGET
 cp -f $LUA_SRC/src/* $TARGET/
 cp -f $LZO_SRC/*.{c,h} $TARGET/
+cp -f $QLZ_SRC/*.{c,h} $TARGET/
 
 # BonaLuna patches
 ##################
@@ -113,7 +122,7 @@ awk '
         print "  {LUA_SYSLIBNAME, luaopen_sys},"
         print "  {LUA_STRUCTLIBNAME, luaopen_struct},"
         print "  {LUA_RLLIBNAME, luaopen_readline},"
-        print "  {LUA_LZOLIBNAME, luaopen_lzo},"
+        print "  {LUA_LZLIBNAME, luaopen_lz},"
         }
     {print}
 ' $LUA_SRC/src/linit.c > $TARGET/linit.c
@@ -212,6 +221,13 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
 #############
 
 sed -i 's/__LZO_IN_MINLZO/__LZO_IN_MINILZO/g' $TARGET/minilzo.c
+
+# QLZ patches
+#############
+
+sed -i 's/\(#define QLZ_COMPRESSION_LEVEL 1\)/\/\/\1/' $TARGET/quicklz.h
+sed -i 's/\/\/\(#define QLZ_COMPRESSION_LEVEL 3\)/\1/' $TARGET/quicklz.h
+sed -i 's/\/\/\(#define QLZ_MEMORY_SAFE\)/\1/' $TARGET/quicklz.h
 
 # Compilation
 #############
