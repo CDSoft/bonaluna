@@ -340,12 +340,15 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 <a class="reference external" href="http://cdsoft.fr/bl/bonaluna.html">CDSoft.fr</a></div>
 <div class="line">Freely available under the terms of the
 <a class="reference external" href="http://www.lua.org/license.html#5">Lua license</a></div>
+<div class="line"><strong>Lua</strong>: <a class="reference external" href="http://www.lua.org/license.html#5">Lua license</a></div>
+<div class="line"><strong>miniLZO</strong>, <strong>QuickLZ</strong>: GPL v2</div>
+<div class="line"><strong>LZ4</strong>: BSD</div>
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-1.1.2.tgz">http://cdsoft.fr/bl/bonaluna-1.1.2.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-1.1.3.tgz">http://cdsoft.fr/bl/bonaluna-1.1.3.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">1.1.2</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">1.1.3</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -366,7 +369,7 @@ in a single executable.</td>
 </ul>
 </li>
 <li><a class="reference internal" href="#self-running-scripts" id="id15">3&nbsp;&nbsp;&nbsp;Self running scripts</a><ul class="auto-toc">
-<li><a class="reference internal" href="#glue-lua-parameters" id="id16">3.1&nbsp;&nbsp;&nbsp;<cite>glue.lua</cite> parameters</a></li>
+<li><a class="reference internal" href="#pegar-lua-parameters" id="id16">3.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#examples" id="id17">4&nbsp;&nbsp;&nbsp;Examples</a></li>
@@ -438,10 +441,11 @@ Attributes are:</div>
 <li><cite>size</cite>: size in bytes</li>
 <li><cite>mtime</cite>, <cite>atime</cite>, <cite>ctime</cite>: modification, access and creation
 times.</li>
-<li>mode: file permissions</li>
-<li>uR, uW, uX: user Read/Write/eXecute permissions</li>
-<li>gR, gW, gX: group Read/Write/eXecute permissions</li>
-<li>oR, oW, oX: other Read/Write/eXecute permissions</li>
+<li><cite>mode</cite>: file permissions</li>
+<li><cite>uR</cite>, <cite>uW</cite>, <cite>uX</cite>: user Read/Write/eXecute permissions</li>
+<li><cite>gR</cite>, <cite>gW</cite>, <cite>gX</cite>: group Read/Write/eXecute permissions</li>
+<li><cite>oR</cite>, <cite>oW</cite>, <cite>oX</cite>: other Read/Write/eXecute permissions</li>
+<li><cite>dev</cite>, <cite>ino</cite>: device and inode numbers</li>
 </ul>
 </blockquote>
 </dd>
@@ -491,9 +495,9 @@ modification time of file <cite>name</cite> with the times of file
 </div>
 <div class="section" id="lz-compression-library">
 <h2><a class="toc-backref" href="#id10">2.2&nbsp;&nbsp;&nbsp;lz: compression library</a></h2>
-<p>The lzo package uses <a class="reference external" href="http://www.oberhumer.com/opensource/lzo/#minilzo">miniLZO</a>
-and <a class="reference external" href="http://www.quicklz.com/">QuickLZ</a>.
+<p>The lzo package uses <a class="reference external" href="http://www.oberhumer.com/opensource/lzo/#minilzo">miniLZO</a>, <a class="reference external" href="http://www.quicklz.com/">QuickLZ</a> and <a class="reference external" href="http://code.google.com/p/lz4/">LZ4</a>.
 It's inspired by the <a class="reference external" href="http://lua-users.org/wiki/LuaModuleLzo">Lua Lzo module</a>.</p>
+<p>Future versions of BonaLuna may remove or add some compression library.</p>
 <div class="section" id="id1">
 <h3>Functions</h3>
 <dl class="docutils">
@@ -505,10 +509,11 @@ using <cite>adler</cite> as initial value.</div>
 using <cite>0</cite> as initial value.</div>
 </div>
 </dd>
-<dt>lz.lzo, lz.qlz, lz.best</dt>
+<dt>lz.lzo, lz.qlz, lz.lz4, lz.best</dt>
 <dd><div class="first last line-block">
 <div class="line"><cite>lz.lzo()</cite> selects the LZO compression library.</div>
 <div class="line"><cite>lz.qlz()</cite> selects the QuickLZ compression library.</div>
+<div class="line"><cite>lz.lz4()</cite> selects the LZ4 compression library.</div>
 <div class="line"><cite>lz.best()</cite> selects both compression libraries and choose the best.</div>
 </div>
 </dd>
@@ -623,8 +628,8 @@ to make a single executable file containing the interpretor
 and some BonaLuna scripts.</p>
 <p>This feature is inspired by
 <a class="reference external" href="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua">srlua</a>.</p>
-<div class="section" id="glue-lua-parameters">
-<h2><a class="toc-backref" href="#id16">3.1&nbsp;&nbsp;&nbsp;<cite>glue.lua</cite> parameters</a></h2>
+<div class="section" id="pegar-lua-parameters">
+<h2><a class="toc-backref" href="#id16">3.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></h2>
 <dl class="docutils">
 <dt><cite>compile:on|off|min</cite></dt>
 <dd>turn compilation on, off or on when chunks are smaller than sources

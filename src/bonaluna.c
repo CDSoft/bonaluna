@@ -239,6 +239,8 @@ static int fs_stat(lua_State *L)
         PERMISSION(S_IWOTH, "oW");
         PERMISSION(S_IXOTH, "oX");
 #endif
+        INTEGER(buf.st_dev, "dev");
+        INTEGER(buf.st_ino, "ino");
 #undef STRING
 #undef INTEGER
 #undef PERMISSION
@@ -501,6 +503,22 @@ LUAMOD_API int luaopen_sys (lua_State *L)
 /* lz: compression library                                         */
 /*******************************************************************/
 
+#ifdef USE_LZ
+
+#define LZO_SIG 0x004F5A4C
+#define QLZ_SIG 0x005A4C51
+#define LZ4_SIG 0x00345A4C
+
+typedef struct
+{
+    lzo_uint32  sig;
+    lzo_uint32  len;
+} t_lz_header;
+
+typedef enum { BEST, LZO, QLZ, LZ4 } t_lz_method;
+
+static t_lz_method lz_method = BEST;
+
 static int lz_adler(lua_State *L)
 {
     lzo_uint32 adler;
@@ -522,22 +540,6 @@ static int lz_adler(lua_State *L)
     return 1;
 }
 
-#define LZO_SIG 0x004F5A4C
-#define QLZ_SIG 0x005A4C51
-
-typedef struct
-{
-    lzo_uint32  sig;
-    lzo_uint32  len;
-} t_lz_header;
-
-#define HEAP_ALLOC(var,size) \
-    lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
-
-typedef enum { BEST, LZO, QLZ } t_lz_method;
-
-static t_lz_method lz_method = BEST;
-
 static int lz_lzo(lua_State *L)
 {
     lz_method = LZO;
@@ -550,6 +552,12 @@ static int lz_qlz(lua_State *L)
     return 0;
 }
 
+static int lz_lz4(lua_State *L)
+{
+    lz_method = LZ4;
+    return 0;
+}
+
 static int lz_best(lua_State *L)
 {
     lz_method = BEST;
@@ -558,30 +566,41 @@ static int lz_best(lua_State *L)
 
 void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-    lzo_uint lzo_dst_len;
-    lzo_bytep lzo_dst;
-    char *qlz_dst;
-    size_t qlz_dst_len;
+#if defined(USE_LZO)
+#if defined(USE_QLZ) || defined(USE_LZ4)
     if (lz_method == LZO || lz_method == BEST)
     {
+#endif
+#define HEAP_ALLOC(var,size) \
+    lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
         HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
-        lzo_dst_len = src_len + src_len/16 + 64 + 3 + sizeof(t_lz_header);
-        lzo_dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
+        lzo_uint lzo_dst_len = src_len + src_len/16 + 64 + 3 + sizeof(t_lz_header);
+        lzo_bytep lzo_dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
         int r = lzo1x_1_compress(src, src_len, lzo_dst+sizeof(t_lz_header), &lzo_dst_len, wrkmem);
         if (r != LZO_E_OK) luaL_error(L, "lz: lzo1x_1_compress failed (error: %d)", r);
         ((t_lz_header*)lzo_dst)->sig = LZO_SIG;
         ((t_lz_header*)lzo_dst)->len = src_len;
         *dst = lzo_dst;
         *dst_len = lzo_dst_len;
+#if defined(USE_QLZ) || defined(USE_LZ4)
     }
+#endif
+#endif
+#if defined(USE_QLZ)
+#if defined(USE_LZO) || defined(USE_LZ4)
     if (lz_method == QLZ || lz_method == BEST)
     {
+#endif
         qlz_state_compress *state_compress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
-        qlz_dst = (char*)malloc(src_len + 400 + sizeof(t_lz_header));
-        qlz_dst_len = qlz_compress(src, qlz_dst+sizeof(t_lz_header), src_len, state_compress);
+        char *qlz_dst = (char*)malloc(src_len + 400 + sizeof(t_lz_header));
+        size_t qlz_dst_len = qlz_compress(src, qlz_dst+sizeof(t_lz_header), src_len, state_compress);
         free(state_compress);
         ((t_lz_header*)qlz_dst)->sig = QLZ_SIG;
         ((t_lz_header*)qlz_dst)->len = src_len;
+#if !defined(USE_LZO)
+        *dst = qlz_dst;
+        *dst_len = qlz_dst_len;
+#else
         if (lz_method == QLZ)
         {
             *dst = qlz_dst;
@@ -600,12 +619,53 @@ void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst,
                 free(qlz_dst);
             }
         }
+#endif
+#if defined(USE_LZO) || defined(USE_LZ4)
     }
+#endif
+#endif
+#if defined(USE_LZ4)
+#if defined(USE_LZO) || defined(USE_QLZ)
+    if (lz_method == LZ4 || lz_method == BEST)
+    {
+#endif
+        char *lz4_dst = (char*)malloc(src_len + src_len/2 + 8 + sizeof(t_lz_header));
+        int lz4_dst_len = LZ4_compress((char*)src, lz4_dst+sizeof(t_lz_header), src_len);
+        ((t_lz_header*)lz4_dst)->sig = LZ4_SIG;
+        ((t_lz_header*)lz4_dst)->len = src_len;
+#if !defined(USE_LZO) && !defined(USE_QLZ)
+        *dst = lz4_dst;
+        *dst_len = lz4_dst_len;
+#else
+        if (lz_method == LZ4)
+        {
+            *dst = lz4_dst;
+            *dst_len = lz4_dst_len;
+        }
+        else if (lz_method == BEST)
+        {
+            if (lz4_dst_len < *dst_len)
+            {
+                free(*dst);
+                *dst = lz4_dst;
+                *dst_len = lz4_dst_len;
+            }
+            else
+            {
+                free(lz4_dst);
+            }
+        }
+#endif
+#if defined(USE_LZO) || defined(USE_QLZ)
+    }
+#endif
+#endif
     *dst_len += sizeof(t_lz_header);
 }
 
 int lz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
+#ifdef USE_LZO
     if (((t_lz_header*)src)->sig == LZO_SIG)
     {
         lzo_uint lzo_dst_len = ((t_lz_header*)src)->len;
@@ -615,6 +675,8 @@ int lz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst
         *dst_len = lzo_dst_len;
         return 1;
     }
+#endif
+#ifdef USE_QLZ
     if (((t_lz_header*)src)->sig == QLZ_SIG)
     {
         qlz_state_decompress *state_decompress = (qlz_state_decompress *)malloc(sizeof(qlz_state_decompress));
@@ -624,6 +686,15 @@ int lz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst
         free(state_decompress);
         return 1;
     }
+#endif
+#ifdef USE_LZ4
+    if (((t_lz_header*)src)->sig == LZ4_SIG)
+    {
+        *dst = (char*)malloc(((t_lz_header*)src)->len + 3);
+        *dst_len = LZ4_decode((char*)(src+sizeof(t_lz_header)), *dst, src_len-sizeof(t_lz_header));
+        return 1;
+    }
+#endif
     return 0;
 }
         
@@ -665,9 +736,18 @@ static int lz_decompress(lua_State *L)
 static const luaL_Reg lzlib[] =
 {
     {"adler", lz_adler},
+#ifdef USE_LZO
     {"lzo", lz_lzo},
+#endif
+#ifdef USE_QLZ
     {"qlz", lz_qlz},
+#endif
+#ifdef USE_LZ4
+    {"lz4", lz_lz4},
+#endif
+#if defined(USE_LZO) && (defined(USE_QLZ) || defined(LZ4)) || (defined(USE_QLZ) && defined(LZ4))
     {"best", lz_best},
+#endif
     {"compress", lz_compress},
     {"decompress", lz_decompress},
     {NULL, NULL}
@@ -683,3 +763,4 @@ LUAMOD_API int luaopen_lz (lua_State *L)
     return 1;
 }
 
+#endif

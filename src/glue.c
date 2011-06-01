@@ -143,6 +143,29 @@ static int glue(lua_State *L, char **argv)
         return 0;
     }
 
+#ifdef USE_LZ
+
+#define UNCOMPRESS_DATA()                                                                           \
+        char *uncompressed;                                                                         \
+        size_t uncompressed_len;                                                                    \
+        if (lz_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len))          \
+        {                                                                                           \
+            /* The data was compressed */                                                           \
+            free(data);                                                                             \
+            data = uncompressed;                                                                    \
+            block.data_len = uncompressed_len;                                                      \
+        }                                                                                           \
+        else                                                                                        \
+        {                                                                                           \
+            /* The data was not compressed */                                                       \
+        }                                                                                           \
+
+#else
+
+#define UNCOMPRESS_DATA() /* no compression library */
+
+#endif
+
 #define READ_DATA()                                                                                 \
 {                                                                                                   \
     name = (char*)malloc(block.name_len);                                                           \
@@ -162,19 +185,7 @@ static int glue(lua_State *L, char **argv)
     {                                                                                               \
         data = (char*)malloc(block.data_len);                                                       \
         if (fread(data, sizeof(char), block.data_len, f) != block.data_len) cant("read", argv[0]);  \
-        char *uncompressed;                                                                         \
-        size_t uncompressed_len;                                                                    \
-        if (lz_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len))          \
-        {                                                                                           \
-            /* The data was compressed */                                                           \
-            free(data);                                                                             \
-            data = uncompressed;                                                                    \
-            block.data_len = uncompressed_len;                                                      \
-        }                                                                                           \
-        else                                                                                        \
-        {                                                                                           \
-            /* The data was not compressed */                                                       \
-        }                                                                                           \
+        UNCOMPRESS_DATA();                                                                          \
     }                                                                                               \
 }
 

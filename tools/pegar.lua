@@ -24,8 +24,10 @@ usage:
     write:bl2.exe           write a new executable
 
 example:
-    bl glue.lua read:bl.exe lua:glue.lua write:glue.exe
-        glues bl.exe and glue.lua into a self-running glue.exe executable
+    bl pegar.lua read:bl.exe lua:pegar.lua write:pegar.exe
+        glues bl.exe and pegar.lua into a self-running pegar.exe executable
+
+pegar means to glue in Occitan.
 ]]
 
 START_SIG       = 0x45554C47
@@ -53,6 +55,12 @@ end
 function err(...)
     print(...)
     os.exit(1)
+end
+
+if not lz then
+    lz = {}
+    function lz.compress(data) return data end
+    function lz.uncompress(data) return data end
 end
 
 function do_read(exe)

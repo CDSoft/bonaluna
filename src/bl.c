@@ -53,6 +53,7 @@ Freely available under the terms of the Lua license.
 /* BonaLuna libraries */
 #include "minilzo.c"
 #include "quicklz.c"
+#include "lz4.c"
 #include "bonaluna.c"
 #include "struct.c"
 #include "readline.c"

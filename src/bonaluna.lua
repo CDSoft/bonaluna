@@ -55,6 +55,9 @@ doc([[
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
+    | **Lua**: `Lua license <http://www.lua.org/license.html#5>`__
+    | **miniLZO**, **QuickLZ**: GPL v2
+    | **LZ4**: BSD
 :Download: http://cdsoft.fr/bl/bonaluna-]]..BONALUNA_VERSION..[[.tgz
 
 :Version: ]]..BONALUNA_VERSION..[[
@@ -233,10 +236,12 @@ fs.stat
         - `size`: size in bytes
         - `mtime`, `atime`, `ctime`: modification, access and creation
           times.
-        - mode: file permissions
-        - uR, uW, uX: user Read/Write/eXecute permissions
-        - gR, gW, gX: group Read/Write/eXecute permissions
-        - oR, oW, oX: other Read/Write/eXecute permissions
+        - `mode`: file permissions
+        - `uR`, `uW`, `uX`: user Read/Write/eXecute permissions
+        - `gR`, `gW`, `gX`: group Read/Write/eXecute permissions
+        - `oR`, `oW`, `oX`: other Read/Write/eXecute permissions
+        - `dev`, `ino`: device and inode numbers
+
 ]]
 
 do
@@ -399,9 +404,10 @@ doc [[
 lz: compression library
 ------------------------
 
-The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__
-and `QuickLZ <http://www.quicklz.com/>`__.
+The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__, `QuickLZ <http://www.quicklz.com/>`__ and `LZ4 <http://code.google.com/p/lz4/>`__.
 It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
+
+Future versions of BonaLuna may remove or add some compression library.
 ]]
 
 doc [[
@@ -414,9 +420,10 @@ lz.adler
     | `lz.adler(buf)` computes the Adler-32 checksum of `buf`
        using `0` as initial value.
 
-lz.lzo, lz.qlz, lz.best
+lz.lzo, lz.qlz, lz.lz4, lz.best
     | `lz.lzo()` selects the LZO compression library.
     | `lz.qlz()` selects the QuickLZ compression library.
+    | `lz.lz4()` selects the LZ4 compression library.
     | `lz.best()` selects both compression libraries and choose the best.
 
 lz.compress
@@ -426,30 +433,39 @@ lz.decompress
     | `lz.decompress(data)` decompresses `data` and returns the decompressed string.
 ]]
 
-lz.lzo()
-lz.compress("abc")
-
-do
-    local a = "This is a test string"
-    local b = "And this is another test string"
-    local big = string.rep("a lot of bytes; ", 100000)
-    for _, method in ipairs{lz.lzo, lz.qlz, lz.best} do
-        method()
+if lz then
+    do
+        local a = "This is a test string"
+        local b = "And this is another test string"
+        local big = string.rep("a lot of bytes; ", 100000)
         assert(lz.adler(a) == 1362364332)
         assert(lz.adler(b) == 2993425295)
         assert(lz.adler(a..b) == 4051899195)
         assert(lz.adler(a) == lz.adler(0, a))
         assert(lz.adler(a..b) == lz.adler(lz.adler(a), b))
-        assert(lz.decompress(lz.compress(a)) == a)
-        assert(lz.decompress(lz.compress(b)) == b)
-        assert(lz.decompress(lz.compress(big)) == big)
-        assert(#lz.compress(big) < #big)
-        local ok, err = lz.decompress("not a compressed string")
-        assert(ok == nil and err == "lz: not a compressed string")
+        local methods = {lz.lzo, lz.qlz, lz.lz4, lz.best}
+        for i = 1, 4 do
+            if methods[i] then
+                methods[i]()
+                assert(lz.decompress(lz.compress(a)) == a)
+                assert(lz.decompress(lz.compress(b)) == b)
+                assert(lz.decompress(lz.compress(big)) == big)
+                assert(#lz.compress(big) < #big)
+                local ok, err = lz.decompress("not a compressed string")
+                assert(ok == nil and err == "lz: not a compressed string")
+            end
+        end
+        if lz.lzo then
+            lz.lzo() assert(#lz.compress("") == 11) -- same LZO header size on all platforms
+        end
+        if lz.qlz then
+            lz.qlz() assert(#lz.compress("") == 8) -- same QLZ header size on all platforms
+        end
+        if lz.lz4 then
+            lz.lz4() assert(#lz.compress("") == 9) -- same LZ4 header size on all platforms
+        end
+        if lz.best then lz.best() end
     end
-    lz.lzo() assert(#lz.compress("") == 11) -- same LZO header size on all platforms
-    lz.qlz() assert(#lz.compress("") == 8) -- same LZO header size on all platforms
-    lz.best()
 end
 
 doc [[
@@ -578,8 +594,8 @@ and some BonaLuna scripts.
 This feature is inspired by
 `srlua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua>`__.
 
-`glue.lua` parameters
----------------------
+`pegar.lua` parameters
+----------------------
 
 `compile:on|off|min`
     turn compilation on, off or on when chunks are smaller than sources
@@ -658,7 +674,7 @@ do
             f = io.open("tmp/hello.big_str", "w")
             f:write(big_str)
             f:close()
-            os.execute(stub.." ../tools/glue.lua -q"..
+            os.execute(stub.." ../tools/pegar.lua -q"..
                 " compile:"..compile..
                 " compress:"..compress..
                 " read:"..stub..

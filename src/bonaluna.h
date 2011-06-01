@@ -15,6 +15,10 @@ Freely available under the terms of the Lua license.
 #define BONALUNA_COPYRIGHT  BONALUNA_VERSION " Copyright (C) 2010-2011 cdsoft.fr, Christophe Delord"
 #define BONALUNA_AUTHORS    "Christophe Delord"
 
+#if defined(USE_LZO) || defined(USE_QLZ) || defined(USE_LZ4)
+#define USE_LZ
+#endif
+
 #define LUA_FSLIBNAME "fs"
 LUAMOD_API int (luaopen_fs) (lua_State *L);
 
@@ -30,5 +34,7 @@ LUAMOD_API int (luaopen_struct) (lua_State *L);
 #define LUA_RLLIBNAME "rl"
 LUAMOD_API int (luaopen_readline) (lua_State *L);
 
+#if defined(USE_LZ) 
 #define LUA_LZLIBNAME "lz"
 LUAMOD_API int (luaopen_lz) (lua_State *L);
+#endif

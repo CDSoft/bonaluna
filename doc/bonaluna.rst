@@ -29,9 +29,12 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-:Download: http://cdsoft.fr/bl/bonaluna-1.1.2.tgz
+    | **Lua**: `Lua license <http://www.lua.org/license.html#5>`__
+    | **miniLZO**, **QuickLZ**: GPL v2
+    | **LZ4**: BSD
+:Download: http://cdsoft.fr/bl/bonaluna-1.1.3.tgz
 
-:Version: 1.1.2
+:Version: 1.1.3
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -95,10 +98,12 @@ fs.stat
         - `size`: size in bytes
         - `mtime`, `atime`, `ctime`: modification, access and creation
           times.
-        - mode: file permissions
-        - uR, uW, uX: user Read/Write/eXecute permissions
-        - gR, gW, gX: group Read/Write/eXecute permissions
-        - oR, oW, oX: other Read/Write/eXecute permissions
+        - `mode`: file permissions
+        - `uR`, `uW`, `uX`: user Read/Write/eXecute permissions
+        - `gR`, `gW`, `gX`: group Read/Write/eXecute permissions
+        - `oR`, `oW`, `oX`: other Read/Write/eXecute permissions
+        - `dev`, `ino`: device and inode numbers
+
 
 fs.chmod
     | `fs.chmod(name, other_file_name)` sets file `name` permissions as
@@ -146,9 +151,10 @@ fs.aR, fs.aW, fs.aX
 lz: compression library
 ------------------------
 
-The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__
-and `QuickLZ <http://www.quicklz.com/>`__.
+The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__, `QuickLZ <http://www.quicklz.com/>`__ and `LZ4 <http://code.google.com/p/lz4/>`__.
 It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
+
+Future versions of BonaLuna may remove or add some compression library.
 
 Functions
 ~~~~~~~~~
@@ -159,9 +165,10 @@ lz.adler
     | `lz.adler(buf)` computes the Adler-32 checksum of `buf`
        using `0` as initial value.
 
-lz.lzo, lz.qlz, lz.best
+lz.lzo, lz.qlz, lz.lz4, lz.best
     | `lz.lzo()` selects the LZO compression library.
     | `lz.qlz()` selects the QuickLZ compression library.
+    | `lz.lz4()` selects the LZ4 compression library.
     | `lz.best()` selects both compression libraries and choose the best.
 
 lz.compress
@@ -246,8 +253,8 @@ and some BonaLuna scripts.
 This feature is inspired by
 `srlua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua>`__.
 
-`glue.lua` parameters
----------------------
+`pegar.lua` parameters
+----------------------
 
 `compile:on|off|min`
     turn compilation on, off or on when chunks are smaller than sources

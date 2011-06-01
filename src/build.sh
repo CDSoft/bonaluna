@@ -8,6 +8,8 @@ LZO_SRC=minilzo.205
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/minilzo-2.05.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
+LZ4_SRC="LZ4 - BSD"
+LZ4_URL=http://lz4.googlecode.com/files/LZ4%20-%20BSD.zip
 
 function error()
 {
@@ -35,7 +37,7 @@ BITS=$4
 if $clean
 then
     echo "Clean..."
-    rm -rf $BUILD $LUA_SRC
+    rm -rf $BUILD
     exit
 fi
 
@@ -51,6 +53,7 @@ CC_OPTS="-O2 -std=gnu99"
 CC_LIBS="-lm"
 LUA_CONF=
 BONALUNA_CONF="-DVERSION=\"$(cat ../VERSION)\""
+LZ_CONF="-DUSE_LZO -DUSE_QLZ -DUSE_LZ4"
 
 case "$(uname)" in
     MINGW32*)   PLATFORM=Windows ;;
@@ -69,7 +72,6 @@ case "$PLATFORM" in
                 ;;
 esac
 
-
 BONALUNA_CONF="$BONALUNA_CONF -DBONALUNA_PLATFORM=\"$PLATFORM\""
 
 # Download Lua sources
@@ -87,6 +89,9 @@ mkdir -p $QLZ_SRC
     [ -e $QLZ_SRC.h ] || wget $QLZ_URL/$QLZ_SRC.h
 )
 
+[ -e "$LZ4_SRC".zip ] || wget $LZ4_URL
+[ -e "$LZ4_SRC" ] || unzip "$LZ4_SRC.zip"
+
 # Target initialisation
 #######################
 
@@ -94,6 +99,7 @@ mkdir -p $TARGET
 cp -f $LUA_SRC/src/* $TARGET/
 cp -f $LZO_SRC/*.{c,h} $TARGET/
 cp -f $QLZ_SRC/*.{c,h} $TARGET/
+cp -f "$LZ4_SRC"/LZ4/lz4.{c,h} $TARGET/
 
 # BonaLuna patches
 ##################
@@ -122,7 +128,9 @@ awk '
         print "  {LUA_SYSLIBNAME, luaopen_sys},"
         print "  {LUA_STRUCTLIBNAME, luaopen_struct},"
         print "  {LUA_RLLIBNAME, luaopen_readline},"
+        print "#if defined(USE_LZ)"
         print "  {LUA_LZLIBNAME, luaopen_lz},"
+        print "#endif"
         }
     {print}
 ' $LUA_SRC/src/linit.c > $TARGET/linit.c
@@ -229,11 +237,16 @@ sed -i 's/\(#define QLZ_COMPRESSION_LEVEL 1\)/\/\/\1/' $TARGET/quicklz.h
 sed -i 's/\/\/\(#define QLZ_COMPRESSION_LEVEL 3\)/\1/' $TARGET/quicklz.h
 sed -i 's/\/\/\(#define QLZ_MEMORY_SAFE\)/\1/' $TARGET/quicklz.h
 
+# LZ4 patches
+#############
+
+sed -i 's/\/\/ *\(#define SAFEWRITEBUFFER\)/\1/' $TARGET/lz4.h
+
 # Compilation
 #############
 
-echo "$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF -I. -I$TARGET bl.c -o $TARGET/$BL $CC_LIBS"
-$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF -I. -I$TARGET bl.c -o $TARGET/$BL $CC_LIBS || error "Compilation error"
+echo "$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF $LZ_CONF -I. -I$TARGET bl.c -o $TARGET/$BL $CC_LIBS"
+$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF $LZ_CONF -I. -I$TARGET bl.c -o $TARGET/$BL $CC_LIBS || error "Compilation error"
 STRIP=$(echo $CC | sed 's/gcc/strip/')
 $STRIP $TARGET/$BL
 cp $TARGET/$BL .
