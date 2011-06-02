@@ -408,6 +408,9 @@ The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>
 It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
 
 Future versions of BonaLuna may remove or add some compression library.
+
+Currently, only QuickLZ is used (good compression and fast decompression)
+but you can change it in `build.sh`.
 ]]
 
 doc [[
@@ -425,6 +428,8 @@ lz.lzo, lz.qlz, lz.lz4, lz.best
     | `lz.qlz()` selects the QuickLZ compression library.
     | `lz.lz4()` selects the LZ4 compression library.
     | `lz.best()` selects both compression libraries and choose the best.
+    | These functions are available only if several compression libraries
+      are selected in `build.sh`.
 
 lz.compress
     | `lz.compress(data)` compresses `data` and returns the compressed string.
@@ -434,38 +439,33 @@ lz.decompress
 ]]
 
 if lz then
-    do
-        local a = "This is a test string"
-        local b = "And this is another test string"
-        local big = string.rep("a lot of bytes; ", 100000)
-        assert(lz.adler(a) == 1362364332)
-        assert(lz.adler(b) == 2993425295)
-        assert(lz.adler(a..b) == 4051899195)
-        assert(lz.adler(a) == lz.adler(0, a))
-        assert(lz.adler(a..b) == lz.adler(lz.adler(a), b))
-        local methods = {lz.lzo, lz.qlz, lz.lz4, lz.best}
-        for i = 1, 4 do
-            if methods[i] then
-                methods[i]()
-                assert(lz.decompress(lz.compress(a)) == a)
-                assert(lz.decompress(lz.compress(b)) == b)
-                assert(lz.decompress(lz.compress(big)) == big)
-                assert(#lz.compress(big) < #big)
-                local ok, err = lz.decompress("not a compressed string")
-                assert(ok == nil and err == "lz: not a compressed string")
-            end
+    local a = "This is a test string"
+    local b = "And this is another test string"
+    local big = string.rep("a lot of bytes; ", 100000)
+    assert(lz.adler(a) == 1362364332)
+    assert(lz.adler(b) == 2993425295)
+    assert(lz.adler(a..b) == 4051899195)
+    assert(lz.adler(a) == lz.adler(0, a))
+    assert(lz.adler(a..b) == lz.adler(lz.adler(a), b))
+    local function default() end
+    local methods = {default, lz.lzo, lz.qlz, lz.lz4, lz.best}
+    for i = 1, 4 do
+        if methods[i] then
+            methods[i]()
+            assert(lz.decompress(lz.compress(a)) == a)
+            assert(lz.decompress(lz.compress(b)) == b)
+            assert(lz.decompress(lz.compress(big)) == big)
+            assert(#lz.compress(big) < #big)
+            local ok, err = lz.decompress("not a compressed string")
+            assert(ok == nil and err == "lz: not a compressed string")
+            -- same header size on all platforms
+            local h = lz.compress("")
+            if h:sub(1,3) == "LZO" then assert(#h == 11) end
+            if h:sub(1,3) == "QLZ" then assert(#h == 8) end
+            if h:sub(1,3) == "LZ4" then assert(#h == 9) end
         end
-        if lz.lzo then
-            lz.lzo() assert(#lz.compress("") == 11) -- same LZO header size on all platforms
-        end
-        if lz.qlz then
-            lz.qlz() assert(#lz.compress("") == 8) -- same QLZ header size on all platforms
-        end
-        if lz.lz4 then
-            lz.lz4() assert(#lz.compress("") == 9) -- same LZ4 header size on all platforms
-        end
-        if lz.best then lz.best() end
     end
+    if lz.best then lz.best() end
 end
 
 doc [[

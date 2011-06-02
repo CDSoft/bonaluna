@@ -62,6 +62,7 @@ if not lz then
     function lz.compress(data) return data end
     function lz.uncompress(data) return data end
 end
+if lz.best then lz.best() end
 
 function do_read(exe)
     local f = assert(io.open(exe, "rb"))

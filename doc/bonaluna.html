@@ -346,9 +346,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-1.1.3.tgz">http://cdsoft.fr/bl/bonaluna-1.1.3.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-1.1.4.tgz">http://cdsoft.fr/bl/bonaluna-1.1.4.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">1.1.3</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">1.1.4</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -498,6 +498,8 @@ modification time of file <cite>name</cite> with the times of file
 <p>The lzo package uses <a class="reference external" href="http://www.oberhumer.com/opensource/lzo/#minilzo">miniLZO</a>, <a class="reference external" href="http://www.quicklz.com/">QuickLZ</a> and <a class="reference external" href="http://code.google.com/p/lz4/">LZ4</a>.
 It's inspired by the <a class="reference external" href="http://lua-users.org/wiki/LuaModuleLzo">Lua Lzo module</a>.</p>
 <p>Future versions of BonaLuna may remove or add some compression library.</p>
+<p>Currently, only QuickLZ is used (good compression and fast decompression)
+but you can change it in <cite>build.sh</cite>.</p>
 <div class="section" id="id1">
 <h3>Functions</h3>
 <dl class="docutils">
@@ -515,6 +517,8 @@ using <cite>0</cite> as initial value.</div>
 <div class="line"><cite>lz.qlz()</cite> selects the QuickLZ compression library.</div>
 <div class="line"><cite>lz.lz4()</cite> selects the LZ4 compression library.</div>
 <div class="line"><cite>lz.best()</cite> selects both compression libraries and choose the best.</div>
+<div class="line">These functions are available only if several compression libraries
+are selected in <cite>build.sh</cite>.</div>
 </div>
 </dd>
 <dt>lz.compress</dt>

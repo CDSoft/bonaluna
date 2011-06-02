@@ -11,6 +11,11 @@ QLZ_URL=http://www.quicklz.com/
 LZ4_SRC="LZ4 - BSD"
 LZ4_URL=http://lz4.googlecode.com/files/LZ4%20-%20BSD.zip
 
+# uncomment the compression library(ies) you want to use
+#LZ_CONF+="-DUSE_LZO "
+LZ_CONF+="-DUSE_QLZ "
+#LZ_CONF+="-DUSE_LZ4 "
+
 function error()
 {
     echo $*
@@ -53,7 +58,6 @@ CC_OPTS="-O2 -std=gnu99"
 CC_LIBS="-lm"
 LUA_CONF=
 BONALUNA_CONF="-DVERSION=\"$(cat ../VERSION)\""
-LZ_CONF="-DUSE_LZO -DUSE_QLZ -DUSE_LZ4"
 
 case "$(uname)" in
     MINGW32*)   PLATFORM=Windows ;;
@@ -65,10 +69,11 @@ case "$(uname)" in
 esac
 
 case "$PLATFORM" in
-    Linux)      LUA_CONF="$LUA_CONF -DLUA_USE_POSIX -DLUA_USE_DLOPEN -DLUA_USE_READLINE"
+    Linux)      LUA_CONF="$LUA_CONF -DLUA_USE_LINUX"
                 CC_LIBS="$CC_LIBS -ldl -lreadline"
                 ;;
-    Windows)    CC_LIBS="$CC_LIBS -lws2_32"
+    Windows)    #LUA_CONF="$LUA_CONF -DLUA_BUILD_AS_DLL"
+                CC_LIBS="$CC_LIBS -lws2_32"
                 ;;
 esac
 

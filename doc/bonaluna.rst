@@ -32,9 +32,9 @@
     | **Lua**: `Lua license <http://www.lua.org/license.html#5>`__
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
-:Download: http://cdsoft.fr/bl/bonaluna-1.1.3.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-1.1.4.tgz
 
-:Version: 1.1.3
+:Version: 1.1.4
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -156,6 +156,9 @@ It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__
 
 Future versions of BonaLuna may remove or add some compression library.
 
+Currently, only QuickLZ is used (good compression and fast decompression)
+but you can change it in `build.sh`.
+
 Functions
 ~~~~~~~~~
 
@@ -170,6 +173,8 @@ lz.lzo, lz.qlz, lz.lz4, lz.best
     | `lz.qlz()` selects the QuickLZ compression library.
     | `lz.lz4()` selects the LZ4 compression library.
     | `lz.best()` selects both compression libraries and choose the best.
+    | These functions are available only if several compression libraries
+      are selected in `build.sh`.
 
 lz.compress
     | `lz.compress(data)` compresses `data` and returns the compressed string.

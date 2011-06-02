@@ -517,7 +517,9 @@ typedef struct
 
 typedef enum { BEST, LZO, QLZ, LZ4 } t_lz_method;
 
+#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4)) || (defined(USE_QLZ) && defined(USE_LZ4))
 static t_lz_method lz_method = BEST;
+#endif
 
 static int lz_adler(lua_State *L)
 {
@@ -540,29 +542,37 @@ static int lz_adler(lua_State *L)
     return 1;
 }
 
+#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4))
 static int lz_lzo(lua_State *L)
 {
     lz_method = LZO;
     return 0;
 }
+#endif
 
+#if defined(USE_QLZ) && (defined(USE_LZO) || defined(USE_LZ4))
 static int lz_qlz(lua_State *L)
 {
     lz_method = QLZ;
     return 0;
 }
+#endif
 
+#if defined(USE_LZ4) && (defined(USE_LZO) || defined(USE_QLZ))
 static int lz_lz4(lua_State *L)
 {
     lz_method = LZ4;
     return 0;
 }
+#endif
 
+#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4)) || (defined(USE_QLZ) && defined(USE_LZ4))
 static int lz_best(lua_State *L)
 {
     lz_method = BEST;
     return 0;
 }
+#endif
 
 void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
@@ -736,13 +746,13 @@ static int lz_decompress(lua_State *L)
 static const luaL_Reg lzlib[] =
 {
     {"adler", lz_adler},
-#ifdef USE_LZO
+#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4))
     {"lzo", lz_lzo},
 #endif
-#ifdef USE_QLZ
+#if defined(USE_QLZ) && (defined(USE_LZO) || defined(USE_LZ4))
     {"qlz", lz_qlz},
 #endif
-#ifdef USE_LZ4
+#if defined(USE_LZ4) && (defined(USE_LZO) || defined(USE_QLZ))
     {"lz4", lz_lz4},
 #endif
 #if defined(USE_LZO) && (defined(USE_QLZ) || defined(LZ4)) || (defined(USE_QLZ) && defined(LZ4))
@@ -755,10 +765,12 @@ static const luaL_Reg lzlib[] =
 
 LUAMOD_API int luaopen_lz (lua_State *L)
 {
+#ifdef USE_LZO
     if (lzo_init() != LZO_E_OK)
     {
         luaL_error(L, "lz: lzo_init() failed !!!");
     }
+#endif
     luaL_newlib(L, lzlib);
     return 1;
 }
