@@ -32,9 +32,9 @@
     | **Lua**: `Lua license <http://www.lua.org/license.html#5>`__
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
-:Download: http://cdsoft.fr/bl/bonaluna-1.1.4.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-1.1.5.tgz
 
-:Version: 1.1.4
+:Version: 1.1.5
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.

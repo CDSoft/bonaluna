@@ -104,6 +104,15 @@ function do_write(exe)
     fs.chmod(exe, fs.aR, fs.aX, fs.uW)
 end
 
+function min(s, ...)
+    for i = 1, select("#", ...) do
+        if #select(i, ...) < #s then
+            s = select(i, ...)
+        end
+    end
+    return s
+end
+
 function do_lua(name)
     local script_name, real_name = string.match(name, "^(.+)=(.+)$")
     if not script_name then script_name = name real_name = name end
@@ -112,9 +121,9 @@ function do_lua(name)
     local content = assert(f:read "*a")
     f:close()
     content = content:gsub("^#!.-([\r\n])", "%1")  -- loadstring doesn't like "#!..."
-    local compiled_content = string.dump(assert(loadstring(content, script_name)))
-    local compressed_content = lz.compress(content)
-    local compressed_compiled_content = lz.compress(compiled_content)
+    local compiled_content = assert(string.dump(assert(loadstring(content, script_name))))
+    local compressed_content = assert(lz.compress(content))
+    local compressed_compiled_content = assert(lz.compress(compiled_content))
 
     --print(string.rep("-", 50))
     --print("content                    ", #content)
@@ -122,28 +131,25 @@ function do_lua(name)
     --print("compressed_content         ", #compressed_content)
     --print("compressed_compiled_content", #compressed_compiled_content)
 
-    if compiled_content then
-        if (compile=='min' and #compiled_content < #content)
-        or (compile=='on') then
-            content = compiled_content
-        end
-    end
+    local smallest = {
+        off = {
+            off = content,
+            on = compressed_content,
+            min = min(content, compressed_content),
+        },
+        on = {
+            off = compiled_content,
+            on = compressed_compiled_content,
+            min = min(compiled_content, compressed_compiled_content),
+        },
+        min = {
+            off = min(content, compiled_content),
+            on = min(compressed_content, compressed_compiled_content),
+            min = min(content, compiled_content, compressed_content, compressed_compiled_content),
+        },
+    }
 
-    if compressed_content then
-        if (compress=='min' and #compressed_content < #content)
-        or (compress=='on') then
-            content = compressed_content
-        end
-    end
-
-    if compressed_compiled_content then
-        if (compile=='min' and compress=='min' and #compressed_compiled_content < #content)
-        or (compile=='min' and compress=='on' and #compressed_compiled_content < #content)
-        or (compile=='on' and compress=='min' and #compressed_compiled_content < #content)
-        or (compile=='on' and compress=='on') then
-            content = compressed_compiled_content
-        end
-    end
+    content = smallest[compile][compress]
 
     --print("compile", compile, "compress", compress, "=>", #content)
 
@@ -158,12 +164,13 @@ function do_str(name_value)
         value = assert(f:read "*a")
         f:close()
     end
-    local compressed_value = lz.compress(value)
-    if compressed_value then
-        if (compress=='min' and #compressed_value < #value) or (compress=='on') then
-            value = compressed_value
-        end
-    end
+    local compressed_value = assert(lz.compress(value))
+    local smallest = {
+        off = value,
+        on = compressed_value,
+        min = min(value, compressed_value),
+    }
+    value = smallest[compress]
     glue = glue .. struct.pack("I4I4I4sc0", STRING_BLOCK, #name+1, #value, name, value)
 end
 
@@ -173,12 +180,13 @@ function do_file(name)
     local f = assert(io.open(realname, "rb"))
     local content = assert(f:read "*a")
     f:close()
-    local compressed_content = lz.compress(content)
-    if compressed_content then
-        if (compress=='min' and #compressed_content < #content) or (compress=='on') then
-            content = compressed_content
-        end
-    end
+    local compressed_content = assert(lz.compress(content))
+    local smallest = {
+        off = content,
+        on = compressed_content,
+        min = min(content, compressed_content),
+    }
+    content = smallest[compress]
     glue = glue .. struct.pack("I4I4I4sc0", FILE_BLOCK, #filename+1, #content, filename, content)
 end
 
