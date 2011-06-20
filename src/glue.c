@@ -3,7 +3,7 @@
 Copyright (C) 2010-2011 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2 alpha
+BonaLuna is based on Lua 5.2
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -148,7 +148,8 @@ static int glue(lua_State *L, char **argv)
 #define UNCOMPRESS_DATA()                                                                           \
         char *uncompressed;                                                                         \
         size_t uncompressed_len;                                                                    \
-        if (lz_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len))          \
+        int n = lz_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len);       \
+        if (n == 0) /* decompression is ok */                                                       \
         {                                                                                           \
             /* The data was compressed */                                                           \
             free(data);                                                                             \
@@ -158,6 +159,7 @@ static int glue(lua_State *L, char **argv)
         else                                                                                        \
         {                                                                                           \
             /* The data was not compressed */                                                       \
+            lua_pop(L, n);                                                                          \
         }                                                                                           \
 
 #else

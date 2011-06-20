@@ -1,7 +1,19 @@
 #!/usr/bin/env bl
 
+--[[ BonaLuna executable generator
+
+Copyright (C) 2010-2011 Christophe Delord
+http://cdsoft.fr/bl/bonaluna.html
+
+BonaLuna is based on Lua 5.2
+Copyright (C) 2010 Lua.org, PUC-Rio.
+
+Freely available under the terms of the Lua license.
+
+--]]
+
 usage = [[
-usage:
+usage: ]]..arg[-1]..[[ ]]..arg[0]..[[ arguments
 
     -q  quiet
     -v  verbose
@@ -120,10 +132,10 @@ function do_lua(name)
     local f = assert(io.open(real_name, "rb"))
     local content = assert(f:read "*a")
     f:close()
-    content = content:gsub("^#!.-([\r\n])", "%1")  -- loadstring doesn't like "#!..."
-    local compiled_content = assert(string.dump(assert(loadstring(content, script_name))))
-    local compressed_content = assert(lz.compress(content))
-    local compressed_compiled_content = assert(lz.compress(compiled_content))
+    content = content:gsub("^#!.-([\r\n])", "%1")  -- load doesn't like "#!..."
+    local compiled_content = assert(string.dump(assert(load(content, script_name))))
+    local compressed_content = lz.compress(content) or content
+    local compressed_compiled_content = lz.compress(compiled_content) or compiled_content
 
     --print(string.rep("-", 50))
     --print("content                    ", #content)
@@ -164,7 +176,7 @@ function do_str(name_value)
         value = assert(f:read "*a")
         f:close()
     end
-    local compressed_value = assert(lz.compress(value))
+    local compressed_value = lz.compress(value) or value
     local smallest = {
         off = value,
         on = compressed_value,
@@ -180,7 +192,7 @@ function do_file(name)
     local f = assert(io.open(realname, "rb"))
     local content = assert(f:read "*a")
     f:close()
-    local compressed_content = assert(lz.compress(content))
+    local compressed_content = lz.compress(content) or content
     local smallest = {
         off = content,
         on = compressed_content,

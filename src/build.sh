@@ -1,20 +1,26 @@
 #!/bin/bash
 
-BUILD=build
+# BonaLuna compilation script
+#
+# Copyright (C) 2010-2011 Christophe Delord
+# http://cdsoft.fr/bl/bonaluna.html
+#
+# BonaLuna is based on Lua 5.2
+# Copyright (C) 2010 Lua.org, PUC-Rio.
+#
+# Freely available under the terms of the Lua license.
 
-LUA_SRC=lua-5.2.0-alpha
-LUA_URL=http://www.lua.org/work/$LUA_SRC.tar.gz
+LUA_SRC=lua-5.2.0-beta
+LUA_URL=http://www.lua.org/work/$LUA_SRC-rc1.tar.gz
+
 LZO_SRC=minilzo.205
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/minilzo-2.05.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
 LZ4_SRC="LZ4 - BSD"
 LZ4_URL=http://lz4.googlecode.com/files/LZ4%20-%20BSD.zip
-
-# uncomment the compression library(ies) you want to use
-#LZ_CONF+="-DUSE_LZO "
-LZ_CONF+="-DUSE_QLZ "
-#LZ_CONF+="-DUSE_LZ4 "
+CURL_SRC=curl-7.21.6
+CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 
 function error()
 {
@@ -34,10 +40,17 @@ do
     esac
     shift
 done
+BUILD=build
 TARGET=$BUILD/$1
 BL=$2
 CC=$3
 BITS=$4
+
+export CC
+export AR=$(echo $CC | sed 's/gcc/ar/')
+export STRIP=$(echo $CC | sed 's/gcc/strip/')
+export RANLIB=$(echo $CC | sed 's/gcc/ranlib/')
+export WINDRES=$(echo $CC | sed 's/gcc/windres/')
 
 if $clean
 then
@@ -48,6 +61,24 @@ fi
 
 mkdir -p $BUILD
 
+# Check configuration
+#####################
+
+for lib in LZO QLZ LZ4 CRYPT CURL
+do
+    eval USE_$lib=false
+done
+PEGAR_CONF+=" lua:stdlib.lua"
+for lib in $LIBRARIES
+do
+    case "$lib" in
+        QLZ|LZO|LZ4)    export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
+        CRYPT)          export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:crypt.lua";;
+        CURL)           export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:curl.lua";;
+        *)              echo "Unknown library: $lib"; exit 1;;
+    esac
+done
+
 # Check parameters
 ##################
 
@@ -55,9 +86,9 @@ mkdir -p $BUILD
 [ "$BITS" = "32" ] || [ "$BITS" = "64" ] || error "Wrong integer size (should be 32 or 64)"
 
 CC_OPTS="-O2 -std=gnu99"
-CC_LIBS="-lm"
-LUA_CONF=
-BONALUNA_CONF="-DVERSION=\"$(cat ../VERSION)\""
+CC_LIBS2="-lm"
+BONALUNA_CONF="-DBL_VERSION=\"$(cat ../VERSION)\"" 
+CC_INC+=" -I. -I$TARGET"
 
 case "$(uname)" in
     MINGW32*)   PLATFORM=Windows ;;
@@ -69,42 +100,58 @@ case "$(uname)" in
 esac
 
 case "$PLATFORM" in
-    Linux)      LUA_CONF="$LUA_CONF -DLUA_USE_LINUX"
-                CC_LIBS="$CC_LIBS -ldl -lreadline"
+    Linux)      LUA_CONF+=" -DLUA_USE_LINUX"
+                CC_LIBS2+=" -ldl -lreadline -lrt"
                 ;;
-    Windows)    #LUA_CONF="$LUA_CONF -DLUA_BUILD_AS_DLL"
-                CC_LIBS="$CC_LIBS -lws2_32"
+    Windows)    #LUA_CONF+=" -DLUA_BUILD_AS_DLL"
+                CC_LIBS2+=" -lws2_32"
                 ;;
 esac
 
 BONALUNA_CONF="$BONALUNA_CONF -DBONALUNA_PLATFORM=\"$PLATFORM\""
 
-# Download Lua sources
-######################
+# Download Lua and library sources
+##################################
 
 [ -e $(basename $LUA_URL) ] || wget $LUA_URL
 [ -e $LUA_SRC ] || tar xzf $(basename $LUA_URL)
 
-[ -e $(basename $LZO_URL) ] || wget $LZO_URL
-[ -e $LZO_SRC ] || tar xzf $(basename $LZO_URL)
+$USE_LZO && (
+    [ -e $(basename $LZO_URL) ] || wget $LZO_URL
+    [ -e $LZO_SRC ] || tar xzf $(basename $LZO_URL)
+)
 
-mkdir -p $QLZ_SRC
-(   cd $QLZ_SRC
+$USE_QLZ && (
+    mkdir -p $QLZ_SRC
+    cd $QLZ_SRC
     [ -e $QLZ_SRC.c ] || wget $QLZ_URL/$QLZ_SRC.c
     [ -e $QLZ_SRC.h ] || wget $QLZ_URL/$QLZ_SRC.h
 )
 
-[ -e "$LZ4_SRC".zip ] || wget $LZ4_URL
-[ -e "$LZ4_SRC" ] || unzip "$LZ4_SRC.zip"
+$USE_LZ4 && (
+    [ -e "$LZ4_SRC".zip ] || wget $LZ4_URL
+    [ -e "$LZ4_SRC" ] || unzip "$LZ4_SRC.zip"
+)
+
+$USE_CURL && (
+    [ -e $(basename $CURL_URL) ] || wget $CURL_URL
+    [ -e $CURL_SRC ] || tar xzf $(basename $CURL_URL)
+)
 
 # Target initialisation
 #######################
 
 mkdir -p $TARGET
 cp -f $LUA_SRC/src/* $TARGET/
-cp -f $LZO_SRC/*.{c,h} $TARGET/
-cp -f $QLZ_SRC/*.{c,h} $TARGET/
-cp -f "$LZ4_SRC"/LZ4/lz4.{c,h} $TARGET/
+$USE_LZO && cp -f $LZO_SRC/*.{c,h} $TARGET/
+$USE_QLZ && cp -f $QLZ_SRC/*.{c,h} $TARGET/
+$USE_LZ4 && cp -f "$LZ4_SRC"/LZ4/lz4.{c,h} $TARGET/
+$USE_CURL && ! [ -e $TARGET/$CURL_SRC ] && cp -rf $CURL_SRC $TARGET/
+
+case "$PLATFORM" in
+    Linux)      ;;
+    Windows)    ;;
+esac
 
 # BonaLuna patches
 ##################
@@ -135,6 +182,9 @@ awk '
         print "  {LUA_RLLIBNAME, luaopen_readline},"
         print "#if defined(USE_LZ)"
         print "  {LUA_LZLIBNAME, luaopen_lz},"
+        print "#endif"
+        print "#if defined(USE_CURL)"
+        print "  {LUA_CURLLIBNAME, luaopen_cURL},"
         print "#endif"
         }
     {print}
@@ -220,7 +270,7 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
     -e "s/\(b_rrot\)/\1$BITS/g" \
     -e "s/\(bitlib\)/\1$BITS/g" \
     $TARGET/lbitlib.c > $TARGET/lbitlib64.c
-[ $BITS = 64 ] && CC_LIBS="$CC_LIBS $TARGET/lbitlib64.c"
+[ $BITS = 64 ] && CC_LIBS+=" $TARGET/lbitlib64.c"
 
 [ $BITS = 64 ] && awk '
     /LUA_BITLIBNAME/ {
@@ -233,28 +283,118 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
 # LZO patches
 #############
 
-sed -i 's/__LZO_IN_MINLZO/__LZO_IN_MINILZO/g' $TARGET/minilzo.c
+$USE_LZO && (
+    sed -i 's/__LZO_IN_MINLZO/__LZO_IN_MINILZO/g' $TARGET/minilzo.c
+)
 
 # QLZ patches
 #############
 
-sed -i 's/\(#define QLZ_COMPRESSION_LEVEL 1\)/\/\/\1/' $TARGET/quicklz.h
-sed -i 's/\/\/\(#define QLZ_COMPRESSION_LEVEL 3\)/\1/' $TARGET/quicklz.h
-sed -i 's/\/\/\(#define QLZ_MEMORY_SAFE\)/\1/' $TARGET/quicklz.h
+$USE_QLZ && (
+    sed -i 's/\(#define QLZ_COMPRESSION_LEVEL 1\)/\/\/\1/' $TARGET/quicklz.h
+    sed -i 's/\/\/\(#define QLZ_COMPRESSION_LEVEL 3\)/\1/' $TARGET/quicklz.h
+    sed -i 's/\/\/\(#define QLZ_MEMORY_SAFE\)/\1/' $TARGET/quicklz.h
+)
 
 # LZ4 patches
 #############
 
-sed -i 's/\/\/ *\(#define SAFEWRITEBUFFER\)/\1/' $TARGET/lz4.h
+$USE_LZ4 && (
+    sed -i 's/\/\/ *\(#define SAFEWRITEBUFFER\)/\1/' $TARGET/lz4.h
+)
+
+# Luacurl patches
+#################
+
+#$USE_CURL && (
+#    sed -i 's/lua_strlen/lua_rawlen/g' $TARGET/luacurl.c
+#    sed -i 's/luaL_reg/luaL_Reg/g' $TARGET/luacurl.c
+#    sed -i 's/createmeta/luacurl_createmeta/g' $TARGET/luacurl.c
+#    sed -i 's/luaL_openlib (L, 0, luacurl_meths, 0)/luaL_setfuncs(L, luacurl_meths, 0)/' $TARGET/luacurl.c
+#    sed -i 's/luaL_openlib (L, LUACURL_LIBNAME, luacurl_funcs, 0)/luaL_newlib(L, luacurl_funcs)/' $TARGET/luacurl.c
+#    sed -i 's/free_slist(L, key)/\/\/free_slist(L, key)/' $TARGET/luacurl.c
+#)
+
+# External libraries
+####################
+
+export EXTLIBS=`pwd`/$TARGET
+export INCLUDE_PATH=$EXTLIBS/include
+export LIBRARY_PATH=$EXTLIBS/lib
+mkdir -p $INCLUDE_PATH $LIBRARY_PATH
+CC_INC+=" -I$INCLUDE_PATH"
+CC_LIBS+=" -L$LIBRARY_PATH"
+
+# cURL configuration
+####################
+
+case $PLATFORM in
+    Linux)      LIB_CURL=$TARGET/$CURL_SRC/lib/.libs/libcurl.a ;;
+    Windows)    LIB_CURL=$TARGET/$CURL_SRC/lib/libcurl.a ;;
+esac
+$USE_CURL && ! [ -e $LIB_CURL ] && (
+    cd $TARGET/$CURL_SRC
+    CURL_CONF="--without-ldap-lib --without-zlib --without-ssl
+        --enable-http
+        --enable-ftp
+        --enable-file
+        --disable-ldap
+        --disable-ldaps
+        --enable-rtsp
+        --enable-proxy
+        --enable-dict
+        --enable-telnet
+        --enable-tftp
+        --enable-pop3
+        --enable-imap
+        --enable-smtp
+        --disable-gopher
+        --disable-manual
+        --enable-ipv6
+        --enable-verbose
+        --disable-sspi
+        --disable-crypto-auth
+        --disable-tls-srp
+        --enable-cookies
+    "
+    case $PLATFORM in
+        Linux)      ./configure --disable-shared $CURL_CONF && (
+                        cd lib && make
+                    );;
+        Windows)    ./configure --disable-shared $CURL_CONF && (
+                        sed -i "s/CC =.*/CC = $CC/" lib/Makefile.m32
+                        sed -i "s/AR =.*/AR = $AR/" lib/Makefile.m32
+                        sed -i "s/RANLIB =.*/RANLIB = $RANLIB/" lib/Makefile.m32
+                        sed -i "s/RC =.*/RC = $WINDRES/" lib/Makefile.m32
+                        sed -i "s/STRIP =.*/STRIP = $STRIP -g/" lib/Makefile.m32
+                        cd lib && make -f Makefile.m32
+                    );;
+    esac
+)
+$USE_CURL && cp -f $LIB_CURL $LIBRARY_PATH/
+$USE_CURL && cp -rf $TARGET/$CURL_SRC/include/curl $INCLUDE_PATH/
+$USE_CURL && CC_LIBS="$LIBRARY_PATH/libcurl.a $CC_LIBS"
+case $PLATFORM in
+    Linux)      CC_LIBS2+="" ;;
+    Windows)    BONALUNA_CONF+=" -DCURL_STATICLIB"
+                CC_LIBS2+=" -lwldap32" ;;
+esac
 
 # Compilation
 #############
 
-echo "$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF $LZ_CONF -I. -I$TARGET bl.c -o $TARGET/$BL $CC_LIBS"
-$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF $LZ_CONF -I. -I$TARGET bl.c -o $TARGET/$BL $CC_LIBS || error "Compilation error"
-STRIP=$(echo $CC | sed 's/gcc/strip/')
+if [ "$PLATFORM" = "Windows" ] && [ -e "$ICON" ]
+then
+    echo "100 ICON DISCARDABLE \"$ICON\"" > icon.rc
+    $WINDRES -i icon.rc -o icon.o
+    CC_LIBS+=" icon.o"
+fi
+echo "$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF $CC_INC bl.c -o $TARGET/$BL $CC_LIBS $CC_LIBS2"
+$CC -g $CC_OPTS $LUA_CONF $BONALUNA_CONF $CC_INC bl.c -o $TARGET/$BL $CC_LIBS $CC_LIBS2 || error "Compilation error"
 $STRIP $TARGET/$BL
-cp $TARGET/$BL .
+[ -n "$COMPRESS" ] && $COMPRESS $TARGET/$BL
+$TARGET/$BL ../tools/pegar.lua read:$TARGET/$BL $PEGAR_CONF write:$BL
+#cp $TARGET/$BL .
 
 # Documentation and tests
 #########################

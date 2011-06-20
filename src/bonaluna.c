@@ -3,7 +3,7 @@
 Copyright (C) 2010-2011 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2 alpha
+BonaLuna is based on Lua 5.2
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -16,9 +16,28 @@ Freely available under the terms of the Lua license.
 #include "sys/stat.h"
 #include "unistd.h"
 #include "utime.h"
+//#include <string.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <time.h>
+#include <stdint.h>
 
 #ifdef __MINGW32__
-#include "windows.h"
+//#include <winsock2.h>
+#include <windows.h>
+#else
+#include "glob.h"
+//#include <sys/types.h>
+//#include <sys/socket.h>
+//#include <netinet/in.h>
+//#include <arpa/inet.h>
+//#include <sys/time.h>
+//#include <unistd.h>
+//#include <signal.h>
+//#include <fcntl.h>
+//#include <netdb.h>
+//#include <errno.h>
+//#include <endian.h>
 #endif
 
 #define BL_PATHSIZE 1024
@@ -45,6 +64,20 @@ static int bl_pusherror(lua_State *L, const char *msg)
 {
     lua_pushnil(L);
     lua_pushstring(L, msg);
+    return 2;
+}
+
+static int bl_pusherror1(lua_State *L, const char *msg, const char *arg1)
+{
+    lua_pushnil(L);
+    lua_pushfstring(L, msg, arg1);
+    return 2;
+}
+
+static int bl_pusherror2(lua_State *L, const char *msg, const char *arg1, int arg2)
+{
+    lua_pushnil(L);
+    lua_pushfstring(L, msg, arg1, arg2);
     return 2;
 }
 
@@ -82,22 +115,6 @@ static int fs_dir(lua_State *L)
     }
     DIR *dir = opendir(path);
     struct dirent *file;
-    char fullpath[BL_PATHSIZE+1] = "";
-    char *fullpathend = fullpath;
-    int fullpathlen = strlen(path);
-    struct stat buf;
-    if (fullpathlen > 0)
-    {
-        strncpy(fullpath, path, BL_PATHSIZE);
-        fullpathend += fullpathlen;
-        if (*(fullpathend-1) != '\\' && *(fullpathend-1) != '/')
-        {
-            strncpy(fullpathend, LUA_DIRSEP, BL_PATHSIZE-fullpathlen);
-            fullpathend++;
-            fullpathlen++;
-        }
-    }
-    //printf("fullpath = %s %d\n", fullpath, fullpathend-fullpath);
     int n = 0;
     if (dir)
     {
@@ -106,18 +123,7 @@ static int fs_dir(lua_State *L)
         {
             if (strcmp(file->d_name, ".")==0) continue;
             if (strcmp(file->d_name, "..")==0) continue;
-            lua_newtable(L); /* file info (name, path, type) */
-            lua_pushstring(L, file->d_name); lua_setfield(L, -2, "name");
-            strncpy(fullpathend, file->d_name, BL_PATHSIZE-fullpathlen);
-            lua_pushstring(L, fullpath); lua_setfield(L, -2, "path");
-#ifdef __MINGW32__
-            stat(fullpath, &buf);
-            //printf("%s %s %d\n", file->d_name, fullpath, S_ISDIR(buf.st_mode));
-            lua_pushstring(L, S_ISDIR(buf.st_mode)?"directory":S_ISREG(buf.st_mode)?"file":"unknown");
-#else
-            lua_pushstring(L, file->d_type==DT_DIR?"directory":file->d_type==DT_REG?"file":"unknown");
-#endif
-            lua_setfield(L, -2, "type");
+            lua_pushstring(L, file->d_name);
             lua_rawseti(L, -2, ++n);
         }
         closedir(dir);
@@ -128,6 +134,50 @@ static int fs_dir(lua_State *L)
         return bl_pushresult(L, 0, path);
     }
 }
+
+#ifdef __MINGW32__
+
+/* no glob function */
+/* TODO: implement glob in Lua (bl.lua may contain standard BonaLuna libraries) */
+
+#else
+
+static int fs_glob(lua_State *L)
+{
+    const char *pattern;
+    if (lua_isstring(L, 1))
+    {
+        pattern = luaL_checkstring(L, 1);
+    }
+    else if (lua_isnoneornil(L, 1))
+    {
+        pattern = "*";
+    }
+    else
+    {
+        return bl_pusherror(L, "bad argument #1 to pattern (none, nil or string expected)");
+    }
+    glob_t globres;
+    unsigned int i;
+    int r = glob(pattern, GLOB_BRACE, NULL, &globres);
+    if (r == 0 || r == GLOB_NOMATCH)
+    {
+        lua_newtable(L); /* file list */
+        for (i=1; i<=globres.gl_pathc; i++)
+        {
+            lua_pushstring(L, globres.gl_pathv[i-1]);
+            lua_rawseti(L, -2, i);
+        }
+        globfree(&globres);
+        return 1;
+    }
+    else
+    {
+        return bl_pushresult(L, 0, pattern);
+    }
+}
+
+#endif
 
 static int fs_remove(lua_State *L)
 {
@@ -307,7 +357,7 @@ static int fs_touch(lua_State *L)
 
 static int fs_basename(lua_State *L)
 {
-    char path[BL_PATHSIZE];
+    char path[BL_PATHSIZE+1];
     strncpy(path, luaL_checkstring(L, 1), BL_PATHSIZE);
     path[BL_PATHSIZE] = '\0';
     char *p = path;
@@ -320,7 +370,7 @@ static int fs_basename(lua_State *L)
 
 static int fs_dirname(lua_State *L)
 {
-    char path[BL_PATHSIZE];
+    char path[BL_PATHSIZE+1];
     strncpy(path, luaL_checkstring(L, 1), BL_PATHSIZE);
     path[BL_PATHSIZE] = '\0';
     char *p = path;
@@ -334,7 +384,7 @@ static int fs_dirname(lua_State *L)
 
 static int fs_absname(lua_State *L)
 {
-    char path[BL_PATHSIZE];
+    char path[BL_PATHSIZE+1];
     const char *name = luaL_checkstring(L, 1);
     if (  name[0] == '/' || name[0] == '\\'
        || name[0] && name[1] == ':'
@@ -359,6 +409,11 @@ static const luaL_Reg fslib[] =
     {"getcwd",      fs_getcwd},
     {"chdir",       fs_chdir},
     {"dir",         fs_dir},
+#ifdef __MINGW32__
+    /* no glob function */
+#else
+    {"glob",        fs_glob},
+#endif
     {"remove",      fs_remove},
     {"rename",      fs_rename},
     {"mkdir",       fs_mkdir},
@@ -505,44 +560,23 @@ LUAMOD_API int luaopen_sys (lua_State *L)
 
 #ifdef USE_LZ
 
-#define LZO_SIG 0x004F5A4C
-#define QLZ_SIG 0x005A4C51
-#define LZ4_SIG 0x00345A4C
+#define LZO_SIG  0x004F5A4C
+#define QLZ_SIG  0x005A4C51
+#define LZ4_SIG  0x00345A4C
 
 typedef struct
 {
-    lzo_uint32  sig;
-    lzo_uint32  len;
+    uint32_t  sig;
+    uint32_t  len;
 } t_lz_header;
 
 typedef enum { BEST, LZO, QLZ, LZ4 } t_lz_method;
 
-#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4)) || (defined(USE_QLZ) && defined(USE_LZ4))
+#ifdef USE_LZ_TWO_OR_MORE
 static t_lz_method lz_method = BEST;
 #endif
 
-static int lz_adler(lua_State *L)
-{
-    lzo_uint32 adler;
-    const lzo_bytep buf;
-    lzo_uint len;
-    if (lua_isnoneornil(L, 2))
-    {
-        adler = 0;
-        buf = luaL_checkstring(L, 1);
-        len = lua_rawlen(L, 1);
-    }
-    else
-    {
-        adler = luaL_checknumber(L, 1);
-        buf = luaL_checkstring(L, 2);
-        len = lua_rawlen(L, 2);
-    }
-    lua_pushunsigned(L, lzo_adler32(adler, buf, len));
-    return 1;
-}
-
-#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4))
+#ifdef USE_LZO_AND_MORE
 static int lz_lzo(lua_State *L)
 {
     lz_method = LZO;
@@ -550,7 +584,7 @@ static int lz_lzo(lua_State *L)
 }
 #endif
 
-#if defined(USE_QLZ) && (defined(USE_LZO) || defined(USE_LZ4))
+#ifdef USE_QLZ_AND_MORE
 static int lz_qlz(lua_State *L)
 {
     lz_method = QLZ;
@@ -558,7 +592,7 @@ static int lz_qlz(lua_State *L)
 }
 #endif
 
-#if defined(USE_LZ4) && (defined(USE_LZO) || defined(USE_QLZ))
+#ifdef USE_LZ4_AND_MORE
 static int lz_lz4(lua_State *L)
 {
     lz_method = LZ4;
@@ -566,7 +600,15 @@ static int lz_lz4(lua_State *L)
 }
 #endif
 
-#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4)) || (defined(USE_QLZ) && defined(USE_LZ4))
+#ifdef USE_ZLIB_AND_MORE
+static int lz_zlib(lua_State *L)
+{
+    lz_method = ZLIB;
+    return 0;
+}
+#endif
+
+#ifdef USE_LZ_TWO_OR_MORE
 static int lz_best(lua_State *L)
 {
     lz_method = BEST;
@@ -574,10 +616,10 @@ static int lz_best(lua_State *L)
 }
 #endif
 
-void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+int lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-#if defined(USE_LZO)
-#if defined(USE_QLZ) || defined(USE_LZ4)
+#ifdef USE_LZO
+#ifdef USE_LZO_AND_MORE
     if (lz_method == LZO || lz_method == BEST)
     {
 #endif
@@ -587,17 +629,22 @@ void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst,
         lzo_uint lzo_dst_len = src_len + src_len/16 + 64 + 3 + sizeof(t_lz_header);
         lzo_bytep lzo_dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
         int r = lzo1x_1_compress(src, src_len, lzo_dst+sizeof(t_lz_header), &lzo_dst_len, wrkmem);
-        if (r != LZO_E_OK) luaL_error(L, "lz: lzo1x_1_compress failed (error: %d)", r);
+        if (r != LZO_E_OK)
+        {
+            lua_pushnil(L);
+            lua_pushfstring(L, "lz: lzo1x_1_compress failed (error: %d)", r);
+            return 2;
+        }
         ((t_lz_header*)lzo_dst)->sig = LZO_SIG;
         ((t_lz_header*)lzo_dst)->len = src_len;
         *dst = lzo_dst;
         *dst_len = lzo_dst_len;
-#if defined(USE_QLZ) || defined(USE_LZ4)
+#ifdef USE_LZO_AND_MORE
     }
 #endif
 #endif
-#if defined(USE_QLZ)
-#if defined(USE_LZO) || defined(USE_LZ4)
+#ifdef USE_QLZ
+#ifdef USE_QLZ_AND_MORE
     if (lz_method == QLZ || lz_method == BEST)
     {
 #endif
@@ -607,7 +654,7 @@ void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst,
         free(state_compress);
         ((t_lz_header*)qlz_dst)->sig = QLZ_SIG;
         ((t_lz_header*)qlz_dst)->len = src_len;
-#if !defined(USE_LZO)
+#ifdef USE_QLZ_FIRST
         *dst = qlz_dst;
         *dst_len = qlz_dst_len;
 #else
@@ -630,12 +677,12 @@ void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst,
             }
         }
 #endif
-#if defined(USE_LZO) || defined(USE_LZ4)
+#ifdef USE_QLZ_AND_MORE
     }
 #endif
 #endif
-#if defined(USE_LZ4)
-#if defined(USE_LZO) || defined(USE_QLZ)
+#ifdef USE_LZ4
+#ifdef USE_LZ4_AND_MORE
     if (lz_method == LZ4 || lz_method == BEST)
     {
 #endif
@@ -643,7 +690,7 @@ void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst,
         int lz4_dst_len = LZ4_compress((char*)src, lz4_dst+sizeof(t_lz_header), src_len);
         ((t_lz_header*)lz4_dst)->sig = LZ4_SIG;
         ((t_lz_header*)lz4_dst)->len = src_len;
-#if !defined(USE_LZO) && !defined(USE_QLZ)
+#ifdef USE_LZ4_FIRST
         *dst = lz4_dst;
         *dst_len = lz4_dst_len;
 #else
@@ -666,11 +713,12 @@ void lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst,
             }
         }
 #endif
-#if defined(USE_LZO) || defined(USE_QLZ)
+#ifdef USE_LZ4_AND_MORE
     }
 #endif
 #endif
     *dst_len += sizeof(t_lz_header);
+    return 0;
 }
 
 int lz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
@@ -681,9 +729,14 @@ int lz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst
         lzo_uint lzo_dst_len = ((t_lz_header*)src)->len;
         *dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
         int r = lzo1x_decompress_safe(src+sizeof(t_lz_header), src_len-sizeof(t_lz_header), *dst, &lzo_dst_len, NULL);
-        if (r != LZO_E_OK) luaL_error(L, "lz: lzo1x_decompress failed (error: %d)", r);
+        if (r != LZO_E_OK)
+        {
+            lua_pushnil(L);
+            lua_pushfstring(L, "lz: lzo1x_decompress failed (error: %d)", r);
+            return 2;
+        }
         *dst_len = lzo_dst_len;
-        return 1;
+        return 0;
     }
 #endif
 #ifdef USE_QLZ
@@ -694,18 +747,20 @@ int lz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst
         *dst = (char*)malloc(*dst_len);
         *dst_len = qlz_decompress(src+sizeof(t_lz_header), *dst, state_decompress);
         free(state_decompress);
-        return 1;
+        return 0;
     }
 #endif
 #ifdef USE_LZ4
     if (((t_lz_header*)src)->sig == LZ4_SIG)
     {
-        *dst = (char*)malloc(((t_lz_header*)src)->len + 3);
+        *dst = (char*)malloc(((t_z_header*)src)->len + 3);
         *dst_len = LZ4_decode((char*)(src+sizeof(t_lz_header)), *dst, src_len-sizeof(t_lz_header));
-        return 1;
+        return 0;
     }
 #endif
-    return 0;
+    lua_pushnil(L);
+    lua_pushstring(L, "lz: not a compressed string");
+    return 2;
 }
         
 static int lz_compress(lua_State *L)
@@ -714,7 +769,8 @@ static int lz_compress(lua_State *L)
     size_t src_len = lua_rawlen(L, 1);
     char *dst;
     size_t dst_len;
-    lz_compress_core(L, src, src_len, &dst, &dst_len);
+    int n = lz_compress_core(L, src, src_len, &dst, &dst_len);
+    if (n > 0) return n; /* error messages pushed by lz_compress_core */
     lua_pop(L, 1);
     lua_pushlstring(L, dst, (size_t)(dst_len));
     free(dst);
@@ -727,35 +783,26 @@ static int lz_decompress(lua_State *L)
     size_t src_len = lua_rawlen(L, 1);
     char *dst;
     size_t dst_len;
-    if (lz_decompress_core(L, src, src_len, &dst, &dst_len))
-    {
-        lua_pop(L, 1);
-        lua_pushlstring(L, dst, (size_t)(dst_len));
-        free(dst);
-        return 1;
-    }
-    else
-    {
-        lua_pop(L, 1);
-        lua_pushnil(L);
-        lua_pushstring(L, "lz: not a compressed string");
-        return 2;
-    }
+    int n = lz_decompress_core(L, src, src_len, &dst, &dst_len);
+    if (n > 0) return n; /* error messages pushed by lz_decompress_core */
+    lua_pop(L, 1);
+    lua_pushlstring(L, dst, (size_t)(dst_len));
+    free(dst);
+    return 1;
 }
 
 static const luaL_Reg lzlib[] =
 {
-    {"adler", lz_adler},
-#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4))
+#ifdef USE_LZO_AND_MORE
     {"lzo", lz_lzo},
 #endif
-#if defined(USE_QLZ) && (defined(USE_LZO) || defined(USE_LZ4))
+#ifdef USE_QLZ_AND_MORE
     {"qlz", lz_qlz},
 #endif
-#if defined(USE_LZ4) && (defined(USE_LZO) || defined(USE_QLZ))
+#ifdef USE_LZ4_AND_MORE
     {"lz4", lz_lz4},
 #endif
-#if defined(USE_LZO) && (defined(USE_QLZ) || defined(LZ4)) || (defined(USE_QLZ) && defined(LZ4))
+#ifdef USE_Z_TWO_OR_MORE
     {"best", lz_best},
 #endif
     {"compress", lz_compress},
@@ -776,3 +823,4 @@ LUAMOD_API int luaopen_lz (lua_State *L)
 }
 
 #endif
+

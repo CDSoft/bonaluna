@@ -3,7 +3,7 @@
 Copyright (C) 2010-2011 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2 alpha
+BonaLuna is based on Lua 5.2
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -51,12 +51,21 @@ Freely available under the terms of the Lua license.
 #include "linit.c"
 
 /* BonaLuna libraries */
+#ifdef USE_LZO
 #include "minilzo.c"
+#endif
+#ifdef USE_QLZ
 #include "quicklz.c"
+#endif
+#ifdef USE_LZ4
 #include "lz4.c"
+#endif
 #include "bonaluna.c"
 #include "struct.c"
 #include "readline.c"
+#ifdef USE_CURL
+#include "curl.c"
+#endif
 
 /* BonaLuna "glue" */
 #include "glue.c"

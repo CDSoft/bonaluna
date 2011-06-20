@@ -3,7 +3,7 @@
 Copyright (C) 2010-2011 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2 alpha
+BonaLuna is based on Lua 5.2
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -21,6 +21,10 @@ do
     os.remove(bl_rst)
 end
 
+function p(fmt, ...)
+    io.stderr:write(string.format(fmt, ...).."\n")
+end
+
 BONALUNA_VERSION = assert(io.popen(arg[-1].." -v")):read("*l"):gsub("BonaLuna%s([%d%.]+).*", "%1")
 
 doc([[
@@ -29,7 +33,7 @@ doc([[
 ..  Copyright (C) 2010-2011 Christophe Delord
     http://www.cdsoft.fr/bl/bonaluna.html
 
-..  BonaLuna is based on Lua 5.2 alpha
+..  BonaLuna is based on Lua 5.2
     Copyright (C) 2010 Lua.org, PUC-Rio.
 
 ..  Freely available under the terms of the Lua license.
@@ -41,7 +45,7 @@ doc([[
  A compact Lua extension
 -------------------------
 
-.. sidebar:: Based on `Lua 5.2 alpha <http://www.lua.org/work>`__
+.. sidebar:: Based on `Lua 5.2 <http://www.lua.org/work>`__
 
     .. image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
 
@@ -58,6 +62,7 @@ doc([[
     | **Lua**: `Lua license <http://www.lua.org/license.html#5>`__
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
+    | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
 :Download: http://cdsoft.fr/bl/bonaluna-]]..BONALUNA_VERSION..[[.tgz
 
 :Version: ]]..BONALUNA_VERSION..[[
@@ -80,11 +85,118 @@ Lua
 The original Lua interpretor and documentation is available
 at http://www.lua.org.
 
-BonaLuna is based on `]].._VERSION..[[ alpha <lua/contents.html>`__.
+BonaLuna is based on `]].._VERSION..[[ <lua/contents.html>`__.
 
 BonaLuna packages
 =================
 ]])
+
+doc [[
+crypt: Cryptographic functions
+-------------------------------
+
+The `crypt` package is a pure Lua package (i.e. not really fast).
+]]
+
+doc [[
+Functions
+~~~~~~~~~
+
+crypt.base64.encode
+    | `crypt.base64.encode(data)` encodes `data` in base64.
+
+crypt.base64.decode
+    | `crypt.base64.decode(data)` decodes the base64 `data`.
+
+crypt.crc32
+    | `crypt.crc32(data)` computes the CRC32 of `data`.
+
+crypt.sha1, crypt.sha224, crypt.sha256
+    | `crypt.shaXXX(data)` computes an SHA digest of `data`.
+
+]]
+
+doc [[
+Objects
+~~~~~~~
+
+crypto.AES
+    | `crypto.AES(password [,keylen [,mode] ])` returns an AES codec.
+      `password` is the encryption/decryption key, `keylen` is the length
+      of the key (128 (default), 192 or 256), `mode` is the encryption/decryption
+      mode ("cbc" (default) or "ecb").
+      `crypto.AES` objects have two methods: `encrypt(data)` and `decrypt(data)`.
+
+]]
+
+if crypt then
+    local data = "The quick brown fox jumps over the lazy dog"
+    -- base64
+    assert(crypt.base64.encode(data) == "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw==")
+    assert(crypt.base64.decode("VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw==") == data)
+    -- crc32
+    assert(crypt.crc32(data) == 0x414FA339)
+    -- sha1
+    assert(crypt.sha1(data) == "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12")
+    -- sha224, sha256
+    assert(crypt.sha224(data) == "730e109bd7a8a32b1cb9d9a09aa2325d2430587ddbc0c38bad911525")
+    assert(crypt.sha256(data) == "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592")
+    -- aes
+    local keylen = {128, 192, 256}
+    local method = {"ecb", "cbc"}
+    for i = 1, #keylen+1 do
+    for j = 1, #method+1 do
+    if not (keylen[i] == nil and method[j] ~= nil) then
+        local aes = crypt.AES("my key", keylen[i], method[j])
+        local aes2 = crypt.AES("your key", keylen[i], method[j])
+        assert(aes.encrypt(data) ~= data)
+        assert(aes.decrypt(aes.encrypt(data)) == data)
+        assert(aes2.encrypt(data) ~= data)
+        assert(aes2.decrypt(aes2.encrypt(data)) == data)
+        assert(aes2.encrypt(data) ~= aes.encrypt(data))
+        assert(not aes2.decrypt(aes.encrypt(data)))
+        assert(not aes.decrypt(aes2.encrypt(data)))
+    end
+    end
+    end
+end
+
+doc [[
+curl: libcurl interface
+-----------------------
+
+`libcurl <http://curl.haxx.se/>`__ is multiprotocol file transfer library.
+This package is a simple Lua interface to libcurl.
+
+This package is based on `Lua-cURL <http://luaforge.net/projects/lua-curl/>`__
+and provides the same API plus a few higher level objects.
+
+Objects
+~~~~~~~
+
+curl.FTP
+    | `curl.FTP(url [, login, password])` creates an FTP object to connect to
+      the FTP server at `url`. `login` and `password` are optional.
+      Methods are:
+
+        - `cd(path)`: changes the *current working directory*. No connection is
+          made, `path` is just stored internally for later connections.
+
+        - `get(path)`: retrieves `path`.
+
+        - `put(path, data)`: sends and stores the string `data` to the file `path`.
+
+        - `del(path)`: deletes the file `path`.
+
+        - `mkdir(path)`: creates the directory `path`.
+
+        - `rmdir(path)`: deletes the directory `path`.
+
+        - `list(path)`: returns an iterator listing the directory `path`.
+
+FTP connections are made through the cURL easy interface, each request is in
+fact an entire connection (and deconnection).
+]]
 
 doc [[
 fs: File System
@@ -106,13 +218,17 @@ fs.chdir
 
 function rm_rf(path)
     if fs.stat(path) then
-        local files = fs.dir(path)
-        if files then
-            for i = 1, #files do
-                assert(fs.remove(path..fs.sep..files[i].name))
+        local dirs = {}
+        for name in fs.walk(path) do
+            if fs.stat(name).type == "directory" then
+                table.insert(dirs, name)
+            else
+                assert(fs.remove(name))
             end
         end
-        assert(fs.remove(path))
+        while #dirs > 0 do
+            assert(fs.remove(table.remove(dirs)))
+        end
     end
 end
 
@@ -138,6 +254,11 @@ fs.dir
     | `fs.dir()` returns the list of files and directories in the
       current directory.
 
+fs.walk
+    | `fs.walk(path)` returns an iterator listing directory and file names
+      in `path` and its subdirectories.
+    | `fs.walk()` is equivalent to `fs.walk('.')`.
+
 fs.mkdir
     | `fs.mkdir(path)` creates a new directory `path`.
 
@@ -155,16 +276,13 @@ do
     io.open("foo/file1.c", "w"):close()
     assert(fs.mkdir("foo/bar"))
     io.open("foo/file2.lua", "w"):close()
+    io.open("foo/bar/file3.lua", "w"):close()
     local function check_foo(dir, path)
         assert(#dir == 3)
-        assert(dir[1].name~=dir[2].name and dir[1].name~=dir[3].name and dir[2].name~=dir[3].name)
-        assert(dir[1].name=="file1.c" or dir[1].name=="file2.lua" or dir[1].name=="bar", dir[1].name)
-        assert(dir[2].name=="file1.c" or dir[2].name=="file2.lua" or dir[2].name=="bar", dir[2].name)
-        assert(dir[3].name=="file1.c" or dir[3].name=="file2.lua" or dir[3].name=="bar", dir[3].name)
-        assert(dir[1].type==(dir[1].name=="bar" and "directory" or "file"))
-        assert(dir[2].type==(dir[2].name=="bar" and "directory" or "file"))
-        assert(dir[3].type==(dir[3].name=="bar" and "directory" or "file"))
-        assert(dir[1].path == path..fs.sep..dir[1].name)
+        assert(dir[1]~=dir[2] and dir[1]~=dir[3] and dir[2]~=dir[3])
+        assert(dir[1]=="file1.c" or dir[1]=="file2.lua" or dir[1]=="bar", dir[1])
+        assert(dir[2]=="file1.c" or dir[2]=="file2.lua" or dir[2]=="bar", dir[2])
+        assert(dir[3]=="file1.c" or dir[3]=="file2.lua" or dir[3]=="bar", dir[3])
     end
     local foo = assert(fs.dir("foo"))
     check_foo(foo, "foo")
@@ -174,20 +292,30 @@ do
     assert(fs.chdir(".."))
     local function check_foo2(dir)
         assert(#dir == 2)
-        assert(dir[1].name~=dir[2].name)
-        assert(dir[1].name=="file2.lua" or dir[1].name=="bar2", dir[1].name)
-        assert(dir[2].name=="file2.lua" or dir[2].name=="bar2", dir[2].name)
-        assert(dir[1].type==(dir[1].name=="bar2" and "directory" or "file"))
-        assert(dir[2].type==(dir[2].name=="bar2" and "directory" or "file"))
+        assert(dir[1]~=dir[2])
+        assert(dir[1]=="file2.lua" or dir[1]=="bar2", dir[1])
+        assert(dir[2]=="file2.lua" or dir[2]=="bar2", dir[2])
+    end
+    local names = {
+        "foo",
+            "foo/file1.c",
+            "foo/file2.lua",
+            "foo/bar",
+                "foo/bar/file3.lua"
+    }
+    local i = 0
+    for name in fs.walk "foo" do
+        i = i + 1
+        assert(name == names[i]:gsub("/", fs.sep))
     end
     assert(fs.remove("foo/file1.c"))
     assert(fs.rename("foo/bar", "foo/bar2"))
     check_foo2(fs.dir("foo"))
     local function check_foo3(dir)
         assert(#dir == 1)
-        assert(dir[1].name=="file3.lua", dir[1].name)
-        assert(dir[1].type=="file")
+        assert(dir[1]=="file3.lua", dir[1])
     end
+    assert(fs.remove("foo/bar2/file3.lua"))
     assert(fs.remove("foo/bar2"))
     assert(fs.rename("foo/file2.lua", "foo/file3.lua"))
     check_foo3(fs.dir("foo"))
@@ -402,26 +530,20 @@ fs.aR, fs.aW, fs.aX
 
 doc [[
 lz: compression library
-------------------------
+-----------------------
 
-The lzo package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__, `QuickLZ <http://www.quicklz.com/>`__ and `LZ4 <http://code.google.com/p/lz4/>`__.
+The lz package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__, `QuickLZ <http://www.quicklz.com/>`__ and `LZ4 <http://code.google.com/p/lz4/>`__.
 It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
 
 Future versions of BonaLuna may remove or add some compression library.
 
-Currently, only QuickLZ is used (good compression and fast decompression)
-but you can change it in `build.sh`.
+Currently, only QuickLZ is used in the default BonaLuna distribution
+but you can change it in `setup`.
 ]]
 
 doc [[
 Functions
 ~~~~~~~~~
-
-lz.adler
-    | `lz.adler(adler, buf)` computes the Adler-32 checksum of `buf`
-       using `adler` as initial value.
-    | `lz.adler(buf)` computes the Adler-32 checksum of `buf`
-       using `0` as initial value.
 
 lz.lzo, lz.qlz, lz.lz4, lz.best
     | `lz.lzo()` selects the LZO compression library.
@@ -429,7 +551,7 @@ lz.lzo, lz.qlz, lz.lz4, lz.best
     | `lz.lz4()` selects the LZ4 compression library.
     | `lz.best()` selects both compression libraries and choose the best.
     | These functions are available only if several compression libraries
-      are selected in `build.sh`.
+      are selected in `setup`.
 
 lz.compress
     | `lz.compress(data)` compresses `data` and returns the compressed string.
@@ -442,14 +564,9 @@ if lz then
     local a = "This is a test string"
     local b = "And this is another test string"
     local big = string.rep("a lot of bytes; ", 100000)
-    assert(lz.adler(a) == 1362364332)
-    assert(lz.adler(b) == 2993425295)
-    assert(lz.adler(a..b) == 4051899195)
-    assert(lz.adler(a) == lz.adler(0, a))
-    assert(lz.adler(a..b) == lz.adler(lz.adler(a), b))
     local function default() end
     local methods = {default, lz.lzo, lz.qlz, lz.lz4, lz.best}
-    for i = 1, 4 do
+    for i = 1, 5 do
         if methods[i] then
             methods[i]()
             assert(lz.decompress(lz.compress(a)) == a)
@@ -458,11 +575,6 @@ if lz then
             assert(#lz.compress(big) < #big)
             local ok, err = lz.decompress("not a compressed string")
             assert(ok == nil and err == "lz: not a compressed string")
-            -- same header size on all platforms
-            local h = lz.compress("")
-            if h:sub(1,3) == "LZO" then assert(#h == 11) end
-            if h:sub(1,3) == "QLZ" then assert(#h == 8) end
-            if h:sub(1,3) == "LZ4" then assert(#h == 9) end
         end
     end
     if lz.best then lz.best() end

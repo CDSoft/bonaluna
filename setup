@@ -1,0 +1,16 @@
+# Compression libraries : LZO QLZ LZ4
+# Cryptography library  : CRYPT
+# Networking library    : CURL
+
+# Minimal Bonaluna distribution
+#export LIBRARIES="QLZ"
+
+# Complete BonaLuna distribution
+export LIBRARIES="QLZ CRYPT CURL"
+
+# Icon for the Win32 executable
+export ICON="bl.ico"
+
+# Compression
+#export COMPRESS="upx --best"
+export COMPRESS="upx --ultra-brute"
