@@ -347,9 +347,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.0.0.tgz">http://cdsoft.fr/bl/bonaluna-2.0.0.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.0.1.tgz">http://cdsoft.fr/bl/bonaluna-2.0.1.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.0.0</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.0.1</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -359,92 +359,102 @@ in a single executable.</td>
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title first">Table of Contents</p>
 <ul class="auto-toc simple">
-<li><a class="reference internal" href="#lua" id="id9">1&nbsp;&nbsp;&nbsp;Lua</a></li>
-<li><a class="reference internal" href="#bonaluna-packages" id="id10">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a><ul class="auto-toc">
-<li><a class="reference internal" href="#crypt-cryptographic-functions" id="id11">2.1&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></li>
-<li><a class="reference internal" href="#curl-libcurl-interface" id="id12">2.2&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></li>
-<li><a class="reference internal" href="#fs-file-system" id="id13">2.3&nbsp;&nbsp;&nbsp;fs: File System</a></li>
-<li><a class="reference internal" href="#lz-compression-library" id="id14">2.4&nbsp;&nbsp;&nbsp;lz: compression library</a></li>
-<li><a class="reference internal" href="#ps-processes" id="id15">2.5&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
-<li><a class="reference internal" href="#rl-readline" id="id16">2.6&nbsp;&nbsp;&nbsp;rl: readline</a></li>
-<li><a class="reference internal" href="#struct-un-pack-structures" id="id17">2.7&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></li>
-<li><a class="reference internal" href="#sys-system-management" id="id18">2.8&nbsp;&nbsp;&nbsp;sys: System management</a></li>
+<li><a class="reference internal" href="#lua" id="id3">1&nbsp;&nbsp;&nbsp;Lua</a></li>
+<li><a class="reference internal" href="#global-functions" id="id4">2&nbsp;&nbsp;&nbsp;Global functions</a><ul class="auto-toc">
+<li><a class="reference internal" href="#iterators" id="id5">2.1&nbsp;&nbsp;&nbsp;Iterators</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#self-running-scripts" id="id19">3&nbsp;&nbsp;&nbsp;Self running scripts</a><ul class="auto-toc">
-<li><a class="reference internal" href="#pegar-lua-parameters" id="id20">3.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></li>
+<li><a class="reference internal" href="#bonaluna-packages" id="id6">3&nbsp;&nbsp;&nbsp;BonaLuna packages</a><ul class="auto-toc">
+<li><a class="reference internal" href="#note-about-objects" id="id7">3.1&nbsp;&nbsp;&nbsp;Note about objects</a></li>
+<li><a class="reference internal" href="#crypt-cryptographic-functions" id="id8">3.2&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></li>
+<li><a class="reference internal" href="#curl-libcurl-interface" id="id9">3.3&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></li>
+<li><a class="reference internal" href="#fs-file-system" id="id10">3.4&nbsp;&nbsp;&nbsp;fs: File System</a></li>
+<li><a class="reference internal" href="#lz-compression-library" id="id11">3.5&nbsp;&nbsp;&nbsp;lz: compression library</a></li>
+<li><a class="reference internal" href="#ps-processes" id="id12">3.6&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
+<li><a class="reference internal" href="#rl-readline" id="id13">3.7&nbsp;&nbsp;&nbsp;rl: readline</a></li>
+<li><a class="reference internal" href="#struct-un-pack-structures" id="id14">3.8&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></li>
+<li><a class="reference internal" href="#sys-system-management" id="id15">3.9&nbsp;&nbsp;&nbsp;sys: System management</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#examples" id="id21">4&nbsp;&nbsp;&nbsp;Examples</a></li>
+<li><a class="reference internal" href="#self-running-scripts" id="id16">4&nbsp;&nbsp;&nbsp;Self running scripts</a><ul class="auto-toc">
+<li><a class="reference internal" href="#pegar-lua-parameters" id="id17">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples" id="id18">5&nbsp;&nbsp;&nbsp;Examples</a></li>
 </ul>
 </div>
 <div class="section" id="lua">
-<h1><a class="toc-backref" href="#id9">1&nbsp;&nbsp;&nbsp;Lua</a></h1>
+<h1><a class="toc-backref" href="#id3">1&nbsp;&nbsp;&nbsp;Lua</a></h1>
 <p>The original Lua interpretor and documentation is available
 at <a class="reference external" href="http://www.lua.org">http://www.lua.org</a>.</p>
 <p>BonaLuna is based on <a class="reference external" href="lua/contents.html">Lua 5.2</a>.</p>
 </div>
+<div class="section" id="global-functions">
+<h1><a class="toc-backref" href="#id4">2&nbsp;&nbsp;&nbsp;Global functions</a></h1>
+<div class="section" id="iterators">
+<h2><a class="toc-backref" href="#id5">2.1&nbsp;&nbsp;&nbsp;Iterators</a></h2>
+<p><strong>iter(sequence)</strong> returns an iterator of <cite>sequence</cite> items (a table).</p>
+<p><strong>list(iterator)</strong> returns a table of items generated by <cite>iterator</cite>.</p>
+<p><strong>reverse(iterator)</strong> returns <cite>iterator</cite> in reverse order.</p>
+<p><strong>sort(iterator [, cmp])</strong> returns <cite>iterator</cite> sorted using <cite>cmp</cite> (as <cite>table.sort</cite>)</p>
+<p><strong>map(f, ...)</strong> applies <cite>f</cite> to iterators.</p>
+<p><strong>zip(...)</strong> groups values of the same rank of several iterators.</p>
+<p><strong>filter(p, ...)</strong> selects values according to the predicate <cite>p</cite>.</p>
+<p><strong>range(i [, j [, s] ])</strong> returns the values of the range [<cite>i</cite>, <cite>j</cite>].
+<cite>s</cite>&nbsp;is the step.
+<cite>range(j)</cite> is equivalent to <cite>range(1, j)</cite>. The default step is 1.</p>
+<p><strong>enum(iterator)</strong> generates tuples <cite>(i, x[i])</cite> where <cite>i</cite> is the rank of the value <cite>x[i]</cite> for each value of <cite>iterator</cite>.</p>
+<p><strong>chain(...)</strong> chains several iterators.</p>
+</div>
+</div>
 <div class="section" id="bonaluna-packages">
-<h1><a class="toc-backref" href="#id10">2&nbsp;&nbsp;&nbsp;BonaLuna packages</a></h1>
+<h1><a class="toc-backref" href="#id6">3&nbsp;&nbsp;&nbsp;BonaLuna packages</a></h1>
+<div class="section" id="note-about-objects">
+<h2><a class="toc-backref" href="#id7">3.1&nbsp;&nbsp;&nbsp;Note about objects</a></h2>
+<p>Objects defined in these packages uses closures <a class="footnote-reference" href="#id2" id="id1">[1]</a> to store internal data.
+No <em>self</em> is required and methods are called with a single dot (<cite>.</cite>),
+not with a colon (<cite>:</cite>).</p>
+<p>Example:</p>
+<pre class="literal-block">
+aes = crypt.AES(&quot;my key&quot;, 128)
+encrypted = aes.encrypt(&quot;some text&quot;)
+</pre>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>See <a class="reference external" href="http://lua-users.org/wiki/ObjectOrientationClosureApproach">Object Orientation Closure Approach</a>.</td></tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="crypt-cryptographic-functions">
-<h2><a class="toc-backref" href="#id11">2.1&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></h2>
+<h2><a class="toc-backref" href="#id8">3.2&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></h2>
 <p>The <cite>crypt</cite> package is a pure Lua package (i.e. not really fast).</p>
-<div class="section" id="functions">
-<h3>Functions</h3>
-<dl class="docutils">
-<dt>crypt.base64.encode</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>crypt.base64.encode(data)</cite> encodes <cite>data</cite> in base64.</div>
-</div>
-</dd>
-<dt>crypt.base64.decode</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>crypt.base64.decode(data)</cite> decodes the base64 <cite>data</cite>.</div>
-</div>
-</dd>
-<dt>crypt.crc32</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>crypt.crc32(data)</cite> computes the CRC32 of <cite>data</cite>.</div>
-</div>
-</dd>
-<dt>crypt.sha1, crypt.sha224, crypt.sha256</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>crypt.shaXXX(data)</cite> computes an SHA digest of <cite>data</cite>.</div>
-</div>
-</dd>
-</dl>
-</div>
-<div class="section" id="objects">
-<h3>Objects</h3>
-<dl class="docutils">
-<dt>crypto.AES</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>crypto.AES(password [,keylen [,mode] ])</cite> returns an AES codec.
+<p><strong>crypt.hex.encode(data)</strong> encodes <cite>data</cite> in hexa.</p>
+<p><strong>crypt.hex.decode(data)</strong> decodes the hexa <cite>data</cite>.</p>
+<p><strong>crypt.base64.encode(data)</strong> encodes <cite>data</cite> in base64.</p>
+<p><strong>crypt.base64.decode(data)</strong> decodes the base64 <cite>data</cite>.</p>
+<p><strong>crypt.crc32(data)</strong> computes the CRC32 of <cite>data</cite>.</p>
+<p><strong>crypt.shaXXX(data)</strong> computes an SHA digest of <cite>data</cite>. <cite>XXX</cite> is 1, 224 or 256.</p>
+<p><strong>crypt.AES(password [,keylen [,mode] ])</strong> returns an AES codec.
 <cite>password</cite> is the encryption/decryption key, <cite>keylen</cite> is the length
 of the key (128 (default), 192 or 256), <cite>mode</cite> is the encryption/decryption
 mode (&quot;cbc&quot; (default) or &quot;ecb&quot;).
-<cite>crypto.AES</cite> objects have two methods: <cite>encrypt(data)</cite> and <cite>decrypt(data)</cite>.</div>
-</div>
-</dd>
-</dl>
-</div>
+<cite>crypt.AES</cite> objects have two methods: <cite>encrypt(data)</cite> and <cite>decrypt(data)</cite>.</p>
+<p><strong>crypt.PRNG([key [, entropy] ])</strong> returns a pseudo-random number generator.
+<cite>key</cite> is the encryption key (a random key by default) and <cite>entropy</cite> is a
+function returning a 32 bit integer (the default function depends on the
+machine, network, cpu, memory, environment variables, ...).</p>
 </div>
 <div class="section" id="curl-libcurl-interface">
-<h2><a class="toc-backref" href="#id12">2.2&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></h2>
+<h2><a class="toc-backref" href="#id9">3.3&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></h2>
 <p><a class="reference external" href="http://curl.haxx.se/">libcurl</a> is multiprotocol file transfer library.
 This package is a simple Lua interface to libcurl.</p>
 <p>This package is based on <a class="reference external" href="http://luaforge.net/projects/lua-curl/">Lua-cURL</a>
 and provides the same API plus a few higher level objects.</p>
-<div class="section" id="id1">
-<h3>Objects</h3>
-<dl class="docutils">
-<dt>curl.FTP</dt>
-<dd><div class="first line-block">
-<div class="line"><cite>curl.FTP(url [, login, password])</cite> creates an FTP object to connect to
+<p><strong>curl.FTP(url [, login, password])</strong> creates an FTP object to connect to
 the FTP server at <cite>url</cite>. <cite>login</cite> and <cite>password</cite> are optional.
-Methods are:</div>
-</div>
-<blockquote class="last">
+Methods are:</p>
+<blockquote>
 <ul class="simple">
 <li><cite>cd(path)</cite>: changes the <em>current working directory</em>. No connection is
 made, <cite>path</cite> is just stored internally for later connections.</li>
@@ -456,77 +466,31 @@ made, <cite>path</cite> is just stored internally for later connections.</li>
 <li><cite>list(path)</cite>: returns an iterator listing the directory <cite>path</cite>.</li>
 </ul>
 </blockquote>
-</dd>
-</dl>
 <p>FTP connections are made through the cURL easy interface, each request is in
 fact an entire connection (and deconnection).</p>
 </div>
-</div>
 <div class="section" id="fs-file-system">
-<h2><a class="toc-backref" href="#id13">2.3&nbsp;&nbsp;&nbsp;fs: File System</a></h2>
-<div class="section" id="id2">
-<h3>Functions</h3>
-<dl class="docutils">
-<dt>fs.getcwd</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.getcwd()</cite> returns the current working directory.</div>
-</div>
-</dd>
-<dt>fs.chdir</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.chdir(path)</cite> changes the current directory to <cite>path</cite>.</div>
-</div>
-</dd>
-<dt>fs.dir</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.dir(path)</cite> returns the list of files and directories in
-<cite>path</cite>.</div>
-<div class="line"><cite>fs.dir()</cite> returns the list of files and directories in the
-current directory.</div>
-</div>
-</dd>
-<dt>fs.walk</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.walk(path)</cite> returns an iterator listing directory and file names
-in <cite>path</cite> and its subdirectories.</div>
-<div class="line"><cite>fs.walk()</cite> is equivalent to <cite>fs.walk('.')</cite>.</div>
-</div>
-</dd>
-<dt>fs.mkdir</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.mkdir(path)</cite> creates a new directory <cite>path</cite>.</div>
-</div>
-</dd>
-<dt>fs.rename</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.rename(old_name, new_name)</cite> renames the file <cite>old_name</cite> to
-<cite>new_name</cite>.</div>
-</div>
-</dd>
-<dt>fs.remove</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.remove(name)</cite> deletes the file <cite>name</cite>.</div>
-</div>
-</dd>
-<dt>fs.copy</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.copy(source_name, target_name)</cite> copies file
-<cite>source_name</cite> to <cite>target_name</cite>. The attributes and
-times are preserved.</div>
-</div>
-</dd>
-<dt>fs.stat</dt>
-<dd><div class="first line-block">
-<div class="line"><cite>fs.stat(name)</cite> reads attributes of the file <cite>name</cite>.
-Attributes are:</div>
-</div>
-<blockquote class="last">
+<h2><a class="toc-backref" href="#id10">3.4&nbsp;&nbsp;&nbsp;fs: File System</a></h2>
+<p><strong>fs.getcwd()</strong> returns the current working directory.</p>
+<p><strong>fs.chdir(path)</strong> changes the current directory to <cite>path</cite>.</p>
+<p><strong>fs.listdir([path])</strong> returns the list of files and directories in
+<cite>path</cite> (the default path is the current directory).</p>
+<p><strong>fs.dir([path])</strong> returns an iterator listing files and directories in
+<cite>path</cite> (the default path is the current directory).</p>
+<p><strong>fs.walk([path])</strong> returns an iterator listing directory and file names
+in <cite>path</cite> and its subdirectories (the default path is the current directory).</p>
+<p><strong>fs.mkdir(path)</strong> creates a new directory <cite>path</cite>.</p>
+<p><strong>fs.rename(old_name, new_name)</strong> renames the file <cite>old_name</cite> to <cite>new_name</cite>.</p>
+<p><strong>fs.remove(name)</strong> deletes the file <cite>name</cite>.</p>
+<p><strong>fs.copy(source_name, target_name)</strong> copies file <cite>source_name</cite> to <cite>target_name</cite>.
+The attributes and times are preserved.</p>
+<p><strong>fs.stat(name)</strong> reads attributes of the file <cite>name</cite>.  Attributes are:</p>
+<blockquote>
 <ul class="simple">
 <li><cite>name</cite>: name</li>
 <li>type: &quot;file&quot; or &quot;directory&quot;</li>
 <li><cite>size</cite>: size in bytes</li>
-<li><cite>mtime</cite>, <cite>atime</cite>, <cite>ctime</cite>: modification, access and creation
-times.</li>
+<li><cite>mtime</cite>, <cite>atime</cite>, <cite>ctime</cite>: modification, access and creation times.</li>
 <li><cite>mode</cite>: file permissions</li>
 <li><cite>uR</cite>, <cite>uW</cite>, <cite>uX</cite>: user Read/Write/eXecute permissions</li>
 <li><cite>gR</cite>, <cite>gW</cite>, <cite>gX</cite>: group Read/Write/eXecute permissions</li>
@@ -534,218 +498,96 @@ times.</li>
 <li><cite>dev</cite>, <cite>ino</cite>: device and inode numbers</li>
 </ul>
 </blockquote>
-</dd>
-<dt>fs.chmod</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.chmod(name, other_file_name)</cite> sets file <cite>name</cite> permissions as
-file <cite>other_file_name</cite> (string containing the name of another
-file).</div>
-<div class="line"><cite>fs.chmod(name, bit1, ..., bitn) sets file `name</cite> permissions as
-<cite>bit1</cite> or ... or <cite>bitn</cite> (integers).</div>
-</div>
-</dd>
-<dt>fs.touch</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>fs.touch(name)</cite> sets the access time and the modification time
-of file <cite>name</cite> with the current time.</div>
-<div class="line"><cite>fs.touch(name, number)</cite> sets the access time and the
-modification time of file <cite>name</cite> with <cite>number</cite>.</div>
-<div class="line"><cite>fs.touch(name, other_name)</cite> sets the access time and the
-modification time of file <cite>name</cite> with the times of file
-<cite>other_name</cite>.</div>
-</div>
-</dd>
-<dt>fs.basename</dt>
-<dd><cite>fs.basename(path)</cite> return the last component of path.</dd>
-<dt>fs.dirname</dt>
-<dd><cite>fs.dirname(path)</cite> return all but the last component of path.</dd>
-<dt>fs.absname</dt>
-<dd><cite>fs.absname(path)</cite> return the absolute path name of path.</dd>
-</dl>
-</div>
-<div class="section" id="constants">
-<h3>Constants</h3>
-<dl class="docutils">
-<dt>fs.sep</dt>
-<dd>Directory separator (/ or \)</dd>
-<dt>fs.uR, fs.uW, fs.uX</dt>
-<dd>User Read/Write/eXecute mask for <cite>fs.chmod</cite></dd>
-<dt>fs.gR, fs.gW, fs.gX</dt>
-<dd>Group Read/Write/eXecute mask for <cite>fs.chmod</cite></dd>
-<dt>fs.oR, fs.oW, fs.oX</dt>
-<dd>Other Read/Write/eXecute mask for <cite>fs.chmod</cite></dd>
-<dt>fs.aR, fs.aW, fs.aX</dt>
-<dd>All Read/Write/eXecute mask for <cite>fs.chmod</cite></dd>
-</dl>
-</div>
+<p><strong>fs.chmod(name, other_file_name)</strong> sets file <cite>name</cite> permissions as
+file <cite>other_file_name</cite> (string containing the name of another file).</p>
+<p><strong>fs.chmod(name, bit1, ..., bitn)</strong> sets file <cite>name</cite> permissions as
+<cite>bit1</cite> or ... or <cite>bitn</cite> (integers).</p>
+<p><strong>fs.touch(name)</strong> sets the access time and the modification time of file <cite>name</cite> with the current time.</p>
+<p><strong>fs.touch(name, number)</strong> sets the access time and the modification time of file <cite>name</cite> with <cite>number</cite>.</p>
+<p><strong>fs.touch(name, other_name)</strong> sets the access time and the modification time of file <cite>name</cite> with the times of file <cite>other_name</cite>.</p>
+<p><strong>fs.basename(path)</strong> return the last component of path.</p>
+<p><strong>fs.dirname(path)</strong> return all but the last component of path.</p>
+<p><strong>fs.absname(path)</strong> return the absolute path name of path.</p>
+<p><strong>fs.sep</strong> is the directory separator (/ or \).</p>
+<p><strong>fs.uR, fs.uW, fs.uX</strong> are the User Read/Write/eXecute mask for <cite>fs.chmod</cite>.</p>
+<p><strong>fs.gR, fs.gW, fs.gX</strong> are the Group Read/Write/eXecute mask for <cite>fs.chmod</cite>.</p>
+<p><strong>fs.oR, fs.oW, fs.oX</strong> are the Other Read/Write/eXecute mask for <cite>fs.chmod</cite>.</p>
+<p><strong>fs.aR, fs.aW, fs.aX</strong> are All Read/Write/eXecute mask for <cite>fs.chmod</cite>.</p>
 </div>
 <div class="section" id="lz-compression-library">
-<h2><a class="toc-backref" href="#id14">2.4&nbsp;&nbsp;&nbsp;lz: compression library</a></h2>
+<h2><a class="toc-backref" href="#id11">3.5&nbsp;&nbsp;&nbsp;lz: compression library</a></h2>
 <p>The lz package uses <a class="reference external" href="http://www.oberhumer.com/opensource/lzo/#minilzo">miniLZO</a>, <a class="reference external" href="http://www.quicklz.com/">QuickLZ</a> and <a class="reference external" href="http://code.google.com/p/lz4/">LZ4</a>.
 It's inspired by the <a class="reference external" href="http://lua-users.org/wiki/LuaModuleLzo">Lua Lzo module</a>.</p>
 <p>Future versions of BonaLuna may remove or add some compression library.</p>
 <p>Currently, only QuickLZ is used in the default BonaLuna distribution
 but you can change it in <cite>setup</cite>.</p>
-<div class="section" id="id3">
-<h3>Functions</h3>
-<dl class="docutils">
-<dt>lz.lzo, lz.qlz, lz.lz4, lz.best</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>lz.lzo()</cite> selects the LZO compression library.</div>
-<div class="line"><cite>lz.qlz()</cite> selects the QuickLZ compression library.</div>
-<div class="line"><cite>lz.lz4()</cite> selects the LZ4 compression library.</div>
-<div class="line"><cite>lz.best()</cite> selects both compression libraries and choose the best.</div>
-<div class="line">These functions are available only if several compression libraries
-are selected in <cite>setup</cite>.</div>
-</div>
-</dd>
-<dt>lz.compress</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>lz.compress(data)</cite> compresses <cite>data</cite> and returns the compressed string.</div>
-</div>
-</dd>
-<dt>lz.decompress</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>lz.decompress(data)</cite> decompresses <cite>data</cite> and returns the decompressed string.</div>
-</div>
-</dd>
-</dl>
-</div>
+<p>These functions are available only if several compression libraries are selected in <cite>setup</cite>:</p>
+<blockquote>
+<ul class="simple">
+<li><strong>lz.lzo()</strong> selects the LZO compression library.</li>
+<li><strong>lz.qlz()</strong> selects the QuickLZ compression library.</li>
+<li><strong>lz.lz4()</strong> selects the LZ4 compression library.</li>
+<li><strong>lz.best()</strong> selects all compression libraries and choose the best.</li>
+</ul>
+</blockquote>
+<p><strong>lz.compress(data)</strong> compresses <cite>data</cite> and returns the compressed string.</p>
+<p><strong>lz.decompress(data)</strong> decompresses <cite>data</cite> and returns the decompressed string.</p>
 </div>
 <div class="section" id="ps-processes">
-<h2><a class="toc-backref" href="#id15">2.5&nbsp;&nbsp;&nbsp;ps: Processes</a></h2>
-<div class="section" id="id4">
-<h3>Functions</h3>
-<dl class="docutils">
-<dt>ps.sleep</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>ps.sleep(n)</cite> sleeps for <cite>n</cite> seconds.</div>
-</div>
-</dd>
-</dl>
-</div>
+<h2><a class="toc-backref" href="#id12">3.6&nbsp;&nbsp;&nbsp;ps: Processes</a></h2>
+<p><strong>ps.sleep(n)</strong> sleeps for <cite>n</cite> seconds.</p>
 </div>
 <div class="section" id="rl-readline">
-<h2><a class="toc-backref" href="#id16">2.6&nbsp;&nbsp;&nbsp;rl: readline</a></h2>
+<h2><a class="toc-backref" href="#id13">3.7&nbsp;&nbsp;&nbsp;rl: readline</a></h2>
 <p>The rl (readline) package is taken from
 <a class="reference external" href="https://github.com/ilua">ilua</a>
 and adapted for BonaLuna.</p>
-<div class="section" id="id5">
-<h3>Functions</h3>
-<dl class="docutils">
-<dt>rl.read</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>rl.read(prompt)</cite> prints <cite>prompt</cite> and returns the string entered by the user.</div>
-</div>
-</dd>
-<dt>rl.add</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>rl.add(line)</cite> adds <cite>line</cite> to the readline history.</div>
-</div>
-</dd>
-</dl>
-</div>
+<p><strong>rl.read(prompt)</strong> prints <cite>prompt</cite> and returns the string entered by the user.</p>
+<p><strong>rl.add(line)</strong> adds <cite>line</cite> to the readline history.</p>
 </div>
 <div class="section" id="struct-un-pack-structures">
-<h2><a class="toc-backref" href="#id17">2.7&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></h2>
+<h2><a class="toc-backref" href="#id14">3.8&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></h2>
 <p>The struct package is taken from
 <a class="reference external" href="http://www.inf.puc-rio.br/~roberto/struct/">Library for Converting Data to and from C Structs for Lua 5.1</a>
 and adapted for BonaLuna.</p>
-<div class="section" id="id6">
-<h3>Functions</h3>
-<dl class="docutils">
-<dt>struct.pack</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>struct.pack(fmt, d1, d2, ...)</cite> returns a string containing the values <cite>d1</cite>, <cite>d2</cite>, etc. packed according to the format string <cite>fmt</cite>.</div>
-</div>
-</dd>
-<dt>struct.unpack</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>struct.unpack(fmt, s, [i])</cite> returns the values packed in string <cite>s</cite> according to the format string <cite>fmt</cite>. An optional <cite>i</cite> marks where in <cite>s</cite> to start reading (default is 1). After the read values, this function also returns the index in <cite>s</cite> where it stopped reading, which is also where you should start to read the rest of the string.</div>
-</div>
-</dd>
-<dt>struct.size</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>struct.size(fmt)</cite> returns the size of a string formatted according to the format string <cite>fmt</cite>. For obvious reasons, the format string cannot contain neither the option <cite>s</cite> nor the option <cite>c0</cite>.</div>
-</div>
-</dd>
-</dl>
-</div>
+<p><strong>struct.pack(fmt, d1, d2, ...)</strong> returns a string containing the values <cite>d1</cite>, <cite>d2</cite>, etc. packed according to the format string <cite>fmt</cite>.</p>
+<p><strong>struct.unpack(fmt, s, [i])</strong> returns the values packed in string <cite>s</cite> according to the format string <cite>fmt</cite>. An optional <cite>i</cite> marks where in <cite>s</cite> to start reading (default is 1). After the read values, this function also returns the index in <cite>s</cite> where it stopped reading, which is also where you should start to read the rest of the string.</p>
+<p><strong>struct.size(fmt)</strong> returns the size of a string formatted according to the format string <cite>fmt</cite>. For obvious reasons, the format string cannot contain neither the option <cite>s</cite> nor the option <cite>c0</cite>.</p>
 </div>
 <div class="section" id="sys-system-management">
-<h2><a class="toc-backref" href="#id18">2.8&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
-<div class="section" id="id7">
-<h3>Functions</h3>
-<dl class="docutils">
-<dt>sys.hostname</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>sys.hostname()</cite> returns the host name.</div>
-</div>
-</dd>
-<dt>sys.domainname</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>sys.domainname()</cite> returns the domain name.</div>
-</div>
-</dd>
-<dt>sys.hostid</dt>
-<dd><div class="first last line-block">
-<div class="line"><cite>sys.hostid()</cite> returns the host id.</div>
-</div>
-</dd>
-</dl>
-</div>
-<div class="section" id="id8">
-<h3>Constants</h3>
-<dl class="docutils">
-<dt>sys.platform</dt>
-<dd><cite>&quot;Linux&quot;</cite> or <cite>&quot;Windows&quot;</cite></dd>
-</dl>
-</div>
+<h2><a class="toc-backref" href="#id15">3.9&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
+<p><strong>sys.hostname()</strong> returns the host name.</p>
+<p><strong>sys.domainname()</strong> returns the domain name.</p>
+<p><strong>sys.hostid()</strong> returns the host id.</p>
+<p><strong>sys.platform</strong> is <cite>&quot;Linux&quot;</cite> or <cite>&quot;Windows&quot;</cite></p>
 </div>
 </div>
 <div class="section" id="self-running-scripts">
-<h1><a class="toc-backref" href="#id19">3&nbsp;&nbsp;&nbsp;Self running scripts</a></h1>
+<h1><a class="toc-backref" href="#id16">4&nbsp;&nbsp;&nbsp;Self running scripts</a></h1>
 <p>It is possible to add scripts to the BonaLuna interpretor
 to make a single executable file containing the interpretor
 and some BonaLuna scripts.</p>
 <p>This feature is inspired by
 <a class="reference external" href="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua">srlua</a>.</p>
 <div class="section" id="pegar-lua-parameters">
-<h2><a class="toc-backref" href="#id20">3.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></h2>
-<dl class="docutils">
-<dt><cite>compile:on|off|min</cite></dt>
-<dd>turn compilation on, off or on when chunks are smaller than sources
-(<cite>min</cite> is the default value)</dd>
-<dt><cite>compress:on|off|min</cite></dt>
-<dd>turn compression on, off or on when chunks are smaller than sources
-(<cite>min</cite> is the default value)</dd>
-<dt><cite>read:original_interpretor</cite></dt>
-<dd>reads the initial interpretor</dd>
-<dt><cite>lua:script.lua</cite></dt>
-<dd>adds a script to be executed at runtime</dd>
-<dt><cite>lua:script.lua=realname.lua</cite></dt>
-<dd>as above but stored under a different name</dd>
-<dt><cite>str:name=value</cite></dt>
-<dd>creates a global variable holding a string</dd>
-<dt><cite>str:name=&#64;filename</cite></dt>
-<dd>as above but the string is the content of a file</dd>
-<dt><cite>file:name</cite></dt>
-<dd>adds a file to be created at runtime
-(the file is not overwritten if it already exists)</dd>
-<dt><cite>file:name=realname</cite></dt>
-<dd>as above but stored under a different name</dd>
-<dt><cite>dir:name</cite></dt>
-<dd>creates a directory at runtime</dd>
-<dt><cite>write:new_executable</cite></dt>
-<dd>write a new executable containing the original interpretor
-and all the added items</dd>
-</dl>
+<h2><a class="toc-backref" href="#id17">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></h2>
+<p><strong>compile:on|off|min</strong> turn compilation on, off or on when chunks are smaller than sources (<cite>min</cite> is the default value)</p>
+<p><strong>compress:on|off|min</strong> turn compression on, off or on when chunks are smaller than sources (<cite>min</cite> is the default value)</p>
+<p><strong>read:original_interpretor</strong> reads the initial interpretor</p>
+<p><strong>lua:script.lua</strong> adds a script to be executed at runtime</p>
+<p><strong>lua:script.lua=realname.lua</strong> as above but stored under a different name</p>
+<p><strong>str:name=value</strong> creates a global variable holding a string</p>
+<p><strong>str:name=&#64;filename</strong> as above but the string is the content of a file</p>
+<p><strong>file:name</strong> adds a file to be created at runtime (the file is not overwritten if it already exists)</p>
+<p><strong>file:name=realname</strong> as above but stored under a different name</p>
+<p><strong>dir:name</strong> creates a directory at runtime</p>
+<p><strong>write:new_executable</strong> write a new executable containing the original interpretor and all the added items</p>
 <p>When a path starts with <cite>:</cite>, it is relative to the executable path otherwise
 it is relative to the current working directory.</p>
 </div>
 </div>
 <div class="section" id="examples">
-<h1><a class="toc-backref" href="#id21">4&nbsp;&nbsp;&nbsp;Examples</a></h1>
+<h1><a class="toc-backref" href="#id18">5&nbsp;&nbsp;&nbsp;Examples</a></h1>
 <p>This documentation has been generated by a BonaLuna script.
 <a class="reference external" href="bonaluna.lua">bonaluna.lua</a> also contains some tests.</p>
 </div>

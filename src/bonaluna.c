@@ -408,7 +408,7 @@ static const luaL_Reg fslib[] =
     {"absname",     fs_absname},
     {"getcwd",      fs_getcwd},
     {"chdir",       fs_chdir},
-    {"dir",         fs_dir},
+    {"listdir",     fs_dir},
 #ifdef __MINGW32__
     /* no glob function */
 #else
@@ -753,7 +753,7 @@ int lz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst
 #ifdef USE_LZ4
     if (((t_lz_header*)src)->sig == LZ4_SIG)
     {
-        *dst = (char*)malloc(((t_z_header*)src)->len + 3);
+        *dst = (char*)malloc(((t_lz_header*)src)->len + 3);
         *dst_len = LZ4_decode((char*)(src+sizeof(t_lz_header)), *dst, src_len-sizeof(t_lz_header));
         return 0;
     }

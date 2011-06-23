@@ -11,7 +11,7 @@
 # Freely available under the terms of the Lua license.
 
 LUA_SRC=lua-5.2.0-beta
-LUA_URL=http://www.lua.org/work/$LUA_SRC-rc1.tar.gz
+LUA_URL=http://www.lua.org/work/$LUA_SRC-rc2.tar.gz
 
 LZO_SRC=minilzo.205
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/minilzo-2.05.tar.gz

@@ -26,6 +26,24 @@ local rshift  = bit32.rshift
 local rrotate = bit32.rrotate
 
 -----------------------------------------------------------------------
+-- crypt.hex
+-----------------------------------------------------------------------
+
+crypt.hex = {}
+do
+    function crypt.hex.encode(s)
+        return (s:gsub(".", function(c)
+            return string.format("%02x", c:byte())
+        end))
+    end
+    function crypt.hex.decode(s)
+        return (s:gsub("..", function(h)
+            return string.char("0x"..h)
+        end))
+    end
+end
+
+-----------------------------------------------------------------------
 -- crypt.base64
 -----------------------------------------------------------------------
 
@@ -1166,7 +1184,7 @@ do
     }
 
     function crypt.AES(password, keyLen, mode)
-        assert(password, "Empty password")
+        assert(password and #password > 0, "Empty password")
         keyLen = keyLen or 128
         mode = mode or "cbc"
         local encryptModeFunction = encryptModeFunctions[mode]
@@ -1185,4 +1203,64 @@ do
         return aes
     end
 
+end
+
+-----------------------------------------------------------------------
+-- crypt.PRNG
+-----------------------------------------------------------------------
+
+do
+    local default_entropy
+    if sys.platform == "Linux" then
+        local sources = {"/proc/net/netstat", "/proc/uptime", "/proc/meminfo", "/proc/timer_list"}
+        local envs = {"BASH_VERSINFO", "BASH_VERSION", "DBUS_SESSION_BUS_ADDRESS", "DISPLAY",
+                      "HOSTTYPE", "MACHTYPE", "PATH", "PPID", "PS1", "WINDOWID", "XDG_SESSION_COOKIE"}
+        default_entropy = function()
+            ps.sleep(0.1)
+            local e = os.time()
+            for source in iter(sources) do
+                local f = assert(io.open(source))
+                f:read("*a"):gsub("%d+", function(x) e = band(e+x, 0xFFFFFFFF) end)
+                f:close()
+            end
+            for name in iter(envs) do
+                local var = os.getenv(name) or ""
+                for j = 1, #var, 4 do
+                    e = band(e+struct.unpack("I4", var:sub(j, j+3).."\0\0\0"), 0xFFFFFFFF)
+                end
+            end
+            return e
+        end
+    else
+        local envs = {"APPDATA", "COMPUTERNAME", "LOGONSERVER", "NUMBER_OF_PROCESSORS",
+                      "PROCESSOR_IDENTIFIER", "USERDOMAIN", "USERNAME"}
+        default_entropy = function()
+            ps.sleep(0.1)
+            local e = os.time()
+            for name in iter(envs) do
+                local var = os.getenv(name) or ""
+                for j = 1, #var, 4 do
+                    e = band(e+struct.unpack("I4", var:sub(j, j+3).."\0\0\0"), 0xFFFFFFFF)
+                end
+            end
+            return e
+        end
+    end
+
+    function crypt.PRNG(key, entropy)
+        entropy = entropy or default_entropy
+        key = key or crypt.PRNG(tostring(entropy()))(256)
+        local aes = crypt.AES(key, 256)
+        local seed = ""
+        return function(size)
+            local bytes = size / 8
+            local r = ""
+            for i = 1, bytes, 4 do
+                r = r .. struct.pack("I4", entropy())
+            end
+            local random = aes.encrypt(seed..r)
+            seed = r
+            return random:sub(1, bytes)
+        end
+    end
 end
