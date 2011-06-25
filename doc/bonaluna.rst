@@ -33,9 +33,9 @@
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.0.1.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.0.2.tgz
 
-:Version: 2.0.1
+:Version: 2.0.2
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -122,10 +122,7 @@ of the key (128 (default), 192 or 256), `mode` is the encryption/decryption
 mode ("cbc" (default) or "ecb").
 `crypt.AES` objects have two methods: `encrypt(data)` and `decrypt(data)`.
 
-**crypt.PRNG([key [, entropy] ])** returns a pseudo-random number generator.
-`key` is the encryption key (a random key by default) and `entropy` is a
-function returning a 32 bit integer (the default function depends on the
-machine, network, cpu, memory, environment variables, ...).
+**crypt.random(bits)** returns a string with `bits` random bits.
 
 
 curl: libcurl interface

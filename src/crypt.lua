@@ -468,6 +468,35 @@ end
 -- crypt.AES
 -----------------------------------------------------------------------
 
+--[[ based on aeslua
+aeslua: Lua AES implementation
+Copyright (c) 2006,2007 Matthias Hilbig
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser Public License as published by the
+Free Software Foundation; either version 2.1 of the License, or (at your
+option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser Public License for more details.
+
+A copy of the terms and conditions of the license can be found in
+License.txt or online at
+
+    http://www.gnu.org/copyleft/lesser.html
+
+To obtain a copy, write to the Free Software Foundation, Inc.,
+59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+Author
+-------
+Matthias Hilbig
+http://homepages.upb.de/hilbig/aeslua/
+hilbig@upb.de
+--]]
+
 do
 
     local IV = nil
@@ -1197,8 +1226,7 @@ do
             return encryptString(key, padByteString(data), encryptModeFunction)
         end
         function aes.decrypt(data)
-            local plain = decryptString(key, data, decryptModeFunction)
-            return unpadByteString(plain)
+            return unpadByteString(decryptString(key, data, decryptModeFunction))
         end
         return aes
     end
@@ -1206,61 +1234,42 @@ do
 end
 
 -----------------------------------------------------------------------
--- crypt.PRNG
+-- crypt.random
 -----------------------------------------------------------------------
 
 do
-    local default_entropy
+    local rnd
     if sys.platform == "Linux" then
-        local sources = {"/proc/net/netstat", "/proc/uptime", "/proc/meminfo", "/proc/timer_list"}
-        local envs = {"BASH_VERSINFO", "BASH_VERSION", "DBUS_SESSION_BUS_ADDRESS", "DISPLAY",
-                      "HOSTTYPE", "MACHTYPE", "PATH", "PPID", "PS1", "WINDOWID", "XDG_SESSION_COOKIE"}
-        default_entropy = function()
-            ps.sleep(0.1)
-            local e = os.time()
-            for source in iter(sources) do
-                local f = assert(io.open(source))
-                f:read("*a"):gsub("%d+", function(x) e = band(e+x, 0xFFFFFFFF) end)
-                f:close()
-            end
-            for name in iter(envs) do
-                local var = os.getenv(name) or ""
-                for j = 1, #var, 4 do
-                    e = band(e+struct.unpack("I4", var:sub(j, j+3).."\0\0\0"), 0xFFFFFFFF)
-                end
-            end
-            return e
+        rnd = function(bytes)
+            local random = io.open("/dev/urandom", "rb")
+            local data = random:read(bytes)
+            random:close()
+            return data
         end
     else
-        local envs = {"APPDATA", "COMPUTERNAME", "LOGONSERVER", "NUMBER_OF_PROCESSORS",
-                      "PROCESSOR_IDENTIFIER", "USERDOMAIN", "USERNAME"}
-        default_entropy = function()
-            ps.sleep(0.1)
-            local e = os.time()
-            for name in iter(envs) do
-                local var = os.getenv(name) or ""
-                for j = 1, #var, 4 do
-                    e = band(e+struct.unpack("I4", var:sub(j, j+3).."\0\0\0"), 0xFFFFFFFF)
-                end
+        local function wait(dt)
+            local t0 = os.clock()
+            while os.clock() - t0 < dt do
+                local x = math.log(10, 2)
             end
-            return e
+        end
+        rnd = function(bytes)
+            local data = ""
+            for i = 1, bytes do
+                if i % 4 == 1 then
+                    wait(0.05)
+                    math.randomseed(math.random(os.time())+1000*os.clock())
+                end
+                data = data .. string.char(math.random(255))
+            end
+            return data
         end
     end
 
-    function crypt.PRNG(key, entropy)
-        entropy = entropy or default_entropy
-        key = key or crypt.PRNG(tostring(entropy()))(256)
-        local aes = crypt.AES(key, 256)
-        local seed = ""
-        return function(size)
-            local bytes = size / 8
-            local r = ""
-            for i = 1, bytes, 4 do
-                r = r .. struct.pack("I4", entropy())
-            end
-            local random = aes.encrypt(seed..r)
-            seed = r
-            return random:sub(1, bytes)
-        end
+    function crypt.random(bits)
+        local bytes = math.max(math.floor((bits+7)/8), 1)
+        return crypt.AES(rnd(bytes), 256)
+            .encrypt(rnd(bytes))
+            :sub(1, bytes)
     end
 end

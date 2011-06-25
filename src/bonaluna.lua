@@ -235,10 +235,7 @@ of the key (128 (default), 192 or 256), `mode` is the encryption/decryption
 mode ("cbc" (default) or "ecb").
 `crypt.AES` objects have two methods: `encrypt(data)` and `decrypt(data)`.
 
-**crypt.PRNG([key [, entropy] ])** returns a pseudo-random number generator.
-`key` is the encryption key (a random key by default) and `entropy` is a
-function returning a 32 bit integer (the default function depends on the
-machine, network, cpu, memory, environment variables, ...).
+**crypt.random(bits)** returns a string with `bits` random bits.
 
 ]]
 
@@ -275,14 +272,17 @@ if crypt then
     end
     end
     end
-    -- PRNG
-    local keys = {"my key", "your key"}
-    local entropies = {function() return 42 end}
-    for i = 1, #keys+1 do
-    for j = 1, #entropies+1 do
-        assert(#crypt.PRNG(keys[i], entropies[j])(16) == 16/8)
-        assert(#crypt.PRNG(keys[i], entropies[j])(64) == 64/8)
-    end
+    -- random
+    for size in iter{0, 8, 64, 128} do
+        local r1 = crypt.random(size)
+        local r2 = crypt.random(size)
+        assert(#r1 == math.max(size/8, 1))
+        assert(#r2 == math.max(size/8, 1))
+        assert(r1 ~= r2)
+        if lz then -- random data shall not be compressible
+            assert(#lz.compress(r1) > #r1)
+            assert(#lz.compress(r2) > #r2)
+        end
     end
 end
 

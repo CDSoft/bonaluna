@@ -16,28 +16,12 @@ Freely available under the terms of the Lua license.
 #include "sys/stat.h"
 #include "unistd.h"
 #include "utime.h"
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <time.h>
 #include <stdint.h>
 
 #ifdef __MINGW32__
-//#include <winsock2.h>
 #include <windows.h>
 #else
 #include "glob.h"
-//#include <sys/types.h>
-//#include <sys/socket.h>
-//#include <netinet/in.h>
-//#include <arpa/inet.h>
-//#include <sys/time.h>
-//#include <unistd.h>
-//#include <signal.h>
-//#include <fcntl.h>
-//#include <netdb.h>
-//#include <errno.h>
-//#include <endian.h>
 #endif
 
 #define BL_PATHSIZE 1024
@@ -138,7 +122,7 @@ static int fs_dir(lua_State *L)
 #ifdef __MINGW32__
 
 /* no glob function */
-/* TODO: implement glob in Lua (bl.lua may contain standard BonaLuna libraries) */
+/* TODO: implement glob in Lua */
 
 #else
 
@@ -426,7 +410,6 @@ static const luaL_Reg fslib[] =
 
 LUAMOD_API int luaopen_fs (lua_State *L)
 {
-    //luaL_register(L, LUA_FSLIBNAME, fslib);
     luaL_newlib(L, fslib);
 #define STRING(NAME, VAL) lua_pushliteral(L, VAL); lua_setfield(L, -2, NAME)
 #define INTEGER(NAME, VAL) lua_pushunsigned(L, VAL); lua_setfield(L, -2, NAME)
@@ -484,7 +467,6 @@ static const luaL_Reg pslib[] =
 
 LUAMOD_API int luaopen_ps (lua_State *L)
 {
-    //luaL_register(L, LUA_PSLIBNAME, pslib);
     luaL_newlib(L, pslib);
     return 1;
 }
@@ -546,7 +528,6 @@ static const luaL_Reg blsyslib[] =
 
 LUAMOD_API int luaopen_sys (lua_State *L)
 {
-    //luaL_register(L, LUA_SYSLIBNAME, blsyslib);
     luaL_newlib(L, blsyslib);
 #define STRING(NAME, VAL) lua_pushliteral(L, VAL); lua_setfield(L, -2, NAME)
     STRING("platform", BONALUNA_PLATFORM);
