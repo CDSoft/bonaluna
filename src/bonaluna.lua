@@ -38,16 +38,17 @@ doc([[
 
 ..  Freely available under the terms of the Lua license.
 
-==========
- BonaLuna
-==========
+=================
+ |logo| BonaLuna
+=================
 -------------------------
  A compact Lua extension
 -------------------------
 
-.. sidebar:: Based on `Lua 5.2 <http://www.lua.org/work>`__
+.. |logo| image:: bl.png
+.. |logo_lua| image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
 
-    .. image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
+.. sidebar:: Based on `Lua 5.2 <http://www.lua.org/work>`__ |logo_lua|
 
     Copyright (C) 2010 `Lua.org <http://www.lua.org>`__, PUC-Rio.
 
@@ -300,23 +301,31 @@ and provides the same API plus a few higher level objects.
 the FTP server at `url`. `login` and `password` are optional.
 Methods are:
 
-    - `cd(path)`: changes the *current working directory*. No connection is
+    - `cd(path)` changes the *current working directory*. No connection is
       made, `path` is just stored internally for later connections.
 
-    - `get(path)`: retrieves `path`.
+    - `get(path)` retrieves `path`.
 
-    - `put(path, data)`: sends and stores the string `data` to the file `path`.
+    - `put(path, data)` sends and stores the string `data` to the file `path`.
 
-    - `del(path)`: deletes the file `path`.
+    - `del(path)` deletes the file `path`.
 
-    - `mkdir(path)`: creates the directory `path`.
+    - `mkdir(path)` creates the directory `path`.
 
-    - `rmdir(path)`: deletes the directory `path`.
+    - `rmdir(path)` deletes the directory `path`.
 
-    - `list(path)`: returns an iterator listing the directory `path`.
+    - `list(path)` returns an iterator listing the directory `path`.
 
 FTP connections are made through the cURL easy interface, each request is in
 fact an entire connection (and deconnection).
+
+**curl.HTTP(url)** creates an HTTP object to connect to the HTTP server at `url`.
+Methods are:
+
+    - `get(path)` retrieves `path`.
+
+    - `save(path [, name])` retrieves `path` and saves it to `name`.
+      The default value of `name` is the basename of `path`.
 ]]
 
 doc [[

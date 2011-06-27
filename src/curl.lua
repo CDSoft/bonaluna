@@ -13,6 +13,7 @@ Freely available under the terms of the Lua license.
 function curl.FTP(url, login, pass)
     local ftp = {}
     local server
+    url = url:gsub("^ftp://", "")
     if login then
         server = string.format("ftp://%s:%s@%s", login, pass, url)
     else
@@ -117,4 +118,41 @@ function curl.FTP(url, login, pass)
     end
 
     return ftp
+end
+
+function curl.HTTP(url)
+    local http = {}
+    local server
+    url = url:gsub("^http://", "")
+    url = url:gsub("/*$", "")
+    server = string.format("http://%s", url)
+
+    function http.get(path)
+        path = path or ""
+        local c = curl.easy_init()
+        c:setopt_url(server.."/"..path)
+        local buffer = {}
+        local ok, err = c:perform{writefunction=function(data)
+            table.insert(buffer, data)
+            return #data
+        end}
+        if ok then
+            return table.concat(buffer)
+        else
+            return ok, err
+        end
+    end
+
+    function http.save(path, name)
+        name = name or fs.basename(path)
+        local data, err = http.get(path)
+        if not data then return data, err end
+        local f, err = io.open(name, "wb")
+        if not f then return f, err end
+        f:write(data)
+        f:close()
+        return true
+    end
+
+    return http
 end

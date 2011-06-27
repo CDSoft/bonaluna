@@ -10,8 +10,6 @@ Freely available under the terms of the Lua license.
 
 --]]
 
-crypt = {}
-
 local strlen  = string.len
 local strchar = string.char
 local strbyte = string.byte
@@ -1238,38 +1236,10 @@ end
 -----------------------------------------------------------------------
 
 do
-    local rnd
-    if sys.platform == "Linux" then
-        rnd = function(bytes)
-            local random = io.open("/dev/urandom", "rb")
-            local data = random:read(bytes)
-            random:close()
-            return data
-        end
-    else
-        local function wait(dt)
-            local t0 = os.clock()
-            while os.clock() - t0 < dt do
-                local x = math.log(10, 2)
-            end
-        end
-        rnd = function(bytes)
-            local data = ""
-            for i = 1, bytes do
-                if i % 4 == 1 then
-                    wait(0.05)
-                    math.randomseed(math.random(os.time())+1000*os.clock())
-                end
-                data = data .. string.char(math.random(255))
-            end
-            return data
-        end
-    end
-
     function crypt.random(bits)
         local bytes = math.max(math.floor((bits+7)/8), 1)
-        return crypt.AES(rnd(bytes), 256)
-            .encrypt(rnd(bytes))
+        return crypt.AES(crypt.rnd(bytes), 256)
+            .encrypt(crypt.rnd(bytes))
             :sub(1, bytes)
     end
 end

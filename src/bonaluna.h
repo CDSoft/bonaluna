@@ -65,3 +65,6 @@ LUAMOD_API int (luaopen_lz) (lua_State *L);
 
 #define LUA_CURLLIBNAME "curl"
 LUAMOD_API int (luaopen_cURL) (lua_State *L);
+
+#define LUA_CRYPTLIBNAME "crypt"
+LUAMOD_API int (luaopen_crypt) (lua_State *L);

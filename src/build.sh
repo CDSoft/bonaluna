@@ -11,7 +11,7 @@
 # Freely available under the terms of the Lua license.
 
 LUA_SRC=lua-5.2.0-beta
-LUA_URL=http://www.lua.org/work/$LUA_SRC-rc2.tar.gz
+LUA_URL=http://www.lua.org/work/$LUA_SRC-rc3.tar.gz
 
 LZO_SRC=minilzo.205
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/minilzo-2.05.tar.gz
@@ -104,7 +104,7 @@ case "$PLATFORM" in
                 CC_LIBS2+=" -ldl -lreadline -lrt"
                 ;;
     Windows)    #LUA_CONF+=" -DLUA_BUILD_AS_DLL"
-                CC_LIBS2+=" -lws2_32"
+                CC_LIBS2+=" -lws2_32 -ladvapi32"
                 ;;
 esac
 
@@ -185,6 +185,9 @@ awk '
         print "#endif"
         print "#if defined(USE_CURL)"
         print "  {LUA_CURLLIBNAME, luaopen_cURL},"
+        print "#endif"
+        print "#if defined(USE_CRYPT)"
+        print "  {LUA_CRYPTLIBNAME, luaopen_crypt},"
         print "#endif"
         }
     {print}
@@ -406,4 +409,6 @@ then
     mkdir -p ../doc/lua
     cp -f $LUA_SRC/doc/* ../doc/lua/
     LANG=en $RST2HTML --section-numbering --language=en --cloak-email-addresses ../doc/bonaluna.rst > ../doc/bonaluna.html
+    sed -i 's/<head>/<head><link rel="icon" href="bl.png"\/>/i' ../doc/bonaluna.html
+    cp bl.png ../doc/
 fi

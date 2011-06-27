@@ -20,6 +20,7 @@ Freely available under the terms of the Lua license.
 
 #ifdef __MINGW32__
 #include <windows.h>
+#include <wincrypt.h>
 #else
 #include "glob.h"
 #endif
@@ -805,3 +806,48 @@ LUAMOD_API int luaopen_lz (lua_State *L)
 
 #endif
 
+/*******************************************************************/
+/* crypt: cryptography library                                     */
+/*******************************************************************/
+
+#ifdef USE_CRYPT
+
+#ifdef __MINGW32__
+static HCRYPTPROV hProv = 0;
+#endif
+
+static int crypt_rnd(lua_State *L)
+{
+    int bytes = luaL_checkinteger(L, 1);
+    char *buffer = (char*)malloc(bytes);
+    if (!buffer) luaL_error(L, "crypt: not enought memory");
+#ifdef __MINGW32__
+    if (hProv == 0)
+    {
+        if (!CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+            luaL_error(L, "crypt: CryptAcquireContext error");
+    }
+    CryptGenRandom(hProv, bytes, buffer);
+#else
+    FILE *f = fopen("/dev/urandom", "rb");
+    fread(buffer, 1, bytes, f);
+    fclose(f);
+#endif
+    lua_pushlstring(L, buffer, bytes);
+    free(buffer);
+    return 1;
+}
+
+static const luaL_Reg cryptlib[] =
+{
+    {"rnd", crypt_rnd},
+    {NULL, NULL}
+};
+
+LUAMOD_API int luaopen_crypt(lua_State *L)
+{
+    luaL_newlib(L, cryptlib);
+    return 1;
+}
+
+#endif
