@@ -143,12 +143,12 @@ static int glue(lua_State *L, char **argv)
         return 0;
     }
 
-#ifdef USE_LZ
+#ifdef USE_Z
 
 #define UNCOMPRESS_DATA()                                                                           \
         char *uncompressed;                                                                         \
         size_t uncompressed_len;                                                                    \
-        int n = lz_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len);       \
+        int n = bl_z_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len);       \
         if (n == 0) /* decompression is ok */                                                       \
         {                                                                                           \
             /* The data was compressed */                                                           \

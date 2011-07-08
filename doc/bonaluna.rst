@@ -34,9 +34,9 @@
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.0.3.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.0.4.tgz
 
-:Version: 2.0.3
+:Version: 2.0.4
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -232,28 +232,55 @@ file `other_file_name` (string containing the name of another file).
 
 **fs.aR, fs.aW, fs.aX** are All Read/Write/eXecute mask for `fs.chmod`.
 
-lz: compression library
------------------------
+z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries
+--------------------------------------------------------
 
-The lz package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__, `QuickLZ <http://www.quicklz.com/>`__ and `LZ4 <http://code.google.com/p/lz4/>`__.
+Compression libraries are based on:
+- `LZO <http://www.oberhumer.com/opensource/lzo/>`__
+- `QuickLZ <http://www.quicklz.com/>`__
+- `LZ4 <http://code.google.com/p/lz4/>`__
+- `ZLIB <http://www.zlib.net/>`__
+- `UCL <http://www.oberhumer.com/opensource/ucl/>`__
+- `XZ Utils <http://tukaani.org/xz/>`__
+
 It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
 
 Future versions of BonaLuna may remove or add some compression library.
 
-Currently, only QuickLZ is used in the default BonaLuna distribution
+Currently, only zlib is used in the default BonaLuna distribution
 but you can change it in `setup`.
 
+**z.compress(data)** compresses `data` using the best compressor and returns the compressed string.
 
-These functions are available only if several compression libraries are selected in `setup`:
+**z.decompress(data)** decompresses `data` and returns the decompressed string.
 
-    - **lz.lzo()** selects the LZO compression library.
-    - **lz.qlz()** selects the QuickLZ compression library.
-    - **lz.lz4()** selects the LZ4 compression library.
-    - **lz.best()** selects all compression libraries and choose the best.
+**minilzo.compress(data)** compresses `data` with miniLZO and returns the compressed string.
 
-**lz.compress(data)** compresses `data` and returns the compressed string.
+**minilzo.decompress(data)** decompresses `data` with miniLZO and returns the decompressed string.
 
-**lz.decompress(data)** decompresses `data` and returns the decompressed string.
+**lzo.compress(data)** compresses `data` with LZO and returns the compressed string.
+
+**lzo.decompress(data)** decompresses `data` with LZO and returns the decompressed string.
+
+**qlz.compress(data)** compresses `data` with QLZ and returns the compressed string.
+
+**qlz.decompress(data)** decompresses `data` with QLZ and returns the decompressed string.
+
+**lz4.compress(data)** compresses `data` with LZ4 and returns the compressed string.
+
+**lz4.decompress(data)** decompresses `data` with LZ4 and returns the decompressed string.
+
+**zlib.compress(data)** compresses `data` with ZLIB and returns the compressed string.
+
+**zlib.decompress(data)** decompresses `data` with ZLIB and returns the decompressed string.
+
+**ucl.compress(data)** compresses `data` with UCL and returns the compressed string.
+
+**ucl.decompress(data)** decompresses `data` with UCL and returns the decompressed string.
+
+**lzma.compress(data)** compresses `data` with XZ Utils and returns the compressed string.
+
+**lzma.decompress(data)** decompresses `data` with XZ Utils and returns the decompressed string.
 
 ps: Processes
 -------------
@@ -263,13 +290,13 @@ ps: Processes
 rl: readline
 ------------
 
-The rl (readline) package is taken from
+The rl (readline) package was initially inspired by
 `ilua <https://github.com/ilua>`_
 and adapted for BonaLuna.
 
 **rl.read(prompt)** prints `prompt` and returns the string entered by the user.
 
-**rl.add(line)** adds `line` to the readline history.
+**rl.add(line)** adds `line` to the readline history (Linux only).
 
 
 struct: (un)pack structures

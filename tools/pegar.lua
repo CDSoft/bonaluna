@@ -69,12 +69,11 @@ function err(...)
     os.exit(1)
 end
 
-if not lz then
-    lz = {}
-    function lz.compress(data) return data end
-    function lz.uncompress(data) return data end
+if not z then
+    z = {}
+    function z.compress(data) return data end
+    function z.uncompress(data) return data end
 end
-if lz.best then lz.best() end
 
 function do_read(exe)
     local f = assert(io.open(exe, "rb"))
@@ -134,8 +133,8 @@ function do_lua(name)
     f:close()
     content = content:gsub("^#!.-([\r\n])", "%1")  -- load doesn't like "#!..."
     local compiled_content = assert(string.dump(assert(load(content, script_name))))
-    local compressed_content = lz.compress(content) or content
-    local compressed_compiled_content = lz.compress(compiled_content) or compiled_content
+    local compressed_content = z.compress(content) or content
+    local compressed_compiled_content = z.compress(compiled_content) or compiled_content
 
     --print(string.rep("-", 50))
     --print("content                    ", #content)
@@ -176,7 +175,7 @@ function do_str(name_value)
         value = assert(f:read "*a")
         f:close()
     end
-    local compressed_value = lz.compress(value) or value
+    local compressed_value = z.compress(value) or value
     local smallest = {
         off = value,
         on = compressed_value,
@@ -192,7 +191,7 @@ function do_file(name)
     local f = assert(io.open(realname, "rb"))
     local content = assert(f:read "*a")
     f:close()
-    local compressed_content = lz.compress(content) or content
+    local compressed_content = z.compress(content) or content
     local smallest = {
         off = content,
         on = compressed_content,

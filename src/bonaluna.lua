@@ -280,9 +280,9 @@ if crypt then
         assert(#r1 == math.max(size/8, 1))
         assert(#r2 == math.max(size/8, 1))
         assert(r1 ~= r2)
-        if lz then -- random data shall not be compressible
-            assert(#lz.compress(r1) > #r1)
-            assert(#lz.compress(r2) > #r2)
+        if z then -- random data shall not be compressible
+            assert(#z.compress(r1) > #r1)
+            assert(#z.compress(r2) > #r2)
         end
     end
 end
@@ -625,50 +625,75 @@ doc [[
 ]]
 
 doc [[
-lz: compression library
------------------------
+z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries
+--------------------------------------------------------
 
-The lz package uses `miniLZO <http://www.oberhumer.com/opensource/lzo/#minilzo>`__, `QuickLZ <http://www.quicklz.com/>`__ and `LZ4 <http://code.google.com/p/lz4/>`__.
+Compression libraries are based on:
+- `LZO <http://www.oberhumer.com/opensource/lzo/>`__
+- `QuickLZ <http://www.quicklz.com/>`__
+- `LZ4 <http://code.google.com/p/lz4/>`__
+- `ZLIB <http://www.zlib.net/>`__
+- `UCL <http://www.oberhumer.com/opensource/ucl/>`__
+- `XZ Utils <http://tukaani.org/xz/>`__
+
 It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
 
 Future versions of BonaLuna may remove or add some compression library.
 
-Currently, only QuickLZ is used in the default BonaLuna distribution
+Currently, only zlib is used in the default BonaLuna distribution
 but you can change it in `setup`.
 ]]
 
 doc [[
+**z.compress(data)** compresses `data` using the best compressor and returns the compressed string.
 
-These functions are available only if several compression libraries are selected in `setup`:
+**z.decompress(data)** decompresses `data` and returns the decompressed string.
 
-    - **lz.lzo()** selects the LZO compression library.
-    - **lz.qlz()** selects the QuickLZ compression library.
-    - **lz.lz4()** selects the LZ4 compression library.
-    - **lz.best()** selects all compression libraries and choose the best.
+**minilzo.compress(data)** compresses `data` with miniLZO and returns the compressed string.
 
-**lz.compress(data)** compresses `data` and returns the compressed string.
+**minilzo.decompress(data)** decompresses `data` with miniLZO and returns the decompressed string.
 
-**lz.decompress(data)** decompresses `data` and returns the decompressed string.
+**lzo.compress(data)** compresses `data` with LZO and returns the compressed string.
+
+**lzo.decompress(data)** decompresses `data` with LZO and returns the decompressed string.
+
+**qlz.compress(data)** compresses `data` with QLZ and returns the compressed string.
+
+**qlz.decompress(data)** decompresses `data` with QLZ and returns the decompressed string.
+
+**lz4.compress(data)** compresses `data` with LZ4 and returns the compressed string.
+
+**lz4.decompress(data)** decompresses `data` with LZ4 and returns the decompressed string.
+
+**zlib.compress(data)** compresses `data` with ZLIB and returns the compressed string.
+
+**zlib.decompress(data)** decompresses `data` with ZLIB and returns the decompressed string.
+
+**ucl.compress(data)** compresses `data` with UCL and returns the compressed string.
+
+**ucl.decompress(data)** decompresses `data` with UCL and returns the decompressed string.
+
+**lzma.compress(data)** compresses `data` with XZ Utils and returns the compressed string.
+
+**lzma.decompress(data)** decompresses `data` with XZ Utils and returns the decompressed string.
 ]]
 
-if lz then
+if z then
     local a = "This is a test string"
     local b = "And this is another test string"
     local big = string.rep("a lot of bytes; ", 100000)
-    local function default() end
-    local methods = {default, lz.lzo, lz.qlz, lz.lz4, lz.best}
-    for i = 1, 5 do
-        if methods[i] then
-            methods[i]()
-            assert(lz.decompress(lz.compress(a)) == a)
-            assert(lz.decompress(lz.compress(b)) == b)
-            assert(lz.decompress(lz.compress(big)) == big)
-            assert(#lz.compress(big) < #big)
-            local ok, err = lz.decompress("not a compressed string")
-            assert(ok == nil and err == "lz: not a compressed string")
+    local libs = {"z", "minilzo", "lzo", "qlz", "lz4", "zlib", "ucl", "lzma"}
+    for name in iter(libs) do
+        local lib = _G[name]
+        if lib then
+            assert(lib.decompress(lib.compress(a)) == a)
+            assert(lib.decompress(lib.compress(b)) == b)
+            assert(lib.decompress(lib.compress(big)) == big)
+            assert(#lib.compress(big) < #big)
+            local ok, err = lib.decompress("not a compressed string")
+            assert(ok == nil and err == name..": not a compressed string")
         end
     end
-    if lz.best then lz.best() end
 end
 
 doc [[
@@ -694,13 +719,13 @@ doc [[
 rl: readline
 ------------
 
-The rl (readline) package is taken from
+The rl (readline) package was initially inspired by
 `ilua <https://github.com/ilua>`_
 and adapted for BonaLuna.
 
 **rl.read(prompt)** prints `prompt` and returns the string entered by the user.
 
-**rl.add(line)** adds `line` to the readline history.
+**rl.add(line)** adds `line` to the readline history (Linux only).
 
 ]]
 

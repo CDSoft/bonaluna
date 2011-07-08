@@ -11,14 +11,20 @@
 # Freely available under the terms of the Lua license.
 
 LUA_SRC=lua-5.2.0-beta
-LUA_URL=http://www.lua.org/work/$LUA_SRC-rc3.tar.gz
+LUA_URL=http://www.lua.org/work/$LUA_SRC-rc6.tar.gz
 
-LZO_SRC=minilzo.205
-LZO_URL=http://www.oberhumer.com/opensource/lzo/download/minilzo-2.05.tar.gz
+LZO_SRC=lzo-2.05
+LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
 LZ4_SRC="LZ4 - BSD"
 LZ4_URL=http://lz4.googlecode.com/files/LZ4%20-%20BSD.zip
+ZLIB_SRC=zlib-1.2.5
+ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.bz2
+UCL_SRC=ucl-1.03
+UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
+LZMA_SRC=xz-5.0.3
+LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
 CURL_SRC=curl-7.21.6
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 
@@ -64,7 +70,7 @@ mkdir -p $BUILD
 # Check configuration
 #####################
 
-for lib in LZO QLZ LZ4 CRYPT CURL
+for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL
 do
     eval USE_$lib=false
 done
@@ -72,12 +78,18 @@ PEGAR_CONF+=" lua:stdlib.lua"
 for lib in $LIBRARIES
 do
     case "$lib" in
-        QLZ|LZO|LZ4)    export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
-        CRYPT)          export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:crypt.lua";;
-        CURL)           export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:curl.lua";;
-        *)              echo "Unknown library: $lib"; exit 1;;
+        LZO|MINILZO|UCL)    export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
+        QLZ|LZ4|ZLIB|LZMA)  export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
+        CRYPT)              export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:crypt.lua";;
+        CURL)               export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:curl.lua";;
+        *)                  echo "Unknown library: $lib"; exit 1;;
     esac
 done
+
+$USE_LZO && $USE_MINILZO && {
+    echo "Can not use both LZO and miniLZO"
+    exit 1
+}
 
 # Check parameters
 ##################
@@ -116,9 +128,14 @@ BONALUNA_CONF="$BONALUNA_CONF -DBONALUNA_PLATFORM=\"$PLATFORM\""
 [ -e $(basename $LUA_URL) ] || wget $LUA_URL
 [ -e $LUA_SRC ] || tar xzf $(basename $LUA_URL)
 
-$USE_LZO && (
+( $USE_LZO || $USE_MINILZO ) && (
     [ -e $(basename $LZO_URL) ] || wget $LZO_URL
     [ -e $LZO_SRC ] || tar xzf $(basename $LZO_URL)
+)
+
+$USE_UCL && (
+    [ -e $(basename $UCL_URL) ] || wget $UCL_URL
+    [ -e $UCL_SRC ] || tar xzf $(basename $UCL_URL)
 )
 
 $USE_QLZ && (
@@ -133,6 +150,16 @@ $USE_LZ4 && (
     [ -e "$LZ4_SRC" ] || unzip "$LZ4_SRC.zip"
 )
 
+$USE_LZMA && (
+    [ -e $(basename $LZMA_URL) ] || wget $LZMA_URL
+    [ -e $LZMA_SRC ] || tar xzf $(basename $LZMA_URL)
+)
+
+$USE_ZLIB && (
+    [ -e $(basename $ZLIB_URL) ] || wget $ZLIB_URL
+    [ -e $ZLIB_SRC ] || tar xjf $(basename $ZLIB_URL)
+)
+
 $USE_CURL && (
     [ -e $(basename $CURL_URL) ] || wget $CURL_URL
     [ -e $CURL_SRC ] || tar xzf $(basename $CURL_URL)
@@ -143,9 +170,16 @@ $USE_CURL && (
 
 mkdir -p $TARGET
 cp -f $LUA_SRC/src/* $TARGET/
-$USE_LZO && cp -f $LZO_SRC/*.{c,h} $TARGET/
+( $USE_LZO || $USE_MINILZO ) && {
+    ! [ -e $TARGET/$LZO_SRC ] && cp -rf $LZO_SRC $TARGET/
+    cp -f $TARGET/$LZO_SRC/minilzo/*.{c,h} $TARGET/
+    cp -f $TARGET/$LZO_SRC/include/lzo/*.h $TARGET/
+}
 $USE_QLZ && cp -f $QLZ_SRC/*.{c,h} $TARGET/
 $USE_LZ4 && cp -f "$LZ4_SRC"/LZ4/lz4.{c,h} $TARGET/
+$USE_ZLIB && ! [ -e $TARGET/$ZLIB_SRC ] && cp -rf $ZLIB_SRC $TARGET/
+$USE_UCL && ! [ -e $TARGET/$UCL_SRC ] && cp -rf $UCL_SRC $TARGET/
+$USE_LZMA && ! [ -e $TARGET/$LZMA_SRC ] && cp -rf $LZMA_SRC $TARGET/
 $USE_CURL && ! [ -e $TARGET/$CURL_SRC ] && cp -rf $CURL_SRC $TARGET/
 
 case "$PLATFORM" in
@@ -180,8 +214,29 @@ awk '
         print "  {LUA_SYSLIBNAME, luaopen_sys},"
         print "  {LUA_STRUCTLIBNAME, luaopen_struct},"
         print "  {LUA_RLLIBNAME, luaopen_readline},"
-        print "#if defined(USE_LZ)"
-        print "  {LUA_LZLIBNAME, luaopen_lz},"
+        print "#if defined(USE_Z)"
+        print "  {LUA_ZLIBNAME, luaopen_z},"
+        print "#endif"
+        print "#if defined(USE_LZO)"
+        print "  {LUA_LZOLIBNAME, luaopen_lzo},"
+        print "#endif"
+        print "#if defined(USE_MINILZO)"
+        print "  {LUA_MINILZOLIBNAME, luaopen_minilzo},"
+        print "#endif"
+        print "#if defined(USE_QLZ)"
+        print "  {LUA_QLZLIBNAME, luaopen_qlz},"
+        print "#endif"
+        print "#if defined(USE_LZ4)"
+        print "  {LUA_LZ4LIBNAME, luaopen_lz4},"
+        print "#endif"
+        print "#if defined(USE_ZLIB)"
+        print "  {LUA_ZLIBLIBNAME, luaopen_zlib},"
+        print "#endif"
+        print "#if defined(USE_UCL)"
+        print "  {LUA_UCLLIBNAME, luaopen_ucl},"
+        print "#endif"
+        print "#if defined(USE_LZMA)"
+        print "  {LUA_LZMALIBNAME, luaopen_lzma},"
         print "#endif"
         print "#if defined(USE_CURL)"
         print "  {LUA_CURLLIBNAME, luaopen_cURL},"
@@ -286,7 +341,7 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
 # LZO patches
 #############
 
-$USE_LZO && (
+$USE_MINILZO && (
     sed -i 's/__LZO_IN_MINLZO/__LZO_IN_MINILZO/g' $TARGET/minilzo.c
 )
 
@@ -328,6 +383,68 @@ mkdir -p $INCLUDE_PATH $LIBRARY_PATH
 CC_INC+=" -I$INCLUDE_PATH"
 CC_LIBS+=" -L$LIBRARY_PATH"
 
+# LZO configuration
+###################
+
+LIB_LZO=$TARGET/$LZO_SRC/src/.libs/liblzo2.a
+$USE_LZO && ! [ -e $LIB_LZO ] && (
+    cd $TARGET/$LZO_SRC
+    ./configure && make
+)
+$USE_LZO && cp -f $LIB_LZO $LIBRARY_PATH/
+$USE_LZO && cp -f $TARGET/$LZO_SRC/include/lzo/*.h $INCLUDE_PATH/
+$USE_MINILZO && cp -f $TARGET/$LZO_SRC/include/lzo/*.h $INCLUDE_PATH/
+$USE_LZO && CC_LIBS2+=" $LIBRARY_PATH/liblzo2.a"
+
+# zlib configuration
+####################
+
+LIB_ZLIB=$TARGET/$ZLIB_SRC/libz.a
+$USE_ZLIB && ! [ -e $LIB_ZLIB ] && (
+    cd $TARGET/$ZLIB_SRC
+    case $PLATFORM in
+        Linux)      ./configure && make ;;
+        Windows)    sed -i "s/PREFIX =/PREFIX = ${CC/gcc}/" win32/Makefile.gcc
+                    make -f win32/Makefile.gcc ;;
+    esac
+)
+$USE_ZLIB && cp -f $LIB_ZLIB $LIBRARY_PATH/
+$USE_ZLIB && cp -f $TARGET/$ZLIB_SRC/{zlib.h,zconf.h} $INCLUDE_PATH/
+$USE_ZLIB && CC_LIBS2+=" $LIBRARY_PATH/libz.a"
+$USE_ZLIB && LUA_CONF+=" -DZLIB_LEVEL=9"
+
+# UCL configuration
+###################
+
+LIB_UCL=$TARGET/$UCL_SRC/src/.libs/libucl.a
+$USE_UCL && ! [ -e $LIB_UCL ] && (
+    cd $TARGET/$UCL_SRC
+    case $PLATFORM in
+        Linux)      ./configure && make ;;
+        Windows)    ./configure LIBS=-lwinmm && make ;;
+    esac
+)
+$USE_UCL && cp -f $LIB_UCL $LIBRARY_PATH/
+$USE_UCL && cp -f $TARGET/$UCL_SRC/include/ucl/{ucl.h,uclconf.h} $INCLUDE_PATH/
+$USE_UCL && sed -i 's#ucl/uclconf.h#uclconf.h#' $INCLUDE_PATH/ucl.h
+$USE_UCL && CC_LIBS2+=" $LIBRARY_PATH/libucl.a"
+$USE_UCL && LUA_CONF+=" -DUCL_LEVEL=6"
+
+# LZMA configuration
+####################
+
+LIB_LZMA=$TARGET/$LZMA_SRC/src/liblzma/.libs/liblzma.a
+$USE_LZMA && ! [ -e $LIB_LZMA ] && (
+    cd $TARGET/$LZMA_SRC
+    ./configure --disable-shared && (cd src/liblzma && make)
+)
+$USE_LZMA && cp -f $LIB_LZMA $LIBRARY_PATH/
+$USE_LZMA && cp -f $TARGET/$LZMA_SRC/src/liblzma/api/*.h $INCLUDE_PATH/
+$USE_LZMA && mkdir -p $INCLUDE_PATH/lzma/
+$USE_LZMA && cp -f $TARGET/$LZMA_SRC/src/liblzma/api/lzma/*.h $INCLUDE_PATH/lzma/
+$USE_LZMA && CC_LIBS2+=" $LIBRARY_PATH/liblzma.a"
+$USE_UCL && LUA_CONF+=" -DLZMA_LEVEL=6"
+
 # cURL configuration
 ####################
 
@@ -337,7 +454,7 @@ case $PLATFORM in
 esac
 $USE_CURL && ! [ -e $LIB_CURL ] && (
     cd $TARGET/$CURL_SRC
-    CURL_CONF="--without-ldap-lib --without-zlib --without-ssl
+    CURL_CONF="--without-ldap-lib --without-ssl
         --enable-http
         --enable-ftp
         --enable-file
@@ -360,6 +477,8 @@ $USE_CURL && ! [ -e $LIB_CURL ] && (
         --disable-tls-srp
         --enable-cookies
     "
+    $USE_ZLIB && CURL_CONF+=" --with-zlib=$EXTLIBS"
+    ! $USE_ZLIB && CURL_CONF+=" --without-zlib"
     case $PLATFORM in
         Linux)      ./configure --disable-shared $CURL_CONF && (
                         cd lib && make

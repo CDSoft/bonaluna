@@ -15,34 +15,8 @@ Freely available under the terms of the Lua license.
 #define BONALUNA_COPYRIGHT  BONALUNA_VERSION " Copyright (C) 2010-2011 cdsoft.fr, Christophe Delord"
 #define BONALUNA_AUTHORS    "Christophe Delord"
 
-#if defined(USE_LZO) || defined(USE_QLZ) || defined(USE_LZ4)
-    #define USE_LZ
-#endif
-
-#if defined(USE_LZO) && (defined(USE_QLZ) || defined(USE_LZ4))
-    #define USE_LZO_AND_MORE
-#endif
-#if defined(USE_QLZ) && (defined(USE_LZO) || defined(USE_LZ4))
-    #define USE_QLZ_AND_MORE
-#endif
-#if defined(USE_LZ4) && (defined(USE_LZO) || defined(USE_QLZ))
-    #define USE_LZ4_AND_MORE
-#endif
-
-#if defined(USE_LZO_AND_MORE) || defined(USE_QLZ_AND_MORE) || defined(USE_LZ4_AND_MORE)
-    #define USE_LZ_TWO_OR_MORE
-#endif
-
-#if defined(USE_LZO)
-    #define USE_LZO_FIRST
-#endif
-
-#if !defined(USE_LZO) && defined(USE_QLZ)
-    #define USE_QLZ_FIRST
-#endif
-
-#if !defined(USE_LZO) && !defined(USE_QLZ) && defined(USE_LZ4)
-    #define USE_LZ4_FIRST
+#if defined(USE_MINILZO) || defined(USE_LZO) || defined(USE_QLZ) || defined(USE_LZ4) || defined(USE_ZLIB) || defined(USE_UCL) || defined(USE_LZMA)
+    #define USE_Z
 #endif
 
 #define LUA_FSLIBNAME "fs"
@@ -60,8 +34,29 @@ LUAMOD_API int (luaopen_struct) (lua_State *L);
 #define LUA_RLLIBNAME "rl"
 LUAMOD_API int (luaopen_readline) (lua_State *L);
 
-#define LUA_LZLIBNAME "lz"
-LUAMOD_API int (luaopen_lz) (lua_State *L);
+#define LUA_LZOLIBNAME "lzo"
+LUAMOD_API int (luaopen_lzo) (lua_State *L);
+
+#define LUA_MINILZOLIBNAME "minilzo"
+LUAMOD_API int (luaopen_minilzo) (lua_State *L);
+
+#define LUA_QLZLIBNAME "qlz"
+LUAMOD_API int (luaopen_qlz) (lua_State *L);
+
+#define LUA_LZ4LIBNAME "lz4"
+LUAMOD_API int (luaopen_lz4) (lua_State *L);
+
+#define LUA_ZLIBLIBNAME "zlib"
+LUAMOD_API int (luaopen_zlib) (lua_State *L);
+
+#define LUA_UCLLIBNAME "ucl"
+LUAMOD_API int (luaopen_ucl) (lua_State *L);
+
+#define LUA_LZMALIBNAME "lzma"
+LUAMOD_API int (luaopen_lzma) (lua_State *L);
+
+#define LUA_ZLIBNAME "z"
+LUAMOD_API int (luaopen_z) (lua_State *L);
 
 #define LUA_CURLLIBNAME "curl"
 LUAMOD_API int (luaopen_cURL) (lua_State *L);

@@ -25,6 +25,22 @@ Freely available under the terms of the Lua license.
 #include "glob.h"
 #endif
 
+#ifdef USE_ZLIB
+#include "zlib.h"
+#endif
+
+#ifdef USE_UCL
+#include "ucl.h"
+#endif
+
+#ifdef USE_LZO
+#include "lzo1x.h"
+#endif
+
+#ifdef USE_LZMA
+#include "lzma.h"
+#endif
+
 #define BL_PATHSIZE 1024
 #define BL_BUFSIZE  (64*1024)
 
@@ -537,272 +553,562 @@ LUAMOD_API int luaopen_sys (lua_State *L)
 }
 
 /*******************************************************************/
-/* lz: compression library                                         */
+/* z, minilzo, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries */
 /*******************************************************************/
 
-#ifdef USE_LZ
+#ifdef USE_Z
 
 #define LZO_SIG  0x004F5A4C
+#define UCL_SIG  0x004C4355
 #define QLZ_SIG  0x005A4C51
 #define LZ4_SIG  0x00345A4C
+#define ZLIB_SIG 0x42494C5A
+#define LZMA_SIG 0x414D5A4C
 
 typedef struct
 {
     uint32_t  sig;
     uint32_t  len;
-} t_lz_header;
+} t_z_header;
 
-typedef enum { BEST, LZO, QLZ, LZ4 } t_lz_method;
+#define COMPRESSOR(LIB)                                                         \
+                                                                                \
+static int bl_##LIB##_compress(lua_State *L)                                    \
+{                                                                               \
+    const char *src = luaL_checkstring(L, 1);                                   \
+    size_t src_len = lua_rawlen(L, 1);                                          \
+    char *dst;                                                                  \
+    size_t dst_len;                                                             \
+    int n = bl_##LIB##_compress_core(L, src, src_len, &dst, &dst_len);          \
+    if (n > 0) return n; /* error messages pushed by bl_##LIB##_compress_core */    \
+    lua_pop(L, 1);                                                              \
+    lua_pushlstring(L, dst, (size_t)(dst_len));                                 \
+    free(dst);                                                                  \
+    return 1;                                                                   \
+}                                                                               \
+                                                                                \
+static int bl_##LIB##_decompress(lua_State *L)                                  \
+{                                                                               \
+    const char *src = luaL_checkstring(L, 1);                                   \
+    size_t src_len = lua_rawlen(L, 1);                                          \
+    char *dst;                                                                  \
+    size_t dst_len;                                                             \
+    int n = bl_##LIB##_decompress_core(L, src, src_len, &dst, &dst_len);        \
+    if (n > 0) return n; /* error messages pushed by bl_##LIB##_decompress_core */  \
+    if (n < 0)           /* string not compressed by LIB */                     \
+    {                                                                           \
+        lua_pushnil(L);                                                         \
+        lua_pushstring(L, #LIB ": not a compressed string");                    \
+        return 2;                                                               \
+    }                                                                           \
+    lua_pop(L, 1);                                                              \
+    lua_pushlstring(L, dst, (size_t)(dst_len));                                 \
+    free(dst);                                                                  \
+    return 1;                                                                   \
+}                                                                               \
+                                                                                \
+static const luaL_Reg LIB##lib[] =                                              \
+{                                                                               \
+    {"compress", bl_##LIB##_compress},                                          \
+    {"decompress", bl_##LIB##_decompress},                                      \
+    {NULL, NULL}                                                                \
+};                                                                              \
 
-#ifdef USE_LZ_TWO_OR_MORE
-static t_lz_method lz_method = BEST;
-#endif
+#ifdef USE_MINILZO
 
-#ifdef USE_LZO_AND_MORE
-static int lz_lzo(lua_State *L)
+int bl_minilzo_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-    lz_method = LZO;
-    return 0;
-}
-#endif
-
-#ifdef USE_QLZ_AND_MORE
-static int lz_qlz(lua_State *L)
-{
-    lz_method = QLZ;
-    return 0;
-}
-#endif
-
-#ifdef USE_LZ4_AND_MORE
-static int lz_lz4(lua_State *L)
-{
-    lz_method = LZ4;
-    return 0;
-}
-#endif
-
-#ifdef USE_ZLIB_AND_MORE
-static int lz_zlib(lua_State *L)
-{
-    lz_method = ZLIB;
-    return 0;
-}
-#endif
-
-#ifdef USE_LZ_TWO_OR_MORE
-static int lz_best(lua_State *L)
-{
-    lz_method = BEST;
-    return 0;
-}
-#endif
-
-int lz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
-{
-#ifdef USE_LZO
-#ifdef USE_LZO_AND_MORE
-    if (lz_method == LZO || lz_method == BEST)
-    {
-#endif
 #define HEAP_ALLOC(var,size) \
     lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
-        HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
-        lzo_uint lzo_dst_len = src_len + src_len/16 + 64 + 3 + sizeof(t_lz_header);
-        lzo_bytep lzo_dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
-        int r = lzo1x_1_compress(src, src_len, lzo_dst+sizeof(t_lz_header), &lzo_dst_len, wrkmem);
-        if (r != LZO_E_OK)
-        {
-            lua_pushnil(L);
-            lua_pushfstring(L, "lz: lzo1x_1_compress failed (error: %d)", r);
-            return 2;
-        }
-        ((t_lz_header*)lzo_dst)->sig = LZO_SIG;
-        ((t_lz_header*)lzo_dst)->len = src_len;
-        *dst = lzo_dst;
-        *dst_len = lzo_dst_len;
-#ifdef USE_LZO_AND_MORE
-    }
-#endif
-#endif
-#ifdef USE_QLZ
-#ifdef USE_QLZ_AND_MORE
-    if (lz_method == QLZ || lz_method == BEST)
+    HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
+    lzo_uint lzo_dst_len = src_len + src_len/16 + 64 + 3 + sizeof(t_z_header);
+    lzo_bytep lzo_dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
+    int r = lzo1x_1_compress(src, src_len, lzo_dst+sizeof(t_z_header), &lzo_dst_len, wrkmem);
+    if (r != LZO_E_OK)
     {
-#endif
-        qlz_state_compress *state_compress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
-        char *qlz_dst = (char*)malloc(src_len + 400 + sizeof(t_lz_header));
-        size_t qlz_dst_len = qlz_compress(src, qlz_dst+sizeof(t_lz_header), src_len, state_compress);
-        free(state_compress);
-        ((t_lz_header*)qlz_dst)->sig = QLZ_SIG;
-        ((t_lz_header*)qlz_dst)->len = src_len;
-#ifdef USE_QLZ_FIRST
-        *dst = qlz_dst;
-        *dst_len = qlz_dst_len;
-#else
-        if (lz_method == QLZ)
-        {
-            *dst = qlz_dst;
-            *dst_len = qlz_dst_len;
-        }
-        else if (lz_method == BEST)
-        {
-            if (qlz_dst_len < *dst_len)
-            {
-                free(*dst);
-                *dst = qlz_dst;
-                *dst_len = qlz_dst_len;
-            }
-            else
-            {
-                free(qlz_dst);
-            }
-        }
-#endif
-#ifdef USE_QLZ_AND_MORE
+        free(lzo_dst);
+        lua_pushnil(L);
+        lua_pushfstring(L, "minilzo: lzo1x_1_compress failed (error: %d)", r);
+        return 2;
     }
-#endif
-#endif
-#ifdef USE_LZ4
-#ifdef USE_LZ4_AND_MORE
-    if (lz_method == LZ4 || lz_method == BEST)
-    {
-#endif
-        char *lz4_dst = (char*)malloc(src_len + src_len/2 + 8 + sizeof(t_lz_header));
-        int lz4_dst_len = LZ4_compress((char*)src, lz4_dst+sizeof(t_lz_header), src_len);
-        ((t_lz_header*)lz4_dst)->sig = LZ4_SIG;
-        ((t_lz_header*)lz4_dst)->len = src_len;
-#ifdef USE_LZ4_FIRST
-        *dst = lz4_dst;
-        *dst_len = lz4_dst_len;
-#else
-        if (lz_method == LZ4)
-        {
-            *dst = lz4_dst;
-            *dst_len = lz4_dst_len;
-        }
-        else if (lz_method == BEST)
-        {
-            if (lz4_dst_len < *dst_len)
-            {
-                free(*dst);
-                *dst = lz4_dst;
-                *dst_len = lz4_dst_len;
-            }
-            else
-            {
-                free(lz4_dst);
-            }
-        }
-#endif
-#ifdef USE_LZ4_AND_MORE
-    }
-#endif
-#endif
-    *dst_len += sizeof(t_lz_header);
+    ((t_z_header*)lzo_dst)->sig = LZO_SIG;
+    ((t_z_header*)lzo_dst)->len = src_len;
+    *dst = lzo_dst;
+    *dst_len = lzo_dst_len;
+    *dst_len += sizeof(t_z_header);
     return 0;
 }
 
-int lz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+int bl_minilzo_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-#ifdef USE_LZO
-    if (((t_lz_header*)src)->sig == LZO_SIG)
+    if (((t_z_header*)src)->sig == LZO_SIG)
     {
-        lzo_uint lzo_dst_len = ((t_lz_header*)src)->len;
+        lzo_uint lzo_dst_len = ((t_z_header*)src)->len;
         *dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
-        int r = lzo1x_decompress_safe(src+sizeof(t_lz_header), src_len-sizeof(t_lz_header), *dst, &lzo_dst_len, NULL);
+        int r = lzo1x_decompress_safe(src+sizeof(t_z_header), src_len-sizeof(t_z_header), *dst, &lzo_dst_len, NULL);
         if (r != LZO_E_OK)
         {
+            free(*dst);
             lua_pushnil(L);
-            lua_pushfstring(L, "lz: lzo1x_decompress failed (error: %d)", r);
+            lua_pushfstring(L, "minilzo: lzo1x_decompress failed (error: %d)", r);
             return 2;
         }
         *dst_len = lzo_dst_len;
         return 0;
     }
+    return -1;
+}
+
+COMPRESSOR(minilzo)
+
+LUAMOD_API int luaopen_minilzo (lua_State *L)
+{
+    if (lzo_init() != LZO_E_OK)
+    {
+        luaL_error(L, "minilzo: lzo_init() failed !!!");
+    }
+    luaL_newlib(L, minilzolib);
+    return 1;
+}
+
 #endif
+
+#ifdef USE_LZO
+
+int bl_lzo_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+#define HEAP_ALLOC(var,size) \
+    lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
+    HEAP_ALLOC(wrkmem, LZO1X_999_MEM_COMPRESS);
+    lzo_uint lzo_dst_len = src_len + src_len/16 + 64 + 3 + sizeof(t_z_header);
+    lzo_bytep lzo_dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
+    int r = lzo1x_999_compress(src, src_len, lzo_dst+sizeof(t_z_header), &lzo_dst_len, wrkmem);
+    if (r != LZO_E_OK)
+    {
+        free(lzo_dst);
+        lua_pushnil(L);
+        lua_pushfstring(L, "lzo: lzo1x_999_compress failed (error: %d)", r);
+        return 2;
+    }
+    ((t_z_header*)lzo_dst)->sig = LZO_SIG;
+    ((t_z_header*)lzo_dst)->len = src_len;
+    *dst = lzo_dst;
+    *dst_len = lzo_dst_len;
+    *dst_len += sizeof(t_z_header);
+    return 0;
+}
+
+int bl_lzo_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    if (((t_z_header*)src)->sig == LZO_SIG)
+    {
+        lzo_uint lzo_dst_len = ((t_z_header*)src)->len;
+        *dst = (lzo_bytep)malloc(sizeof(lzo_byte)*lzo_dst_len);
+        int r = lzo1x_decompress_safe(src+sizeof(t_z_header), src_len-sizeof(t_z_header), *dst, &lzo_dst_len, NULL);
+        if (r != LZO_E_OK)
+        {
+            free(*dst);
+            lua_pushnil(L);
+            lua_pushfstring(L, "lzo: lzo1x_decompress failed (error: %d)", r);
+            return 2;
+        }
+        *dst_len = lzo_dst_len;
+        return 0;
+    }
+    return -1;
+}
+
+COMPRESSOR(lzo)
+
+LUAMOD_API int luaopen_lzo (lua_State *L)
+{
+    if (lzo_init() != LZO_E_OK)
+    {
+        luaL_error(L, "lzo: lzo_init() failed !!!");
+    }
+    luaL_newlib(L, lzolib);
+    return 1;
+}
+
+#endif
+
+#ifdef USE_UCL
+
+int bl_ucl_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    ucl_uint ucl_dst_len = src_len + src_len/8 + 256 + sizeof(t_z_header);
+    ucl_bytep ucl_dst = (ucl_bytep)malloc(sizeof(ucl_byte)*ucl_dst_len);
+    int r = ucl_nrv2e_99_compress(src, src_len, ucl_dst+sizeof(t_z_header), &ucl_dst_len, NULL, UCL_LEVEL, NULL, NULL);
+    if (r != UCL_E_OK)
+    {
+        free(ucl_dst);
+        lua_pushnil(L);
+        lua_pushfstring(L, "ucl: ucl_nrv2e_99_compress failed (error: %d)", r);
+        return 2;
+    }
+    ((t_z_header*)ucl_dst)->sig = UCL_SIG;
+    ((t_z_header*)ucl_dst)->len = src_len;
+    *dst = ucl_dst;
+    *dst_len = ucl_dst_len;
+    *dst_len += sizeof(t_z_header);
+    return 0;
+}
+
+int bl_ucl_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    if (((t_z_header*)src)->sig == UCL_SIG)
+    {
+        ucl_uint ucl_dst_len = ((t_z_header*)src)->len;
+        *dst = (ucl_bytep)malloc(sizeof(ucl_byte)*ucl_dst_len+65000);
+        int r = ucl_nrv2e_decompress_safe_8(src+sizeof(t_z_header), src_len-sizeof(t_z_header), *dst, &ucl_dst_len, NULL);
+        if (r != UCL_E_OK)
+        {
+            free(*dst);
+            lua_pushnil(L);
+            lua_pushfstring(L, "ucl: ucl_nrv2e_decompress_safe_8 failed (error: %d)", r);
+            return 2;
+        }
+        *dst_len = ucl_dst_len;
+        return 0;
+    }
+    return -1;
+}
+
+COMPRESSOR(ucl)
+
+LUAMOD_API int luaopen_ucl (lua_State *L)
+{
+    if (ucl_init() != UCL_E_OK)
+    {
+        luaL_error(L, "ucl: ucl_init() failed !!!");
+    }
+    luaL_newlib(L, ucllib);
+    return 1;
+}
+
+#endif
+
 #ifdef USE_QLZ
-    if (((t_lz_header*)src)->sig == QLZ_SIG)
+
+int bl_qlz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    qlz_state_compress *state_compress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
+    char *qlz_dst = (char*)malloc(src_len + 400 + sizeof(t_z_header));
+    size_t qlz_dst_len = qlz_compress(src, qlz_dst+sizeof(t_z_header), src_len, state_compress);
+    free(state_compress);
+    ((t_z_header*)qlz_dst)->sig = QLZ_SIG;
+    ((t_z_header*)qlz_dst)->len = src_len;
+    *dst = qlz_dst;
+    *dst_len = qlz_dst_len;
+    *dst_len += sizeof(t_z_header);
+    return 0;
+}
+
+int bl_qlz_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    if (((t_z_header*)src)->sig == QLZ_SIG)
     {
         qlz_state_decompress *state_decompress = (qlz_state_decompress *)malloc(sizeof(qlz_state_decompress));
-        *dst_len = ((t_lz_header*)src)->len;
+        *dst_len = ((t_z_header*)src)->len;
         *dst = (char*)malloc(*dst_len);
-        *dst_len = qlz_decompress(src+sizeof(t_lz_header), *dst, state_decompress);
+        *dst_len = qlz_decompress(src+sizeof(t_z_header), *dst, state_decompress);
         free(state_decompress);
         return 0;
     }
+    return -1;
+}
+
+COMPRESSOR(qlz)
+
+LUAMOD_API int luaopen_qlz (lua_State *L)
+{
+    luaL_newlib(L, qlzlib);
+    return 1;
+}
+
 #endif
+
 #ifdef USE_LZ4
-    if (((t_lz_header*)src)->sig == LZ4_SIG)
+
+int bl_lz4_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    char *lz4_dst = (char*)malloc(src_len + src_len/2 + 8 + sizeof(t_z_header));
+    int lz4_dst_len = LZ4_compress((char*)src, lz4_dst+sizeof(t_z_header), src_len);
+    ((t_z_header*)lz4_dst)->sig = LZ4_SIG;
+    ((t_z_header*)lz4_dst)->len = src_len;
+    *dst = lz4_dst;
+    *dst_len = lz4_dst_len;
+    *dst_len += sizeof(t_z_header);
+    return 0;
+}
+
+int bl_lz4_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    if (((t_z_header*)src)->sig == LZ4_SIG)
     {
-        *dst = (char*)malloc(((t_lz_header*)src)->len + 3);
-        *dst_len = LZ4_decode((char*)(src+sizeof(t_lz_header)), *dst, src_len-sizeof(t_lz_header));
+        *dst = (char*)malloc(((t_z_header*)src)->len + 3);
+        *dst_len = LZ4_decode((char*)(src+sizeof(t_z_header)), *dst, src_len-sizeof(t_z_header));
         return 0;
     }
-#endif
-    lua_pushnil(L);
-    lua_pushstring(L, "lz: not a compressed string");
-    return 2;
+    return -1;
 }
-        
-static int lz_compress(lua_State *L)
+
+COMPRESSOR(lz4)
+
+LUAMOD_API int luaopen_lz4 (lua_State *L)
 {
-    const char *src = luaL_checkstring(L, 1);
-    size_t src_len = lua_rawlen(L, 1);
-    char *dst;
-    size_t dst_len;
-    int n = lz_compress_core(L, src, src_len, &dst, &dst_len);
-    if (n > 0) return n; /* error messages pushed by lz_compress_core */
-    lua_pop(L, 1);
-    lua_pushlstring(L, dst, (size_t)(dst_len));
-    free(dst);
+    luaL_newlib(L, lz4lib);
     return 1;
 }
 
-static int lz_decompress(lua_State *L)
-{
-    const char *src = luaL_checkstring(L, 1);
-    size_t src_len = lua_rawlen(L, 1);
-    char *dst;
-    size_t dst_len;
-    int n = lz_decompress_core(L, src, src_len, &dst, &dst_len);
-    if (n > 0) return n; /* error messages pushed by lz_decompress_core */
-    lua_pop(L, 1);
-    lua_pushlstring(L, dst, (size_t)(dst_len));
-    free(dst);
-    return 1;
-}
+#endif
 
-static const luaL_Reg lzlib[] =
-{
-#ifdef USE_LZO_AND_MORE
-    {"lzo", lz_lzo},
-#endif
-#ifdef USE_QLZ_AND_MORE
-    {"qlz", lz_qlz},
-#endif
-#ifdef USE_LZ4_AND_MORE
-    {"lz4", lz_lz4},
-#endif
-#ifdef USE_Z_TWO_OR_MORE
-    {"best", lz_best},
-#endif
-    {"compress", lz_compress},
-    {"decompress", lz_decompress},
-    {NULL, NULL}
-};
+#ifdef USE_ZLIB
 
-LUAMOD_API int luaopen_lz (lua_State *L)
+int bl_zlib_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-#ifdef USE_LZO
-    if (lzo_init() != LZO_E_OK)
+    uLongf zlib_dst_len = src_len + src_len/10 + 12;
+    Bytef *zlib_dst = (char*)malloc(zlib_dst_len + sizeof(t_z_header));
+    int r = compress2(zlib_dst+sizeof(t_z_header), &zlib_dst_len, src, src_len, ZLIB_LEVEL);
+    if (r != Z_OK)
     {
-        luaL_error(L, "lz: lzo_init() failed !!!");
+        free(zlib_dst);
+        lua_pushnil(L);
+        lua_pushfstring(L, "zlib: compress2 failed (error: %d)", r);
+        return 2;
     }
-#endif
-    luaL_newlib(L, lzlib);
+    ((t_z_header*)zlib_dst)->sig = ZLIB_SIG;
+    ((t_z_header*)zlib_dst)->len = src_len;
+    *dst = zlib_dst;
+    *dst_len = zlib_dst_len;
+    *dst_len += sizeof(t_z_header);
+    return 0;
+}
+
+int bl_zlib_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    if (((t_z_header*)src)->sig == ZLIB_SIG)
+    {
+        *dst_len = ((t_z_header*)src)->len;
+        *dst = (char*)malloc(*dst_len);
+        int r = uncompress(*dst, (uLongf *)dst_len, (char*)(src+sizeof(t_z_header)), src_len-sizeof(t_z_header));
+        if (r != Z_OK)
+        {
+            free(*dst);
+            lua_pushnil(L);
+            lua_pushfstring(L, "z: uncompress failed (error: %d)", r);
+            return 2;
+        }
+        return 0;
+    }
+    return -1;
+}
+
+COMPRESSOR(zlib)
+
+LUAMOD_API int luaopen_zlib (lua_State *L)
+{
+    luaL_newlib(L, zliblib);
     return 1;
 }
+
+#endif
+
+#ifdef USE_LZMA
+
+#define LZMA_EXTREME 0
+#define LZMA_CHECK LZMA_CHECK_CRC64
+
+int bl_lzma_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    uint32_t preset = LZMA_LEVEL | (LZMA_EXTREME ? LZMA_PRESET_EXTREME : 0);
+    lzma_check check = LZMA_CHECK;
+    lzma_stream strm = LZMA_STREAM_INIT;
+    size_t lzma_dst_len = src_len + src_len/8 + 256;
+    uint8_t *lzma_dst = (uint8_t*)malloc(lzma_dst_len + sizeof(t_z_header));
+    int out_finished = 0;
+    lzma_action action;
+    lzma_ret ret;
+    ret = lzma_easy_encoder(&strm, preset, check);
+    if (ret != LZMA_OK)
+    {
+        free(lzma_dst);
+        lua_pushnil(L);
+        lua_pushfstring(L, "lzma: lzma_easy_encoder failed (error: %d)", ret);
+        return 2;
+    }
+    strm.next_in = src;
+    strm.avail_in = src_len;
+    action = LZMA_FINISH;
+    strm.next_out = lzma_dst + sizeof(t_z_header);
+    strm.avail_out = lzma_dst_len;
+    ret = lzma_code(&strm, action);
+    if (ret != LZMA_STREAM_END)
+    {
+        free(lzma_dst);
+        lua_pushnil(L);
+        lua_pushfstring(L, "lzma: lzma_code failed (error: %d)", ret);
+        return 2;
+    }
+    lzma_dst_len -= strm.avail_out;
+    ((t_z_header*)lzma_dst)->sig = LZMA_SIG;
+    ((t_z_header*)lzma_dst)->len = src_len;
+    *dst = lzma_dst;
+    *dst_len = lzma_dst_len;
+    *dst_len += sizeof(t_z_header);
+    lzma_end(&strm);
+    return 0;
+}
+
+int bl_lzma_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    if (((t_z_header*)src)->sig == LZMA_SIG)
+    {
+        lzma_stream strm = LZMA_STREAM_INIT;
+        const uint32_t flags = LZMA_TELL_UNSUPPORTED_CHECK | LZMA_CONCATENATED;
+        const uint64_t memory_limit = UINT64_MAX;
+        *dst_len = ((t_z_header*)src)->len;
+        *dst = (uint8_t*)malloc(*dst_len);
+        lzma_action action;
+        lzma_ret ret;
+        ret = lzma_stream_decoder(&strm, memory_limit, flags);
+        if (ret != LZMA_OK)
+        {
+            free(*dst);
+            lua_pushnil(L);
+            lua_pushfstring(L, "lzma: lzma_stream_decoder failed (error: %d)", ret);
+            return 2;
+        }
+        strm.next_in = src + sizeof(t_z_header);
+        strm.avail_in = src_len - sizeof(t_z_header);
+        action = LZMA_FINISH;
+        strm.next_out = *dst;
+        strm.avail_out = *dst_len;
+        ret = lzma_code(&strm, action);
+        if (ret != LZMA_STREAM_END)
+        {
+            free(*dst);
+            lua_pushnil(L);
+            lua_pushfstring(L, "lzma: lzma_code failed (error: %d)", ret);
+            return 2;
+        }
+        return 0;
+    }
+    return -1;
+}
+
+COMPRESSOR(lzma)
+
+LUAMOD_API int luaopen_lzma(lua_State *L)
+{
+    luaL_newlib(L, lzmalib);
+    return 1;
+}
+#endif
+
+int bl_z_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    char *smallest = NULL;
+    size_t smallest_len = (size_t)-1;
+    char *compressed;
+    size_t compressed_len;
+
+#define COMPRESS(LIB)                                                                   \
+{                                                                                       \
+    int r = bl_##LIB##_compress_core(L, src, src_len, &compressed, &compressed_len);    \
+    if (r > 0) return r;                                                                \
+    if (compressed_len < smallest_len)                                                  \
+    {                                                                                   \
+        if (smallest) free(smallest);                                                   \
+        smallest = compressed;                                                          \
+        smallest_len = compressed_len;                                                  \
+    }                                                                                   \
+}
+
+#ifdef USE_MINILZO
+    COMPRESS(minilzo)
+#endif
+#ifdef USE_LZO
+    COMPRESS(lzo)
+#endif
+#ifdef USE_QLZ
+    COMPRESS(qlz)
+#endif
+#ifdef USE_LZ4
+    COMPRESS(lz4)
+#endif
+#ifdef USE_ZLIB
+    COMPRESS(zlib)
+#endif
+#ifdef USE_UCL
+    COMPRESS(ucl)
+#endif
+#ifdef USE_LZMA
+    COMPRESS(lzma)
+#endif
+
+#undef COMPRESS
+
+    if (smallest)
+    {
+        *dst = smallest;
+        *dst_len = smallest_len;
+    }
+    else
+    {
+        lua_pushnil(L);
+        lua_pushstring(L, "z: can not compress");
+        return 2;
+    }
+    return 0;
+}
+
+int bl_z_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+
+#define DECOMPRESS(LIB)                                                 \
+{                                                                       \
+    int r = bl_##LIB##_decompress_core(L, src, src_len, dst, dst_len);  \
+    if (r > 0) return r; /* decompression error */                      \
+    if (r == 0) return r;/* decompression done */                       \
+    /* r < 0 => string not compressed by LIB */                         \
+}
+
+#ifdef USE_MINILZO
+    DECOMPRESS(minilzo)
+#endif
+#ifdef USE_LZO
+    DECOMPRESS(lzo)
+#endif
+#ifdef USE_QLZ
+    DECOMPRESS(qlz)
+#endif
+#ifdef USE_LZ4
+    DECOMPRESS(lz4)
+#endif
+#ifdef USE_ZLIB
+    DECOMPRESS(zlib)
+#endif
+#ifdef USE_UCL
+    DECOMPRESS(ucl)
+#endif
+#ifdef USE_LZMA
+    DECOMPRESS(lzma)
+#endif
+
+    return -1;
+#undef DECOMPRESS
+}
+
+COMPRESSOR(z)
+
+LUAMOD_API int luaopen_z (lua_State *L)
+{
+    luaL_newlib(L, zlib);
+    return 1;
+}
+
+#undef COMPRESSOR
 
 #endif
 

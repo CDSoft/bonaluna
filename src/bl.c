@@ -51,7 +51,7 @@ Freely available under the terms of the Lua license.
 #include "linit.c"
 
 /* BonaLuna libraries */
-#ifdef USE_LZO
+#ifdef USE_MINILZO
 #include "minilzo.c"
 #endif
 #ifdef USE_QLZ

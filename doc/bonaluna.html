@@ -346,9 +346,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.0.3.tgz">http://cdsoft.fr/bl/bonaluna-2.0.3.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.0.4.tgz">http://cdsoft.fr/bl/bonaluna-2.0.4.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.0.3</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.0.4</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -368,7 +368,7 @@ in a single executable.</td>
 <li><a class="reference internal" href="#crypt-cryptographic-functions" id="id8">3.2&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></li>
 <li><a class="reference internal" href="#curl-libcurl-interface" id="id9">3.3&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></li>
 <li><a class="reference internal" href="#fs-file-system" id="id10">3.4&nbsp;&nbsp;&nbsp;fs: File System</a></li>
-<li><a class="reference internal" href="#lz-compression-library" id="id11">3.5&nbsp;&nbsp;&nbsp;lz: compression library</a></li>
+<li><a class="reference internal" href="#z-lzo-qlz-lz4-zlib-ucl-lzma-compression-libraries" id="id11">3.5&nbsp;&nbsp;&nbsp;z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries</a></li>
 <li><a class="reference internal" href="#ps-processes" id="id12">3.6&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
 <li><a class="reference internal" href="#rl-readline" id="id13">3.7&nbsp;&nbsp;&nbsp;rl: readline</a></li>
 <li><a class="reference internal" href="#struct-un-pack-structures" id="id14">3.8&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></li>
@@ -519,24 +519,35 @@ file <cite>other_file_name</cite> (string containing the name of another file).<
 <p><strong>fs.oR, fs.oW, fs.oX</strong> are the Other Read/Write/eXecute mask for <cite>fs.chmod</cite>.</p>
 <p><strong>fs.aR, fs.aW, fs.aX</strong> are All Read/Write/eXecute mask for <cite>fs.chmod</cite>.</p>
 </div>
-<div class="section" id="lz-compression-library">
-<h2><a class="toc-backref" href="#id11">3.5&nbsp;&nbsp;&nbsp;lz: compression library</a></h2>
-<p>The lz package uses <a class="reference external" href="http://www.oberhumer.com/opensource/lzo/#minilzo">miniLZO</a>, <a class="reference external" href="http://www.quicklz.com/">QuickLZ</a> and <a class="reference external" href="http://code.google.com/p/lz4/">LZ4</a>.
-It's inspired by the <a class="reference external" href="http://lua-users.org/wiki/LuaModuleLzo">Lua Lzo module</a>.</p>
+<div class="section" id="z-lzo-qlz-lz4-zlib-ucl-lzma-compression-libraries">
+<h2><a class="toc-backref" href="#id11">3.5&nbsp;&nbsp;&nbsp;z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries</a></h2>
+<p>Compression libraries are based on:
+- <a class="reference external" href="http://www.oberhumer.com/opensource/lzo/">LZO</a>
+- <a class="reference external" href="http://www.quicklz.com/">QuickLZ</a>
+- <a class="reference external" href="http://code.google.com/p/lz4/">LZ4</a>
+- <a class="reference external" href="http://www.zlib.net/">ZLIB</a>
+- <a class="reference external" href="http://www.oberhumer.com/opensource/ucl/">UCL</a>
+- <a class="reference external" href="http://tukaani.org/xz/">XZ Utils</a></p>
+<p>It's inspired by the <a class="reference external" href="http://lua-users.org/wiki/LuaModuleLzo">Lua Lzo module</a>.</p>
 <p>Future versions of BonaLuna may remove or add some compression library.</p>
-<p>Currently, only QuickLZ is used in the default BonaLuna distribution
+<p>Currently, only zlib is used in the default BonaLuna distribution
 but you can change it in <cite>setup</cite>.</p>
-<p>These functions are available only if several compression libraries are selected in <cite>setup</cite>:</p>
-<blockquote>
-<ul class="simple">
-<li><strong>lz.lzo()</strong> selects the LZO compression library.</li>
-<li><strong>lz.qlz()</strong> selects the QuickLZ compression library.</li>
-<li><strong>lz.lz4()</strong> selects the LZ4 compression library.</li>
-<li><strong>lz.best()</strong> selects all compression libraries and choose the best.</li>
-</ul>
-</blockquote>
-<p><strong>lz.compress(data)</strong> compresses <cite>data</cite> and returns the compressed string.</p>
-<p><strong>lz.decompress(data)</strong> decompresses <cite>data</cite> and returns the decompressed string.</p>
+<p><strong>z.compress(data)</strong> compresses <cite>data</cite> using the best compressor and returns the compressed string.</p>
+<p><strong>z.decompress(data)</strong> decompresses <cite>data</cite> and returns the decompressed string.</p>
+<p><strong>minilzo.compress(data)</strong> compresses <cite>data</cite> with miniLZO and returns the compressed string.</p>
+<p><strong>minilzo.decompress(data)</strong> decompresses <cite>data</cite> with miniLZO and returns the decompressed string.</p>
+<p><strong>lzo.compress(data)</strong> compresses <cite>data</cite> with LZO and returns the compressed string.</p>
+<p><strong>lzo.decompress(data)</strong> decompresses <cite>data</cite> with LZO and returns the decompressed string.</p>
+<p><strong>qlz.compress(data)</strong> compresses <cite>data</cite> with QLZ and returns the compressed string.</p>
+<p><strong>qlz.decompress(data)</strong> decompresses <cite>data</cite> with QLZ and returns the decompressed string.</p>
+<p><strong>lz4.compress(data)</strong> compresses <cite>data</cite> with LZ4 and returns the compressed string.</p>
+<p><strong>lz4.decompress(data)</strong> decompresses <cite>data</cite> with LZ4 and returns the decompressed string.</p>
+<p><strong>zlib.compress(data)</strong> compresses <cite>data</cite> with ZLIB and returns the compressed string.</p>
+<p><strong>zlib.decompress(data)</strong> decompresses <cite>data</cite> with ZLIB and returns the decompressed string.</p>
+<p><strong>ucl.compress(data)</strong> compresses <cite>data</cite> with UCL and returns the compressed string.</p>
+<p><strong>ucl.decompress(data)</strong> decompresses <cite>data</cite> with UCL and returns the decompressed string.</p>
+<p><strong>lzma.compress(data)</strong> compresses <cite>data</cite> with XZ Utils and returns the compressed string.</p>
+<p><strong>lzma.decompress(data)</strong> decompresses <cite>data</cite> with XZ Utils and returns the decompressed string.</p>
 </div>
 <div class="section" id="ps-processes">
 <h2><a class="toc-backref" href="#id12">3.6&nbsp;&nbsp;&nbsp;ps: Processes</a></h2>
@@ -544,11 +555,11 @@ but you can change it in <cite>setup</cite>.</p>
 </div>
 <div class="section" id="rl-readline">
 <h2><a class="toc-backref" href="#id13">3.7&nbsp;&nbsp;&nbsp;rl: readline</a></h2>
-<p>The rl (readline) package is taken from
+<p>The rl (readline) package was initially inspired by
 <a class="reference external" href="https://github.com/ilua">ilua</a>
 and adapted for BonaLuna.</p>
 <p><strong>rl.read(prompt)</strong> prints <cite>prompt</cite> and returns the string entered by the user.</p>
-<p><strong>rl.add(line)</strong> adds <cite>line</cite> to the readline history.</p>
+<p><strong>rl.add(line)</strong> adds <cite>line</cite> to the readline history (Linux only).</p>
 </div>
 <div class="section" id="struct-un-pack-structures">
 <h2><a class="toc-backref" href="#id14">3.8&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></h2>
