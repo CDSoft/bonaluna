@@ -443,7 +443,7 @@ $USE_LZMA && cp -f $TARGET/$LZMA_SRC/src/liblzma/api/*.h $INCLUDE_PATH/
 $USE_LZMA && mkdir -p $INCLUDE_PATH/lzma/
 $USE_LZMA && cp -f $TARGET/$LZMA_SRC/src/liblzma/api/lzma/*.h $INCLUDE_PATH/lzma/
 $USE_LZMA && CC_LIBS2+=" $LIBRARY_PATH/liblzma.a"
-$USE_UCL && LUA_CONF+=" -DLZMA_LEVEL=6"
+$USE_LZMA && LUA_CONF+=" -DLZMA_LEVEL=6"
 
 # cURL configuration
 ####################
