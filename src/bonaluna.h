@@ -63,3 +63,9 @@ LUAMOD_API int (luaopen_cURL) (lua_State *L);
 
 #define LUA_CRYPTLIBNAME "crypt"
 LUAMOD_API int (luaopen_crypt) (lua_State *L);
+
+#define LUA_SOCKETLIBNAME "socket"
+LUAMOD_API int (luaopen_socket_core) (lua_State *L);
+
+#define LUA_MIMELIBNAME "mime"
+LUAMOD_API int (luaopen_mime_core) (lua_State *L);

@@ -21,6 +21,7 @@ Freely available under the terms of the Lua license.
 #ifdef __MINGW32__
 #include <windows.h>
 #include <wincrypt.h>
+#include <ws2tcpip.h>
 #else
 #include "glob.h"
 #endif

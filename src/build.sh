@@ -11,7 +11,7 @@
 # Freely available under the terms of the Lua license.
 
 LUA_SRC=lua-5.2.0-beta
-LUA_URL=http://www.lua.org/work/$LUA_SRC-rc6.tar.gz
+LUA_URL=http://www.lua.org/work/$LUA_SRC.tar.gz
 
 LZO_SRC=lzo-2.05
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
@@ -27,6 +27,8 @@ LZMA_SRC=xz-5.0.3
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
 CURL_SRC=curl-7.21.6
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
+SOCKET_SRC=luasocket-2.0.2
+SOCKET_URL=http://luaforge.net/frs/download.php/2664/$SOCKET_SRC.tar.gz
 
 function error()
 {
@@ -70,7 +72,7 @@ mkdir -p $BUILD
 # Check configuration
 #####################
 
-for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL
+for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET
 do
     eval USE_$lib=false
 done
@@ -82,6 +84,17 @@ do
         QLZ|LZ4|ZLIB|LZMA)  export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
         CRYPT)              export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:crypt.lua";;
         CURL)               export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:curl.lua";;
+        SOCKET)             export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;
+                            export PEGAR_CONF+=" lua:$SOCKET_SRC/ltn12.lua=$TARGET/ltn12.lua"
+                            export PEGAR_CONF+=" lua:$SOCKET_SRC/mime.lua=$TARGET/mime.lua"
+                            export PEGAR_CONF+=" lua:$SOCKET_SRC/socket.lua=$TARGET/socket.lua"
+                            export PEGAR_CONF+=" lua:$SOCKET_SRC/url.lua=$TARGET/url.lua"
+                            export PEGAR_CONF+=" lua:$SOCKET_SRC/tp.lua=$TARGET/tp.lua"
+                            export PEGAR_CONF+=" lua:$SOCKET_SRC/smtp.lua=$TARGET/smtp.lua"
+                            export PEGAR_CONF+=" lua:$SOCKET_SRC/ftp.lua=$TARGET/ftp.lua"
+                            export PEGAR_CONF+=" lua:$SOCKET_SRC/http.lua=$TARGET/http.lua"
+                            export PEGAR_CONF+=" lua:ftp.lua"
+                            ;;
         *)                  echo "Unknown library: $lib"; exit 1;;
     esac
 done
@@ -165,6 +178,11 @@ $USE_CURL && (
     [ -e $CURL_SRC ] || tar xzf $(basename $CURL_URL)
 )
 
+$USE_SOCKET && (
+    [ -e $(basename $SOCKET_URL) ] || wget $SOCKET_URL
+    [ -e $SOCKET_SRC ] || tar xzf $(basename $SOCKET_URL)
+)
+
 # Target initialisation
 #######################
 
@@ -181,6 +199,7 @@ $USE_ZLIB && ! [ -e $TARGET/$ZLIB_SRC ] && cp -rf $ZLIB_SRC $TARGET/
 $USE_UCL && ! [ -e $TARGET/$UCL_SRC ] && cp -rf $UCL_SRC $TARGET/
 $USE_LZMA && ! [ -e $TARGET/$LZMA_SRC ] && cp -rf $LZMA_SRC $TARGET/
 $USE_CURL && ! [ -e $TARGET/$CURL_SRC ] && cp -rf $CURL_SRC $TARGET/
+$USE_SOCKET && cp -f $SOCKET_SRC/src/*.{c,h,lua} $TARGET/
 
 case "$PLATFORM" in
     Linux)      ;;
@@ -243,6 +262,10 @@ awk '
         print "#endif"
         print "#if defined(USE_CRYPT)"
         print "  {LUA_CRYPTLIBNAME, luaopen_crypt},"
+        print "#endif"
+        print "#if defined(USE_SOCKET)"
+        print "  {LUA_SOCKETLIBNAME, luaopen_socket_core},"
+        print "  {LUA_MIMELIBNAME, luaopen_mime_core},"
         print "#endif"
         }
     {print}
@@ -372,6 +395,94 @@ $USE_LZ4 && (
 #    sed -i 's/luaL_openlib (L, LUACURL_LIBNAME, luacurl_funcs, 0)/luaL_newlib(L, luacurl_funcs)/' $TARGET/luacurl.c
 #    sed -i 's/free_slist(L, key)/\/\/free_slist(L, key)/' $TARGET/luacurl.c
 #)
+
+# Lua Socket patches
+####################
+
+sed -i 's/luaL_reg/luaL_Reg/g' $TARGET/{auxiliar,except,inet,luasocket,mime,select,tcp,timeout,udp}.{c,h}
+sed -i 's/luaL_typerror/typeerror/g' $TARGET/{auxiliar,options}.{c,h}
+sed -i 's/luaL_putchar/luaL_addchar/g' $TARGET/{buffer,mime}.{c,h}
+sed -i 's/luaL_openlib(L, NULL, func, 0)/luaL_setfuncs(L, func, 0)/' $TARGET/{except,inet,select,tcp,timeout,udp}.c
+sed -i 's/luaL_openlib(L, "mime", func, 0)/luaL_newlib(L, func)/' $TARGET/mime.c
+sed -i 's/luaL_openlib(L, "socket", func, 0)/luaL_newlib(L, func)/' $TARGET/luasocket.c
+
+sed -i 's/\<func\>/except_func/' $TARGET/except.c
+sed -i 's/\<func\>/inet_func/' $TARGET/inet.c
+#sed -i 's/\<func\>/luasocket_func/' $TARGET/luasocket.c
+sed -i 's/\<func\>/mime_func/' $TARGET/mime.c
+sed -i 's/\<func\>/select_func/' $TARGET/select.c
+sed -i 's/\<func\>/tcp_func/' $TARGET/tcp.c
+sed -i 's/\<func\>/timeout_func/' $TARGET/timeout.c
+sed -i 's/\<func\>/udp_func/' $TARGET/udp.c
+
+sed -i 's/\<opt\>/tcp_opt/' $TARGET/tcp.c
+sed -i 's/\<opt\>/udp_opt/' $TARGET/udp.c
+sed -i 's/\<meth_/tcp_meth_/' $TARGET/tcp.c
+sed -i 's/\<meth_/udp_meth_/' $TARGET/udp.c
+sed -i 's/\<global_create\>/tcp_global_create/' $TARGET/tcp.c
+sed -i 's/\<global_create\>/udp_global_create/' $TARGET/udp.c
+
+mv -f $TARGET/io.h $TARGET/lsio.h
+mv -f $TARGET/io.c $TARGET/lsio.c
+sed -i 's/\<io\.h\>/lsio.h/' $TARGET/{auxiliar,except,inet,lsio,timeout}.c
+sed -i 's/\<io\.h\>/lsio.h/' $TARGET/{buffer,lsio,socket}.h
+
+# ltn12.lua
+sed -i \
+    -e 's/module("ltn12")/ltn12 = {}; local _ENV = ltn12/' \
+    $TARGET/ltn12.lua
+
+# mime.lua
+sed -i \
+    -e 's/require("ltn12")/ltn12/' \
+    -e 's/require("mime.core")/mime/' \
+    -e 's/module("mime")/local _ENV = mime/' \
+    $TARGET/mime.lua
+
+# socket.lua
+sed -i \
+    -e 's/require("socket.core")/socket/' \
+    -e 's/module("socket")/local _ENV = socket/' \
+    $TARGET/socket.lua
+
+# url.lua
+sed -i \
+    -e 's/module("socket.url")/socket.url = {}; local _ENV = socket.url/' \
+    $TARGET/url.lua
+
+# tp.lua
+sed -i \
+    -e 's/require("socket")/socket/' \
+    -e 's/require("ltn12")/ltn12/' \
+    -e 's/module("socket.tp")/socket.tp = {}; local _ENV = socket.tp/' \
+    $TARGET/tp.lua
+
+# smtp.lua
+sed -i \
+    -e 's/require("socket")/socket/' \
+    -e 's/require("socket.tp")/socket.tp/' \
+    -e 's/require("ltn12")/ltn12/' \
+    -e 's/require("mime")/mime/' \
+    -e 's/module("socket.smtp")/socket.smtp = {}; local _ENV = socket.smtp/' \
+    $TARGET/smtp.lua
+
+# ftp.lua
+sed -i \
+    -e 's/require("socket")/socket/' \
+    -e 's/require("socket.url")/socket.url/' \
+    -e 's/require("socket.tp")/socket.tp/' \
+    -e 's/require("ltn12")/ltn12/' \
+    -e 's/module("socket.ftp")/socket.ftp = {}; local _ENV = socket.ftp/' \
+    $TARGET/ftp.lua
+
+# http.lua
+sed -i \
+    -e 's/require("socket")/socket/' \
+    -e 's/require("socket.url")/socket.url/' \
+    -e 's/require("mime")/mime/' \
+    -e 's/require("ltn12")/ltn12/' \
+    -e 's/module("socket.http")/socket.http = {}; local _ENV = socket.http/' \
+    $TARGET/http.lua
 
 # External libraries
 ####################

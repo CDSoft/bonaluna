@@ -34,9 +34,9 @@
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.0.4.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.1.0.tgz
 
-:Version: 2.0.4
+:Version: 2.1.0
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -135,6 +135,9 @@ This package is a simple Lua interface to libcurl.
 This package is based on `Lua-cURL <http://luaforge.net/projects/lua-curl/>`__
 and provides the same API plus a few higher level objects.
 
+This package was introduced before `socket` which is based on `Lua Socket`.
+I recommend using `socket` instead of `curl`.
+
 **curl.FTP(url [, login, password])** creates an FTP object to connect to
 the FTP server at `url`. `login` and `password` are optional.
 Methods are:
@@ -146,7 +149,7 @@ Methods are:
 
     - `put(path, data)` sends and stores the string `data` to the file `path`.
 
-    - `del(path)` deletes the file `path`.
+    - `rm(path)` deletes the file `path`.
 
     - `mkdir(path)` creates the directory `path`.
 
@@ -298,6 +301,36 @@ and adapted for BonaLuna.
 
 **rl.add(line)** adds `line` to the readline history (Linux only).
 
+
+socket: Lua Socket (and networking tools)
+-----------------------------------------
+
+The socket package is based on `Lua Socket <http://w3.impa.br/~diego/software/luasocket/>`__
+and adapted for BonaLuna.
+
+The documentation of `Lua Socket` is available at the `Lua Socket documentation web site <http://w3.impa.br/~diego/software/luasocket/reference.html>`_.
+
+This package also comes with the following functions.
+
+**FTP(url [, login, password])** creates an FTP object to connect to
+the FTP server at `url`. `login` and `password` are optional.
+Methods are:
+
+    - `cd(path)` changes the current working directory.
+
+    - `pwd()` returns the current working directory.
+
+    - `get(path)` retrieves `path`.
+
+    - `put(path, data)` sends and stores the string `data` to the file `path`.
+
+    - `rm(path)` deletes the file `path`.
+
+    - `mkdir(path)` creates the directory `path`.
+
+    - `rmdir(path)` deletes the directory `path`.
+
+    - `list(path)` returns an iterator listing the directory `path`.
 
 struct: (un)pack structures
 ---------------------------

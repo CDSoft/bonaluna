@@ -62,7 +62,7 @@ function curl.FTP(url, login, pass)
         end}
     end
 
-    function ftp.del(path)
+    function ftp.rm(path)
         if not path:match("^/") then path = wd..path end
         local c = curl.easy_init()
         c:setopt_url(server..path)

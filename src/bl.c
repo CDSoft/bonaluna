@@ -66,6 +66,31 @@ Freely available under the terms of the Lua license.
 #ifdef USE_CURL
 #include "curl.c"
 #endif
+#ifdef USE_SOCKET
+#ifdef _WIN32
+#include "wsocket.h"
+#else
+#include "usocket.h"
+#endif
+#include "auxiliar.c"
+#include "buffer.c"
+#include "except.c"
+#include "inet.c"
+#include "lsio.c"
+#include "luasocket.c"
+#include "mime.c"
+#include "options.c"
+#include "select.c"
+#include "tcp.c"
+#include "timeout.c"
+#include "udp.c"
+//#include "unix.c"
+#ifdef _WIN32
+#include "wsocket.c"
+#else
+#include "usocket.c"
+#endif
+#endif
 
 /* BonaLuna "glue" */
 #include "glue.c"

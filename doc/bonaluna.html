@@ -346,9 +346,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.0.4.tgz">http://cdsoft.fr/bl/bonaluna-2.0.4.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.1.0.tgz">http://cdsoft.fr/bl/bonaluna-2.1.0.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.0.4</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.1.0</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -371,15 +371,16 @@ in a single executable.</td>
 <li><a class="reference internal" href="#z-lzo-qlz-lz4-zlib-ucl-lzma-compression-libraries" id="id11">3.5&nbsp;&nbsp;&nbsp;z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries</a></li>
 <li><a class="reference internal" href="#ps-processes" id="id12">3.6&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
 <li><a class="reference internal" href="#rl-readline" id="id13">3.7&nbsp;&nbsp;&nbsp;rl: readline</a></li>
-<li><a class="reference internal" href="#struct-un-pack-structures" id="id14">3.8&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></li>
-<li><a class="reference internal" href="#sys-system-management" id="id15">3.9&nbsp;&nbsp;&nbsp;sys: System management</a></li>
+<li><a class="reference internal" href="#socket-lua-socket-and-networking-tools" id="id14">3.8&nbsp;&nbsp;&nbsp;socket: Lua Socket (and networking tools)</a></li>
+<li><a class="reference internal" href="#struct-un-pack-structures" id="id15">3.9&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></li>
+<li><a class="reference internal" href="#sys-system-management" id="id16">3.10&nbsp;&nbsp;&nbsp;sys: System management</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#self-running-scripts" id="id16">4&nbsp;&nbsp;&nbsp;Self running scripts</a><ul class="auto-toc">
-<li><a class="reference internal" href="#pegar-lua-parameters" id="id17">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></li>
+<li><a class="reference internal" href="#self-running-scripts" id="id17">4&nbsp;&nbsp;&nbsp;Self running scripts</a><ul class="auto-toc">
+<li><a class="reference internal" href="#pegar-lua-parameters" id="id18">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#examples" id="id18">5&nbsp;&nbsp;&nbsp;Examples</a></li>
+<li><a class="reference internal" href="#examples" id="id19">5&nbsp;&nbsp;&nbsp;Examples</a></li>
 </ul>
 </div>
 <div class="section" id="lua">
@@ -447,6 +448,8 @@ mode (&quot;cbc&quot; (default) or &quot;ecb&quot;).
 This package is a simple Lua interface to libcurl.</p>
 <p>This package is based on <a class="reference external" href="http://luaforge.net/projects/lua-curl/">Lua-cURL</a>
 and provides the same API plus a few higher level objects.</p>
+<p>This package was introduced before <cite>socket</cite> which is based on <cite>Lua Socket</cite>.
+I recommend using <cite>socket</cite> instead of <cite>curl</cite>.</p>
 <p><strong>curl.FTP(url [, login, password])</strong> creates an FTP object to connect to
 the FTP server at <cite>url</cite>. <cite>login</cite> and <cite>password</cite> are optional.
 Methods are:</p>
@@ -456,7 +459,7 @@ Methods are:</p>
 made, <cite>path</cite> is just stored internally for later connections.</li>
 <li><cite>get(path)</cite> retrieves <cite>path</cite>.</li>
 <li><cite>put(path, data)</cite> sends and stores the string <cite>data</cite> to the file <cite>path</cite>.</li>
-<li><cite>del(path)</cite> deletes the file <cite>path</cite>.</li>
+<li><cite>rm(path)</cite> deletes the file <cite>path</cite>.</li>
 <li><cite>mkdir(path)</cite> creates the directory <cite>path</cite>.</li>
 <li><cite>rmdir(path)</cite> deletes the directory <cite>path</cite>.</li>
 <li><cite>list(path)</cite> returns an iterator listing the directory <cite>path</cite>.</li>
@@ -561,8 +564,30 @@ and adapted for BonaLuna.</p>
 <p><strong>rl.read(prompt)</strong> prints <cite>prompt</cite> and returns the string entered by the user.</p>
 <p><strong>rl.add(line)</strong> adds <cite>line</cite> to the readline history (Linux only).</p>
 </div>
+<div class="section" id="socket-lua-socket-and-networking-tools">
+<h2><a class="toc-backref" href="#id14">3.8&nbsp;&nbsp;&nbsp;socket: Lua Socket (and networking tools)</a></h2>
+<p>The socket package is based on <a class="reference external" href="http://w3.impa.br/~diego/software/luasocket/">Lua Socket</a>
+and adapted for BonaLuna.</p>
+<p>The documentation of <cite>Lua Socket</cite> is available at the <a class="reference external" href="http://w3.impa.br/~diego/software/luasocket/reference.html">Lua Socket documentation web site</a>.</p>
+<p>This package also comes with the following functions.</p>
+<p><strong>FTP(url [, login, password])</strong> creates an FTP object to connect to
+the FTP server at <cite>url</cite>. <cite>login</cite> and <cite>password</cite> are optional.
+Methods are:</p>
+<blockquote>
+<ul class="simple">
+<li><cite>cd(path)</cite> changes the current working directory.</li>
+<li><cite>pwd()</cite> returns the current working directory.</li>
+<li><cite>get(path)</cite> retrieves <cite>path</cite>.</li>
+<li><cite>put(path, data)</cite> sends and stores the string <cite>data</cite> to the file <cite>path</cite>.</li>
+<li><cite>rm(path)</cite> deletes the file <cite>path</cite>.</li>
+<li><cite>mkdir(path)</cite> creates the directory <cite>path</cite>.</li>
+<li><cite>rmdir(path)</cite> deletes the directory <cite>path</cite>.</li>
+<li><cite>list(path)</cite> returns an iterator listing the directory <cite>path</cite>.</li>
+</ul>
+</blockquote>
+</div>
 <div class="section" id="struct-un-pack-structures">
-<h2><a class="toc-backref" href="#id14">3.8&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></h2>
+<h2><a class="toc-backref" href="#id15">3.9&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></h2>
 <p>The struct package is taken from
 <a class="reference external" href="http://www.inf.puc-rio.br/~roberto/struct/">Library for Converting Data to and from C Structs for Lua 5.1</a>
 and adapted for BonaLuna.</p>
@@ -571,7 +596,7 @@ and adapted for BonaLuna.</p>
 <p><strong>struct.size(fmt)</strong> returns the size of a string formatted according to the format string <cite>fmt</cite>. For obvious reasons, the format string cannot contain neither the option <cite>s</cite> nor the option <cite>c0</cite>.</p>
 </div>
 <div class="section" id="sys-system-management">
-<h2><a class="toc-backref" href="#id15">3.9&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
+<h2><a class="toc-backref" href="#id16">3.10&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
 <p><strong>sys.hostname()</strong> returns the host name.</p>
 <p><strong>sys.domainname()</strong> returns the domain name.</p>
 <p><strong>sys.hostid()</strong> returns the host id.</p>
@@ -579,14 +604,14 @@ and adapted for BonaLuna.</p>
 </div>
 </div>
 <div class="section" id="self-running-scripts">
-<h1><a class="toc-backref" href="#id16">4&nbsp;&nbsp;&nbsp;Self running scripts</a></h1>
+<h1><a class="toc-backref" href="#id17">4&nbsp;&nbsp;&nbsp;Self running scripts</a></h1>
 <p>It is possible to add scripts to the BonaLuna interpretor
 to make a single executable file containing the interpretor
 and some BonaLuna scripts.</p>
 <p>This feature is inspired by
 <a class="reference external" href="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua">srlua</a>.</p>
 <div class="section" id="pegar-lua-parameters">
-<h2><a class="toc-backref" href="#id17">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></h2>
+<h2><a class="toc-backref" href="#id18">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></h2>
 <p><strong>compile:on|off|min</strong> turn compilation on, off or on when chunks are smaller than sources (<cite>min</cite> is the default value)</p>
 <p><strong>compress:on|off|min</strong> turn compression on, off or on when chunks are smaller than sources (<cite>min</cite> is the default value)</p>
 <p><strong>read:original_interpretor</strong> reads the initial interpretor</p>
@@ -603,7 +628,7 @@ it is relative to the current working directory.</p>
 </div>
 </div>
 <div class="section" id="examples">
-<h1><a class="toc-backref" href="#id18">5&nbsp;&nbsp;&nbsp;Examples</a></h1>
+<h1><a class="toc-backref" href="#id19">5&nbsp;&nbsp;&nbsp;Examples</a></h1>
 <p>This documentation has been generated by a BonaLuna script.
 <a class="reference external" href="bonaluna.lua">bonaluna.lua</a> also contains some tests.</p>
 </div>

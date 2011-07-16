@@ -277,12 +277,15 @@ if crypt then
     for size in iter{0, 8, 64, 128} do
         local r1 = crypt.random(size)
         local r2 = crypt.random(size)
+        local r3 = crypt.random(size)
         assert(#r1 == math.max(size/8, 1))
         assert(#r2 == math.max(size/8, 1))
-        assert(r1 ~= r2)
+        assert(#r3 == math.max(size/8, 1))
+        assert(not (r1==r2 and r2==r3))
         if z then -- random data shall not be compressible
             assert(#z.compress(r1) > #r1)
             assert(#z.compress(r2) > #r2)
+            assert(#z.compress(r3) > #r3)
         end
     end
 end
@@ -297,6 +300,9 @@ This package is a simple Lua interface to libcurl.
 This package is based on `Lua-cURL <http://luaforge.net/projects/lua-curl/>`__
 and provides the same API plus a few higher level objects.
 
+This package was introduced before `socket` which is based on `Lua Socket`.
+I recommend using `socket` instead of `curl`.
+
 **curl.FTP(url [, login, password])** creates an FTP object to connect to
 the FTP server at `url`. `login` and `password` are optional.
 Methods are:
@@ -308,7 +314,7 @@ Methods are:
 
     - `put(path, data)` sends and stores the string `data` to the file `path`.
 
-    - `del(path)` deletes the file `path`.
+    - `rm(path)` deletes the file `path`.
 
     - `mkdir(path)` creates the directory `path`.
 
@@ -727,6 +733,38 @@ and adapted for BonaLuna.
 
 **rl.add(line)** adds `line` to the readline history (Linux only).
 
+]]
+
+doc [[
+socket: Lua Socket (and networking tools)
+-----------------------------------------
+
+The socket package is based on `Lua Socket <http://w3.impa.br/~diego/software/luasocket/>`__
+and adapted for BonaLuna.
+
+The documentation of `Lua Socket` is available at the `Lua Socket documentation web site <http://w3.impa.br/~diego/software/luasocket/reference.html>`_.
+
+This package also comes with the following functions.
+
+**FTP(url [, login, password])** creates an FTP object to connect to
+the FTP server at `url`. `login` and `password` are optional.
+Methods are:
+
+    - `cd(path)` changes the current working directory.
+
+    - `pwd()` returns the current working directory.
+
+    - `get(path)` retrieves `path`.
+
+    - `put(path, data)` sends and stores the string `data` to the file `path`.
+
+    - `rm(path)` deletes the file `path`.
+
+    - `mkdir(path)` creates the directory `path`.
+
+    - `rmdir(path)` deletes the directory `path`.
+
+    - `list(path)` returns an iterator listing the directory `path`.
 ]]
 
 doc [[

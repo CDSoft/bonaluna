@@ -290,7 +290,6 @@ do -- http://lua-users.org/wiki/SecureHashAlgorithm
                         num2s(H[7], 4))
     end
 
-
     local function finalresult256 (H)
         -- Produce the final hash value (big-endian):
         return str2hexa(num2s(H[1], 4)..num2s(H[2], 4)..
@@ -466,7 +465,7 @@ end
 -- crypt.AES
 -----------------------------------------------------------------------
 
---[[ based on aeslua
+--[[ based on aeslua (https://github.com/bighil/aeslua/tree/master/src)
 aeslua: Lua AES implementation
 Copyright (c) 2006,2007 Matthias Hilbig
 
@@ -574,7 +573,7 @@ do
 
     local function toHexString(data)
         local type = type(data)
-        if type=="number" then return string.format("%08X", data) end
+        if type=="number" then return string.format("%08x", data) end
         if type=="table" then return bytesToHex(data) end
         if type=="string" then return bytesToHex{string.byte(data, 1, #data)} end
         return data
@@ -622,8 +621,8 @@ do
 
     -- finite field with base 2 and modulo irreducible polynom x^8+x^4+x^3+x+1 = 0x11d
     local n = 0x100
-    local ord = 0xFF
-    local irrPolynom = 0x11B
+    local ord = 0xff
+    local irrPolynom = 0x11b
     local exp = {}
     local log = {}
 
@@ -718,9 +717,8 @@ do
             result = result + byteParity(band(byte, mask))
 
             -- simulate roll
-            lastbit = band(mask, 1)
             mask = band(rshift(mask, 1), 0xff)
-            if lastbit ~= 0 then
+            if band(mask, 1) ~= 0 then
                 mask = bor(mask, 0x80)
             else
                 mask = band(mask, 0x7f)
@@ -734,12 +732,8 @@ do
     -- apply affine transformation to inverse in finite field 2^8
     local function calcSBox()
         for i = 0, 255 do
-            if i ~= 0 then
-                inverse = invert(i)
-            else
-                inverse = i
-            end
-            mapped = affinMap(inverse)
+            local inverse = (i~=0) and invert(i) or i
+            local mapped = affinMap(inverse)
             SBox[i] = mapped
             iSBox[mapped] = i
         end
@@ -750,7 +744,7 @@ do
     -- with 4 table lookups and 4 xor operations.
     local function calcRoundTables()
         for x = 0, 255 do
-            byte = SBox[x]
+            local byte = SBox[x]
             table0[x] = putByte(mul(0x03, byte), 0)
                       + putByte(          byte , 1)
                       + putByte(          byte , 2)
@@ -775,7 +769,7 @@ do
     -- decryption algorithm.
     local function calcInvRoundTables()
         for x = 0, 255 do
-            byte = iSBox[x]
+            local byte = iSBox[x]
             tableInv0[x] = putByte(mul(0x0b, byte), 0)
                          + putByte(mul(0x0d, byte), 1)
                          + putByte(mul(0x09, byte), 2)
