@@ -19,6 +19,7 @@ Freely available under the terms of the Lua license.
 #include <stdint.h>
 
 #ifdef __MINGW32__
+#include <io.h>
 #include <windows.h>
 #include <wincrypt.h>
 #include <ws2tcpip.h>
@@ -263,12 +264,66 @@ static int fs_mkdir(lua_State *L)
 #endif
 }
 
+#ifdef __MINGW32__
+
+/* "inode" number for MS-Windows (http://gnuwin32.sourceforge.net/compile.html) */
+
+ino_t getino(const char *path)
+{
+    #define LODWORD(l) ((DWORD)((DWORDLONG)(l)))
+    #define HIDWORD(l) ((DWORD)(((DWORDLONG)(l)>>32)&0xFFFFFFFF))
+    #define MAKEDWORDLONG(a,b) ((DWORDLONG)(((DWORD)(a))|(((DWORDLONG)((DWORD)(b)))<<32)))
+    #define INOSIZE (8*sizeof(ino_t))
+    #define SEQNUMSIZE (16)
+
+    BY_HANDLE_FILE_INFORMATION FileInformation;
+    HANDLE hFile;
+    uint64_t ino64, refnum;
+    ino_t ino;
+    if (!path || !*path) /* path = NULL */
+        return 0;
+    if (access(path, F_OK)) /* path does not exist */
+        return -1;
+    /* obtain handle to "path"; FILE_FLAG_BACKUP_SEMANTICS is used to open directories */
+    hFile = CreateFile(path, 0, 0, NULL, OPEN_EXISTING,
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_ATTRIBUTE_READONLY,
+            NULL);
+    if (hFile == INVALID_HANDLE_VALUE) /* file cannot be opened */
+        return 0;
+    ZeroMemory(&FileInformation, sizeof(FileInformation));
+    if (!GetFileInformationByHandle(hFile, &FileInformation)) { /* cannot obtain FileInformation */
+        CloseHandle(hFile);
+        return 0;
+    }
+    ino64 = (uint64_t)MAKEDWORDLONG(
+        FileInformation.nFileIndexLow, FileInformation.nFileIndexHigh);
+    refnum = ino64 & ((~(0ULL)) >> SEQNUMSIZE); /* strip sequence number */
+    /* transform 64-bits ino into 16-bits by hashing */
+    ino = (ino_t)(
+            ( (LODWORD(refnum)) ^ ((LODWORD(refnum)) >> INOSIZE) )
+        ^
+            ( (HIDWORD(refnum)) ^ ((HIDWORD(refnum)) >> INOSIZE) )
+        );
+    CloseHandle(hFile);
+    return ino;
+
+    #undef LODWORD
+    #undef HIDWORD
+    #undef MAKEDWORDLONG
+    #undef INOSIZE
+    #undef SEQNUMSIZE
+}
+#endif
+
 static int fs_stat(lua_State *L)
 {
     const char *path = luaL_checkstring(L, 1);
     struct stat buf;
     if (stat(path, &buf)==0)
     {
+#ifdef __MINGW32__
+        buf.st_ino = getino(path);
+#endif
 #define STRING(VAL, ATTR) lua_pushstring(L, VAL); lua_setfield(L, -2, ATTR)
 #define INTEGER(VAL, ATTR) lua_pushunsigned(L, VAL); lua_setfield(L, -2, ATTR)
         lua_newtable(L); /* stat */

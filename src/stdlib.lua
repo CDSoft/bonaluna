@@ -175,10 +175,13 @@ function fs.walk(path)
                 table.sort(names)
                 for i = 1, #names do
                     local name = dir..fs.sep..names[i]
-                    if fs.stat(name).type == "directory" then
-                        table.insert(dirs, name)
-                    else
-                        table.insert(files, name)
+                    local stat = fs.stat(name)
+                    if stat then
+                        if stat.type == "directory" then
+                            table.insert(dirs, name)
+                        else
+                            table.insert(files, name)
+                        end
                     end
                 end
                 return dir

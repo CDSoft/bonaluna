@@ -640,5 +640,6 @@ then
     cp -f $LUA_SRC/doc/* ../doc/lua/
     LANG=en $RST2HTML --section-numbering --language=en --cloak-email-addresses ../doc/bonaluna.rst > ../doc/bonaluna.html
     sed -i 's/<head>/<head><link rel="icon" href="bl.png"\/>/i' ../doc/bonaluna.html
+    sed -i 's/<title>logo /<title>/' ../doc/bonaluna.html
     cp bl.png ../doc/
 fi
