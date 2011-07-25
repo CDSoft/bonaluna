@@ -34,9 +34,9 @@
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.1.1.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.1.2.tgz
 
-:Version: 2.1.1
+:Version: 2.1.2
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -203,6 +203,10 @@ The attributes and times are preserved.
     - `uR`, `uW`, `uX`: user Read/Write/eXecute permissions
     - `gR`, `gW`, `gX`: group Read/Write/eXecute permissions
     - `oR`, `oW`, `oX`: other Read/Write/eXecute permissions
+
+**fs.inode(name)** reads device and inode attributes of the file `name`.
+Attributes are:
+
     - `dev`, `ino`: device and inode numbers
 
 

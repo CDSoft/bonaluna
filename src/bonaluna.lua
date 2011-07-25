@@ -484,6 +484,10 @@ doc [[
     - `uR`, `uW`, `uX`: user Read/Write/eXecute permissions
     - `gR`, `gW`, `gX`: group Read/Write/eXecute permissions
     - `oR`, `oW`, `oX`: other Read/Write/eXecute permissions
+
+**fs.inode(name)** reads device and inode attributes of the file `name`.
+Attributes are:
+
     - `dev`, `ino`: device and inode numbers
 
 ]]

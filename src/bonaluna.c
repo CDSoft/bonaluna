@@ -264,11 +264,50 @@ static int fs_mkdir(lua_State *L)
 #endif
 }
 
+static int fs_stat(lua_State *L)
+{
+    const char *path = luaL_checkstring(L, 1);
+    struct stat buf;
+    if (stat(path, &buf)==0)
+    {
+#define STRING(VAL, ATTR) lua_pushstring(L, VAL); lua_setfield(L, -2, ATTR)
+#define INTEGER(VAL, ATTR) lua_pushunsigned(L, VAL); lua_setfield(L, -2, ATTR)
+        lua_newtable(L); /* stat */
+        STRING(path, "name");
+        INTEGER(buf.st_size, "size");
+        INTEGER(buf.st_mtime, "mtime");
+        INTEGER(buf.st_atime, "atime");
+        INTEGER(buf.st_ctime, "ctime");
+        STRING(S_ISDIR(buf.st_mode)?"directory":S_ISREG(buf.st_mode)?"file":"unknown", "type");
+        INTEGER(buf.st_mode, "mode");
+#define PERMISSION(MASK, ATTR) lua_pushboolean(L, buf.st_mode & MASK); lua_setfield(L, -2, ATTR);
+        PERMISSION(S_IRUSR, "uR");
+        PERMISSION(S_IWUSR, "uW");
+        PERMISSION(S_IEXEC, "uX");
+#ifndef __MINGW32__
+        PERMISSION(S_IRGRP, "gR");
+        PERMISSION(S_IWGRP, "gW");
+        PERMISSION(S_IXGRP, "gX");
+        PERMISSION(S_IROTH, "oR");
+        PERMISSION(S_IWOTH, "oW");
+        PERMISSION(S_IXOTH, "oX");
+#endif
+#undef STRING
+#undef INTEGER
+#undef PERMISSION
+        return 1;
+    }
+    else
+    {
+        return bl_pushresult(L, 0, path);
+    }
+}
+
 #ifdef __MINGW32__
 
 /* "inode" number for MS-Windows (http://gnuwin32.sourceforge.net/compile.html) */
 
-ino_t getino(const char *path)
+static ino_t getino(const char *path)
 {
     #define LODWORD(l) ((DWORD)((DWORDLONG)(l)))
     #define HIDWORD(l) ((DWORD)(((DWORDLONG)(l)>>32)&0xFFFFFFFF))
@@ -315,42 +354,21 @@ ino_t getino(const char *path)
 }
 #endif
 
-static int fs_stat(lua_State *L)
+static int fs_inode(lua_State *L)
 {
     const char *path = luaL_checkstring(L, 1);
     struct stat buf;
     if (stat(path, &buf)==0)
     {
-#ifdef __MINGW32__
-        buf.st_ino = getino(path);
-#endif
-#define STRING(VAL, ATTR) lua_pushstring(L, VAL); lua_setfield(L, -2, ATTR)
 #define INTEGER(VAL, ATTR) lua_pushunsigned(L, VAL); lua_setfield(L, -2, ATTR)
         lua_newtable(L); /* stat */
-        STRING(path, "name");
-        INTEGER(buf.st_size, "size");
-        INTEGER(buf.st_mtime, "mtime");
-        INTEGER(buf.st_atime, "atime");
-        INTEGER(buf.st_ctime, "ctime");
-        STRING(S_ISDIR(buf.st_mode)?"directory":S_ISREG(buf.st_mode)?"file":"unknown", "type");
-        INTEGER(buf.st_mode, "mode");
-#define PERMISSION(MASK, ATTR) lua_pushboolean(L, buf.st_mode & MASK); lua_setfield(L, -2, ATTR);
-        PERMISSION(S_IRUSR, "uR");
-        PERMISSION(S_IWUSR, "uW");
-        PERMISSION(S_IEXEC, "uX");
-#ifndef __MINGW32__
-        PERMISSION(S_IRGRP, "gR");
-        PERMISSION(S_IWGRP, "gW");
-        PERMISSION(S_IXGRP, "gX");
-        PERMISSION(S_IROTH, "oR");
-        PERMISSION(S_IWOTH, "oW");
-        PERMISSION(S_IXOTH, "oX");
-#endif
         INTEGER(buf.st_dev, "dev");
+#ifdef __MINGW32__
+        INTEGER(getino(path), "ino");
+#else
         INTEGER(buf.st_ino, "ino");
-#undef STRING
+#endif
 #undef INTEGER
-#undef PERMISSION
         return 1;
     }
     else
@@ -475,6 +493,7 @@ static const luaL_Reg fslib[] =
     {"rename",      fs_rename},
     {"mkdir",       fs_mkdir},
     {"stat",        fs_stat},
+    {"inode",       fs_inode},
     {"chmod",       fs_chmod},
     {"touch",       fs_touch},
     {"copy",        fs_copy},

@@ -399,90 +399,94 @@ $USE_LZ4 && (
 # Lua Socket patches
 ####################
 
-sed -i 's/luaL_reg/luaL_Reg/g' $TARGET/{auxiliar,except,inet,luasocket,mime,select,tcp,timeout,udp}.{c,h}
-sed -i 's/luaL_typerror/typeerror/g' $TARGET/{auxiliar,options}.{c,h}
-sed -i 's/luaL_putchar/luaL_addchar/g' $TARGET/{buffer,mime}.{c,h}
-sed -i 's/luaL_openlib(L, NULL, func, 0)/luaL_setfuncs(L, func, 0)/' $TARGET/{except,inet,select,tcp,timeout,udp}.c
-sed -i 's/luaL_openlib(L, "mime", func, 0)/luaL_newlib(L, func)/' $TARGET/mime.c
-sed -i 's/luaL_openlib(L, "socket", func, 0)/luaL_newlib(L, func)/' $TARGET/luasocket.c
+$USE_SOCKET && (
 
-sed -i 's/\<func\>/except_func/' $TARGET/except.c
-sed -i 's/\<func\>/inet_func/' $TARGET/inet.c
-#sed -i 's/\<func\>/luasocket_func/' $TARGET/luasocket.c
-sed -i 's/\<func\>/mime_func/' $TARGET/mime.c
-sed -i 's/\<func\>/select_func/' $TARGET/select.c
-sed -i 's/\<func\>/tcp_func/' $TARGET/tcp.c
-sed -i 's/\<func\>/timeout_func/' $TARGET/timeout.c
-sed -i 's/\<func\>/udp_func/' $TARGET/udp.c
+    sed -i 's/luaL_reg/luaL_Reg/g' $TARGET/{auxiliar,except,inet,luasocket,mime,select,tcp,timeout,udp}.{c,h}
+    sed -i 's/luaL_typerror/typeerror/g' $TARGET/{auxiliar,options}.{c,h}
+    sed -i 's/luaL_putchar/luaL_addchar/g' $TARGET/{buffer,mime}.{c,h}
+    sed -i 's/luaL_openlib(L, NULL, func, 0)/luaL_setfuncs(L, func, 0)/' $TARGET/{except,inet,select,tcp,timeout,udp}.c
+    sed -i 's/luaL_openlib(L, "mime", func, 0)/luaL_newlib(L, func)/' $TARGET/mime.c
+    sed -i 's/luaL_openlib(L, "socket", func, 0)/luaL_newlib(L, func)/' $TARGET/luasocket.c
 
-sed -i 's/\<opt\>/tcp_opt/' $TARGET/tcp.c
-sed -i 's/\<opt\>/udp_opt/' $TARGET/udp.c
-sed -i 's/\<meth_/tcp_meth_/' $TARGET/tcp.c
-sed -i 's/\<meth_/udp_meth_/' $TARGET/udp.c
-sed -i 's/\<global_create\>/tcp_global_create/' $TARGET/tcp.c
-sed -i 's/\<global_create\>/udp_global_create/' $TARGET/udp.c
+    sed -i 's/\<func\>/except_func/' $TARGET/except.c
+    sed -i 's/\<func\>/inet_func/' $TARGET/inet.c
+    #sed -i 's/\<func\>/luasocket_func/' $TARGET/luasocket.c
+    sed -i 's/\<func\>/mime_func/' $TARGET/mime.c
+    sed -i 's/\<func\>/select_func/' $TARGET/select.c
+    sed -i 's/\<func\>/tcp_func/' $TARGET/tcp.c
+    sed -i 's/\<func\>/timeout_func/' $TARGET/timeout.c
+    sed -i 's/\<func\>/udp_func/' $TARGET/udp.c
 
-mv -f $TARGET/io.h $TARGET/lsio.h
-mv -f $TARGET/io.c $TARGET/lsio.c
-sed -i 's/\<io\.h\>/lsio.h/' $TARGET/{auxiliar,except,inet,lsio,timeout}.c
-sed -i 's/\<io\.h\>/lsio.h/' $TARGET/{buffer,lsio,socket}.h
+    sed -i 's/\<opt\>/tcp_opt/' $TARGET/tcp.c
+    sed -i 's/\<opt\>/udp_opt/' $TARGET/udp.c
+    sed -i 's/\<meth_/tcp_meth_/' $TARGET/tcp.c
+    sed -i 's/\<meth_/udp_meth_/' $TARGET/udp.c
+    sed -i 's/\<global_create\>/tcp_global_create/' $TARGET/tcp.c
+    sed -i 's/\<global_create\>/udp_global_create/' $TARGET/udp.c
 
-# ltn12.lua
-sed -i \
-    -e 's/module("ltn12")/ltn12 = {}; local _ENV = ltn12/' \
-    $TARGET/ltn12.lua
+    mv -f $TARGET/io.h $TARGET/lsio.h
+    mv -f $TARGET/io.c $TARGET/lsio.c
+    sed -i 's/\<io\.h\>/lsio.h/' $TARGET/{auxiliar,except,inet,lsio,timeout}.c
+    sed -i 's/\<io\.h\>/lsio.h/' $TARGET/{buffer,lsio,socket}.h
 
-# mime.lua
-sed -i \
-    -e 's/require("ltn12")/ltn12/' \
-    -e 's/require("mime.core")/mime/' \
-    -e 's/module("mime")/local _ENV = mime/' \
-    $TARGET/mime.lua
+    # ltn12.lua
+    sed -i \
+        -e 's/module("ltn12")/ltn12 = {}; local _ENV = ltn12/' \
+        $TARGET/ltn12.lua
 
-# socket.lua
-sed -i \
-    -e 's/require("socket.core")/socket/' \
-    -e 's/module("socket")/local _ENV = socket/' \
-    $TARGET/socket.lua
+    # mime.lua
+    sed -i \
+        -e 's/require("ltn12")/ltn12/' \
+        -e 's/require("mime.core")/mime/' \
+        -e 's/module("mime")/local _ENV = mime/' \
+        $TARGET/mime.lua
 
-# url.lua
-sed -i \
-    -e 's/module("socket.url")/socket.url = {}; local _ENV = socket.url/' \
-    $TARGET/url.lua
+    # socket.lua
+    sed -i \
+        -e 's/require("socket.core")/socket/' \
+        -e 's/module("socket")/local _ENV = socket/' \
+        $TARGET/socket.lua
 
-# tp.lua
-sed -i \
-    -e 's/require("socket")/socket/' \
-    -e 's/require("ltn12")/ltn12/' \
-    -e 's/module("socket.tp")/socket.tp = {}; local _ENV = socket.tp/' \
-    $TARGET/tp.lua
+    # url.lua
+    sed -i \
+        -e 's/module("socket.url")/socket.url = {}; local _ENV = socket.url/' \
+        $TARGET/url.lua
 
-# smtp.lua
-sed -i \
-    -e 's/require("socket")/socket/' \
-    -e 's/require("socket.tp")/socket.tp/' \
-    -e 's/require("ltn12")/ltn12/' \
-    -e 's/require("mime")/mime/' \
-    -e 's/module("socket.smtp")/socket.smtp = {}; local _ENV = socket.smtp/' \
-    $TARGET/smtp.lua
+    # tp.lua
+    sed -i \
+        -e 's/require("socket")/socket/' \
+        -e 's/require("ltn12")/ltn12/' \
+        -e 's/module("socket.tp")/socket.tp = {}; local _ENV = socket.tp/' \
+        $TARGET/tp.lua
 
-# ftp.lua
-sed -i \
-    -e 's/require("socket")/socket/' \
-    -e 's/require("socket.url")/socket.url/' \
-    -e 's/require("socket.tp")/socket.tp/' \
-    -e 's/require("ltn12")/ltn12/' \
-    -e 's/module("socket.ftp")/socket.ftp = {}; local _ENV = socket.ftp/' \
-    $TARGET/ftp.lua
+    # smtp.lua
+    sed -i \
+        -e 's/require("socket")/socket/' \
+        -e 's/require("socket.tp")/socket.tp/' \
+        -e 's/require("ltn12")/ltn12/' \
+        -e 's/require("mime")/mime/' \
+        -e 's/module("socket.smtp")/socket.smtp = {}; local _ENV = socket.smtp/' \
+        $TARGET/smtp.lua
 
-# http.lua
-sed -i \
-    -e 's/require("socket")/socket/' \
-    -e 's/require("socket.url")/socket.url/' \
-    -e 's/require("mime")/mime/' \
-    -e 's/require("ltn12")/ltn12/' \
-    -e 's/module("socket.http")/socket.http = {}; local _ENV = socket.http/' \
-    $TARGET/http.lua
+    # ftp.lua
+    sed -i \
+        -e 's/require("socket")/socket/' \
+        -e 's/require("socket.url")/socket.url/' \
+        -e 's/require("socket.tp")/socket.tp/' \
+        -e 's/require("ltn12")/ltn12/' \
+        -e 's/module("socket.ftp")/socket.ftp = {}; local _ENV = socket.ftp/' \
+        $TARGET/ftp.lua
+
+    # http.lua
+    sed -i \
+        -e 's/require("socket")/socket/' \
+        -e 's/require("socket.url")/socket.url/' \
+        -e 's/require("mime")/mime/' \
+        -e 's/require("ltn12")/ltn12/' \
+        -e 's/module("socket.http")/socket.http = {}; local _ENV = socket.http/' \
+        $TARGET/http.lua
+
+)
 
 # External libraries
 ####################
