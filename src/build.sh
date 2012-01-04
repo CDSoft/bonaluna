@@ -10,10 +10,10 @@
 #
 # Freely available under the terms of the Lua license.
 
-LUA_SRC=lua-5.2.0-beta
-LUA_URL=http://www.lua.org/work/$LUA_SRC.tar.gz
+LUA_SRC=lua-5.2.0
+LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
 
-LZO_SRC=lzo-2.05
+LZO_SRC=lzo-2.06
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
@@ -25,7 +25,7 @@ UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
 LZMA_SRC=xz-5.0.3
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
-CURL_SRC=curl-7.21.6
+CURL_SRC=curl-7.23.1
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 SOCKET_SRC=luasocket-2.0.2
 SOCKET_URL=http://luaforge.net/frs/download.php/2664/$SOCKET_SRC.tar.gz
@@ -128,7 +128,7 @@ case "$PLATFORM" in
     Linux)      LUA_CONF+=" -DLUA_USE_LINUX"
                 CC_LIBS2+=" -ldl -lreadline -lrt"
                 ;;
-    Windows)    #LUA_CONF+=" -DLUA_BUILD_AS_DLL"
+    Windows)    #LUA_CONF+=" -DLUA_USE_LONGLONG"
                 CC_LIBS2+=" -lws2_32 -ladvapi32"
                 ;;
 esac
