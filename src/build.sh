@@ -19,7 +19,7 @@ QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
 LZ4_SRC="LZ4 - BSD"
 LZ4_URL=http://lz4.googlecode.com/files/LZ4%20-%20BSD.zip
-ZLIB_SRC=zlib-1.2.5
+ZLIB_SRC=zlib-1.2.6
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.bz2
 UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
@@ -215,9 +215,9 @@ awk '
         print
         next
     }
-    /handle_luainit\(L\)/ {
-        print
+    /runargs\(L/ {
         print "if (!glue(L, argv)) return 0;"
+        print
         next
     }
     {print}

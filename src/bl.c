@@ -11,6 +11,9 @@ Freely available under the terms of the Lua license.
 
 #define MAKE_LUA
 #define luaall_c
+#define lobject_c
+#define ltable_c
+#define lua_c
 
 /* core */
 #include "lapi.c"
