@@ -629,7 +629,7 @@ fi
 echo "$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF $CC_INC bl.c -o $TARGET/$BL $CC_LIBS $CC_LIBS2"
 $CC -g $CC_OPTS $LUA_CONF $BONALUNA_CONF $CC_INC bl.c -o $TARGET/$BL $CC_LIBS $CC_LIBS2 || error "Compilation error"
 $STRIP $TARGET/$BL
-[ -n "$COMPRESS" ] && $COMPRESS $TARGET/$BL
+[ -n "$COMPRESS" ] && $COMPRESS $TARGET/$BL && chmod +x $TARGET/$BL
 $TARGET/$BL ../tools/pegar.lua read:$TARGET/$BL $PEGAR_CONF write:$BL
 #cp $TARGET/$BL .
 

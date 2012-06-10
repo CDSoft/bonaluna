@@ -16,4 +16,4 @@ export ICON="bl.ico"
 
 # Compression
 #export COMPRESS="upx --best"
-export COMPRESS="upx --ultra-brute"
+#export COMPRESS="upx --ultra-brute"
