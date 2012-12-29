@@ -53,7 +53,7 @@ doc([[
     Copyright (C) 2010 `Lua.org <http://www.lua.org>`__, PUC-Rio.
 
 :Author: Christophe Delord
-:Contact: cdelord@cdsoft.fr
+:Contact: http://cdsoft.fr/contact.html
 :Web: http://cdsoft.fr/bl/bonaluna.html
 :License:
     | Copyright (C) 2010-2011 Christophe Delord,
