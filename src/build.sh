@@ -10,7 +10,7 @@
 #
 # Freely available under the terms of the Lua license.
 
-LUA_SRC=lua-5.2.1
+LUA_SRC=lua-5.2.2
 LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
 
 LZO_SRC=lzo-2.06
