@@ -620,6 +620,11 @@ esac
 # Compilation
 #############
 
+case $PLATFORM in
+    Windows)    WINE=wine ;;
+    *)          WINE="" ;;
+esac
+
 if [ "$PLATFORM" = "Windows" ] && [ -e "$ICON" ]
 then
     echo "100 ICON DISCARDABLE \"$ICON\"" > icon.rc
@@ -630,13 +635,13 @@ echo "$CC $CC_OPTS $LUA_CONF $BONALUNA_CONF $CC_INC bl.c -o $TARGET/$BL $CC_LIBS
 $CC -g $CC_OPTS $LUA_CONF $BONALUNA_CONF $CC_INC bl.c -o $TARGET/$BL $CC_LIBS $CC_LIBS2 || error "Compilation error"
 $STRIP $TARGET/$BL
 [ -n "$COMPRESS" ] && $COMPRESS $TARGET/$BL && chmod +x $TARGET/$BL
-$TARGET/$BL ../tools/pegar.lua read:$TARGET/$BL $PEGAR_CONF write:$BL
+$WINE $TARGET/$BL ../tools/pegar.lua read:$TARGET/$BL $PEGAR_CONF write:$BL
 #cp $TARGET/$BL .
 
 # Documentation and tests
 #########################
 
-./$BL bonaluna.lua || error "Non regression tests failed"
+$WINE ./$BL bonaluna.lua || error "Non regression tests failed"
 RST2HTML=$(which rst2html 2>/dev/null || which rst2html.py 2>/dev/null)
 if [ -x "$RST2HTML" ]
 then
