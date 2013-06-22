@@ -1,6 +1,6 @@
 ..  BonaLuna
 
-..  Copyright (C) 2010-2011 Christophe Delord
+..  Copyright (C) 2010-2013 Christophe Delord
     http://www.cdsoft.fr/bl/bonaluna.html
 
 ..  BonaLuna is based on Lua 5.2
@@ -18,7 +18,7 @@
 .. |logo| image:: bl.png
 .. |logo_lua| image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
 
-.. sidebar:: Based on `Lua 5.2 <http://www.lua.org/work>`__ |logo_lua|
+.. sidebar:: Based on `Lua 5.2 <http://www.lua.org>`__ |logo_lua|
 
     Copyright (C) 2010 `Lua.org <http://www.lua.org>`__, PUC-Rio.
 
@@ -26,7 +26,7 @@
 :Contact: http://cdsoft.fr/contact.html
 :Web: http://cdsoft.fr/bl/bonaluna.html
 :License:
-    | Copyright (C) 2010-2011 Christophe Delord,
+    | Copyright (C) 2010-2013 Christophe Delord,
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
@@ -34,9 +34,9 @@
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.1.9.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.2.0.tgz
 
-:Version: 2.1.9
+:Version: 2.2.0
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -99,6 +99,72 @@ Example::
     encrypted = aes.encrypt("some text")
 
 .. [#] See `Object Orientation Closure Approach <http://lua-users.org/wiki/ObjectOrientationClosureApproach>`__.
+
+bc: arbitrary precision library for Lua based on GNU bc
+-------------------------------------------------------
+
+lbc is a public domain package written by Luiz Henrique de Figueiredo and available at 
+`Libraries and tools for Lua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc>`__
+
+This is a big-number library for Lua 5.2. It is based on the arbitrary
+precision library number.c written by Philip A. Nelson for GNU bc-1.06:
+http://www.gnu.org/software/bc/
+
+basic bc functions
+~~~~~~~~~~~~~~~~~~
+
+**bc.version** is the version number of bc
+
+**bc.digits([n])** sets the number of digits used by bc
+
+**bc.number(x)** builds a big number from a Lua number or a string
+
+**bc.tonumber(x)** converts a big number to a Lua number
+
+**bc.tostring(x), __tostring(x)** converts a big number to a string
+
+**bc.neg(x), __unm(x)** returns ``-x``
+
+**bc.add(x,y), __add(x,y)** returns ``x+y``
+
+**bc.sub(x,y), __sub(x,y)** returns ``x-y``
+
+**bc.mul(x,y), __mul(x,y)** returns ``x*y``
+
+**bc.div(x,y), __div(x,y)** returns ``x/y``
+
+**bc.mod(x,y), __mod(x,y)** return ``x mod y``
+
+**bc.divmod(x,y)** returns ``[x/y], x mod y``
+
+**bc.pow(x,y), __pow(x,y)** returns ``x**y``
+
+**bc.powmod(x,y,m)** returns ``x**y mod m``
+
+**bc.compare(x,y)** returns ``-1`` if x < y, ``0`` if x == y, ``+1`` if x > y
+
+**__eq(x,y), __lt(x,y)** compares x and y
+
+**bc.iszero(x)** is true if x == 0
+
+**bc.isneg(x)** is true if x < 0
+
+**bc.trunc(x,[n])** returns x truncated value
+
+**bc.sqrt(x)** returns ``sqrt(x)``
+
+Functions added by BonaLuna
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**bc.number(x)** also accepts hexadecimal, octal and binary numbers as strings
+
+Math and bitwise operators
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Functions of the math and bit32 modules also exists in the bc module.
+These functions produce bc numbers but works internally with Lua numbers.
+Do not expect these functions to be precise.
+
 
 crypt: Cryptographic functions
 ------------------------------

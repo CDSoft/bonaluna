@@ -1,6 +1,6 @@
 # BonaLuna Makefile
 #
-# Copyright (C) 2010-2011 Christophe Delord
+# Copyright (C) 2010-2013 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
 # BonaLuna is based on Lua 5.2
@@ -15,14 +15,10 @@ UNAME = $(shell uname)
 
 ifneq "$(findstring Linux,$(UNAME))" ""
 
-all: bl.exe bl bl64
+all: bl bl.exe
 
 bl: $(DEPENDENCIES)
 	. setup && cd src && $(BUILD) linux $@ gcc 32
-	mv src/$@ $@
-
-bl64: $(DEPENDENCIES)
-	. setup && cd src && $(BUILD) linux64 $@ gcc 64
 	mv src/$@ $@
 
 bl.exe: $(DEPENDENCIES)
@@ -43,4 +39,4 @@ endif
 
 clean:
 	cd src && $(BUILD) --clean
-	rm -f bl bl64 bl.exe
+	rm -f bl bl.exe

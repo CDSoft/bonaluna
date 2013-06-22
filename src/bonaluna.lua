@@ -1,6 +1,6 @@
 --[[ BonaLuna test and documentation generator
 
-Copyright (C) 2010-2011 Christophe Delord
+Copyright (C) 2010-2013 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.2
@@ -30,7 +30,7 @@ BONALUNA_VERSION = assert(io.popen(arg[-1].." -v")):read("*l"):gsub("BonaLuna%s(
 doc([[
 ..  BonaLuna
 
-..  Copyright (C) 2010-2011 Christophe Delord
+..  Copyright (C) 2010-2013 Christophe Delord
     http://www.cdsoft.fr/bl/bonaluna.html
 
 ..  BonaLuna is based on Lua 5.2
@@ -48,7 +48,7 @@ doc([[
 .. |logo| image:: bl.png
 .. |logo_lua| image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
 
-.. sidebar:: Based on `Lua 5.2 <http://www.lua.org/work>`__ |logo_lua|
+.. sidebar:: Based on `Lua 5.2 <http://www.lua.org>`__ |logo_lua|
 
     Copyright (C) 2010 `Lua.org <http://www.lua.org>`__, PUC-Rio.
 
@@ -56,7 +56,7 @@ doc([[
 :Contact: http://cdsoft.fr/contact.html
 :Web: http://cdsoft.fr/bl/bonaluna.html
 :License:
-    | Copyright (C) 2010-2011 Christophe Delord,
+    | Copyright (C) 2010-2013 Christophe Delord,
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
@@ -211,6 +211,98 @@ Example::
 
 .. [#] See `Object Orientation Closure Approach <http://lua-users.org/wiki/ObjectOrientationClosureApproach>`__.
 ]]
+
+doc [[
+bc: arbitrary precision library for Lua based on GNU bc
+-------------------------------------------------------
+
+lbc is a public domain package written by Luiz Henrique de Figueiredo and available at 
+`Libraries and tools for Lua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc>`__
+
+This is a big-number library for Lua 5.2. It is based on the arbitrary
+precision library number.c written by Philip A. Nelson for GNU bc-1.06:
+http://www.gnu.org/software/bc/
+
+basic bc functions
+~~~~~~~~~~~~~~~~~~
+
+**bc.version** is the version number of bc
+
+**bc.digits([n])** sets the number of digits used by bc
+
+**bc.number(x)** builds a big number from a Lua number or a string
+
+**bc.tonumber(x)** converts a big number to a Lua number
+
+**bc.tostring(x), __tostring(x)** converts a big number to a string
+
+**bc.neg(x), __unm(x)** returns ``-x``
+
+**bc.add(x,y), __add(x,y)** returns ``x+y``
+
+**bc.sub(x,y), __sub(x,y)** returns ``x-y``
+
+**bc.mul(x,y), __mul(x,y)** returns ``x*y``
+
+**bc.div(x,y), __div(x,y)** returns ``x/y``
+
+**bc.mod(x,y), __mod(x,y)** return ``x mod y``
+
+**bc.divmod(x,y)** returns ``[x/y], x mod y``
+
+**bc.pow(x,y), __pow(x,y)** returns ``x**y``
+
+**bc.powmod(x,y,m)** returns ``x**y mod m``
+
+**bc.compare(x,y)** returns ``-1`` if x < y, ``0`` if x == y, ``+1`` if x > y
+
+**__eq(x,y), __lt(x,y)** compares x and y
+
+**bc.iszero(x)** is true if x == 0
+
+**bc.isneg(x)** is true if x < 0
+
+**bc.trunc(x,[n])** returns x truncated value
+
+**bc.sqrt(x)** returns ``sqrt(x)``
+
+Functions added by BonaLuna
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**bc.number(x)** also accepts hexadecimal, octal and binary numbers as strings
+
+Math and bitwise operators
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Functions of the math and bit32 modules also exists in the bc module.
+These functions produce bc numbers but works internally with Lua numbers.
+Do not expect these functions to be precise.
+
+]]
+
+if bc then
+    bc.digits(0)
+    assert(bc.tonumber(bc.number("0x 1234 5678")) == 0x12345678)
+    assert(bc.tonumber(bc.number("0x_1234_5678")) == 0x12345678)
+    assert(bc.tonumber(bc.number("0o_1_234_567")) == 342391)
+    assert(bc.tonumber(bc.number("0b_11110000")) == 0xF0)
+    assert(bc.hex(bc.number("0x12345678")) == "0x 1234 5678")
+    assert(bc.dec(bc.number("0x12345678")) == "305 419 896")
+    assert(bc.oct(bc.number("0x12345678")) == "0o 2215053170")
+    assert(bc.bin(bc.number("0x12345678")) == "0b 0001 0010 0011 0100 0101 0110 0111 1000")
+    assert(bc.hex(bc.bnot(bc.number("0xAA55 FFFF 0000"), 64)) == "0x FFFF 55AA 0000 FFFF")
+    assert(bc.hex(bc.band(bc.number("0x12345678"), bc.number("0x000F_F000"))) == "0x 0004 5000")
+    assert(bc.hex(bc.bor(bc.number("0x12345678"), bc.number("0x000F_F000"))) == "0x 123F F678")
+    assert(bc.hex(bc.bxor(bc.number("0xAAAA5555"), bc.number("0x00FF_FF00"))) == "0x AA55 AA55")
+    assert(bc.btest(bc.number("0x12345678"), bc.number("0x000F_F000")))
+    assert(not bc.btest(bc.number("0x12300678"), bc.number("0x000F_F000")))
+    assert(bc.hex(bc.extract(bc.number("0x12345678"), 12, 8)) == "0x 0045")
+    assert(bc.hex(bc.replace(bc.number("0x12345678"), 0xFF, 12, 8)) == "0x 123F F678")
+    assert(bc.hex(bc.lshift(bc.number("0x12345678"), 8)) == "0x 0012 3456 7800")
+    assert(bc.hex(bc.lshift(bc.number("0x12345678"), -8)) == "0x 0012 3456")
+    assert(bc.hex(bc.rshift(bc.number("0x12345678"), 8)) == "0x 0012 3456")
+    assert(bc.hex(bc.rshift(bc.number("0x12345678"), -8)) == "0x 0012 3456 7800")
+end
 
 doc [[
 crypt: Cryptographic functions

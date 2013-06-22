@@ -328,13 +328,13 @@ ul.auto-toc {
 <h2 class="subtitle" id="a-compact-lua-extension">A compact Lua extension</h2>
 
 <!-- BonaLuna -->
-<!-- Copyright (C) 2010-2011 Christophe Delord
+<!-- Copyright (C) 2010-2013 Christophe Delord
 http://www.cdsoft.fr/bl/bonaluna.html -->
 <!-- BonaLuna is based on Lua 5.2
 Copyright (C) 2010 Lua.org, PUC-Rio. -->
 <!-- Freely available under the terms of the Lua license. -->
 <div class="sidebar">
-<p class="first sidebar-title">Based on <a class="reference external" href="http://www.lua.org/work">Lua 5.2</a> <img alt="logo_lua" src="http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png" /></p>
+<p class="first sidebar-title">Based on <a class="reference external" href="http://www.lua.org">Lua 5.2</a> <img alt="logo_lua" src="http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png" /></p>
 <p class="last">Copyright (C) 2010 <a class="reference external" href="http://www.lua.org">Lua.org</a>, PUC-Rio.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -348,7 +348,7 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 <tr class="field"><th class="field-name">Web:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna.html">http://cdsoft.fr/bl/bonaluna.html</a></td>
 </tr>
 <tr class="field"><th class="field-name">License:</th><td class="field-body"><div class="first last line-block">
-<div class="line">Copyright (C) 2010-2011 Christophe Delord,
+<div class="line">Copyright (C) 2010-2013 Christophe Delord,
 <a class="reference external" href="http://cdsoft.fr/bl/bonaluna.html">CDSoft.fr</a></div>
 <div class="line">Freely available under the terms of the
 <a class="reference external" href="http://www.lua.org/license.html#5">Lua license</a></div>
@@ -359,9 +359,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.1.9.tgz">http://cdsoft.fr/bl/bonaluna-2.1.9.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.2.0.tgz">http://cdsoft.fr/bl/bonaluna-2.2.0.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.1.9</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.2.0</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -378,22 +378,23 @@ in a single executable.</td>
 </li>
 <li><a class="reference internal" href="#bonaluna-packages" id="id6">3&nbsp;&nbsp;&nbsp;BonaLuna packages</a><ul class="auto-toc">
 <li><a class="reference internal" href="#note-about-objects" id="id7">3.1&nbsp;&nbsp;&nbsp;Note about objects</a></li>
-<li><a class="reference internal" href="#crypt-cryptographic-functions" id="id8">3.2&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></li>
-<li><a class="reference internal" href="#curl-libcurl-interface" id="id9">3.3&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></li>
-<li><a class="reference internal" href="#fs-file-system" id="id10">3.4&nbsp;&nbsp;&nbsp;fs: File System</a></li>
-<li><a class="reference internal" href="#z-lzo-qlz-lz4-zlib-ucl-lzma-compression-libraries" id="id11">3.5&nbsp;&nbsp;&nbsp;z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries</a></li>
-<li><a class="reference internal" href="#ps-processes" id="id12">3.6&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
-<li><a class="reference internal" href="#rl-readline" id="id13">3.7&nbsp;&nbsp;&nbsp;rl: readline</a></li>
-<li><a class="reference internal" href="#socket-lua-socket-and-networking-tools" id="id14">3.8&nbsp;&nbsp;&nbsp;socket: Lua Socket (and networking tools)</a></li>
-<li><a class="reference internal" href="#struct-un-pack-structures" id="id15">3.9&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></li>
-<li><a class="reference internal" href="#sys-system-management" id="id16">3.10&nbsp;&nbsp;&nbsp;sys: System management</a></li>
+<li><a class="reference internal" href="#bc-arbitrary-precision-library-for-lua-based-on-gnu-bc" id="id8">3.2&nbsp;&nbsp;&nbsp;bc: arbitrary precision library for Lua based on GNU bc</a></li>
+<li><a class="reference internal" href="#crypt-cryptographic-functions" id="id9">3.3&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></li>
+<li><a class="reference internal" href="#curl-libcurl-interface" id="id10">3.4&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></li>
+<li><a class="reference internal" href="#fs-file-system" id="id11">3.5&nbsp;&nbsp;&nbsp;fs: File System</a></li>
+<li><a class="reference internal" href="#z-lzo-qlz-lz4-zlib-ucl-lzma-compression-libraries" id="id12">3.6&nbsp;&nbsp;&nbsp;z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries</a></li>
+<li><a class="reference internal" href="#ps-processes" id="id13">3.7&nbsp;&nbsp;&nbsp;ps: Processes</a></li>
+<li><a class="reference internal" href="#rl-readline" id="id14">3.8&nbsp;&nbsp;&nbsp;rl: readline</a></li>
+<li><a class="reference internal" href="#socket-lua-socket-and-networking-tools" id="id15">3.9&nbsp;&nbsp;&nbsp;socket: Lua Socket (and networking tools)</a></li>
+<li><a class="reference internal" href="#struct-un-pack-structures" id="id16">3.10&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></li>
+<li><a class="reference internal" href="#sys-system-management" id="id17">3.11&nbsp;&nbsp;&nbsp;sys: System management</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#self-running-scripts" id="id17">4&nbsp;&nbsp;&nbsp;Self running scripts</a><ul class="auto-toc">
-<li><a class="reference internal" href="#pegar-lua-parameters" id="id18">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></li>
+<li><a class="reference internal" href="#self-running-scripts" id="id18">4&nbsp;&nbsp;&nbsp;Self running scripts</a><ul class="auto-toc">
+<li><a class="reference internal" href="#pegar-lua-parameters" id="id19">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#examples" id="id19">5&nbsp;&nbsp;&nbsp;Examples</a></li>
+<li><a class="reference internal" href="#examples" id="id20">5&nbsp;&nbsp;&nbsp;Examples</a></li>
 </ul>
 </div>
 <div class="section" id="lua">
@@ -439,8 +440,49 @@ encrypted = aes.encrypt(&quot;some text&quot;)
 </tbody>
 </table>
 </div>
+<div class="section" id="bc-arbitrary-precision-library-for-lua-based-on-gnu-bc">
+<h2><a class="toc-backref" href="#id8">3.2&nbsp;&nbsp;&nbsp;bc: arbitrary precision library for Lua based on GNU bc</a></h2>
+<p>lbc is a public domain package written by Luiz Henrique de Figueiredo and available at
+<a class="reference external" href="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc">Libraries and tools for Lua</a></p>
+<p>This is a big-number library for Lua 5.2. It is based on the arbitrary
+precision library number.c written by Philip A. Nelson for GNU bc-1.06:
+<a class="reference external" href="http://www.gnu.org/software/bc/">http://www.gnu.org/software/bc/</a></p>
+<div class="section" id="basic-bc-functions">
+<h3>basic bc functions</h3>
+<p><strong>bc.version</strong> is the version number of bc</p>
+<p><strong>bc.digits([n])</strong> sets the number of digits used by bc</p>
+<p><strong>bc.number(x)</strong> builds a big number from a Lua number or a string</p>
+<p><strong>bc.tonumber(x)</strong> converts a big number to a Lua number</p>
+<p><strong>bc.tostring(x), __tostring(x)</strong> converts a big number to a string</p>
+<p><strong>bc.neg(x), __unm(x)</strong> returns <tt class="docutils literal"><span class="pre">-x</span></tt></p>
+<p><strong>bc.add(x,y), __add(x,y)</strong> returns <tt class="docutils literal">x+y</tt></p>
+<p><strong>bc.sub(x,y), __sub(x,y)</strong> returns <tt class="docutils literal"><span class="pre">x-y</span></tt></p>
+<p><strong>bc.mul(x,y), __mul(x,y)</strong> returns <tt class="docutils literal">x*y</tt></p>
+<p><strong>bc.div(x,y), __div(x,y)</strong> returns <tt class="docutils literal">x/y</tt></p>
+<p><strong>bc.mod(x,y), __mod(x,y)</strong> return <tt class="docutils literal">x mod y</tt></p>
+<p><strong>bc.divmod(x,y)</strong> returns <tt class="docutils literal">[x/y], x mod y</tt></p>
+<p><strong>bc.pow(x,y), __pow(x,y)</strong> returns <tt class="docutils literal"><span class="pre">x**y</span></tt></p>
+<p><strong>bc.powmod(x,y,m)</strong> returns <tt class="docutils literal"><span class="pre">x**y</span> mod m</tt></p>
+<p><strong>bc.compare(x,y)</strong> returns <tt class="docutils literal"><span class="pre">-1</span></tt> if x &lt; y, <tt class="docutils literal">0</tt> if x == y, <tt class="docutils literal">+1</tt> if x &gt; y</p>
+<p><strong>__eq(x,y), __lt(x,y)</strong> compares x and y</p>
+<p><strong>bc.iszero(x)</strong> is true if x == 0</p>
+<p><strong>bc.isneg(x)</strong> is true if x &lt; 0</p>
+<p><strong>bc.trunc(x,[n])</strong> returns x truncated value</p>
+<p><strong>bc.sqrt(x)</strong> returns <tt class="docutils literal">sqrt(x)</tt></p>
+</div>
+<div class="section" id="functions-added-by-bonaluna">
+<h3>Functions added by BonaLuna</h3>
+<p><strong>bc.number(x)</strong> also accepts hexadecimal, octal and binary numbers as strings</p>
+</div>
+<div class="section" id="math-and-bitwise-operators">
+<h3>Math and bitwise operators</h3>
+<p>Functions of the math and bit32 modules also exists in the bc module.
+These functions produce bc numbers but works internally with Lua numbers.
+Do not expect these functions to be precise.</p>
+</div>
+</div>
 <div class="section" id="crypt-cryptographic-functions">
-<h2><a class="toc-backref" href="#id8">3.2&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></h2>
+<h2><a class="toc-backref" href="#id9">3.3&nbsp;&nbsp;&nbsp;crypt: Cryptographic functions</a></h2>
 <p>The <cite>crypt</cite> package is a pure Lua package (i.e. not really fast).</p>
 <p><strong>crypt.hex.encode(data)</strong> encodes <cite>data</cite> in hexa.</p>
 <p><strong>crypt.hex.decode(data)</strong> decodes the hexa <cite>data</cite>.</p>
@@ -456,7 +498,7 @@ mode (&quot;cbc&quot; (default) or &quot;ecb&quot;).
 <p><strong>crypt.random(bits)</strong> returns a string with <cite>bits</cite> random bits.</p>
 </div>
 <div class="section" id="curl-libcurl-interface">
-<h2><a class="toc-backref" href="#id9">3.3&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></h2>
+<h2><a class="toc-backref" href="#id10">3.4&nbsp;&nbsp;&nbsp;curl: libcurl interface</a></h2>
 <p><a class="reference external" href="http://curl.haxx.se/">libcurl</a> is multiprotocol file transfer library.
 This package is a simple Lua interface to libcurl.</p>
 <p>This package is based on <a class="reference external" href="http://luaforge.net/projects/lua-curl/">Lua-cURL</a>
@@ -491,7 +533,7 @@ The default value of <cite>name</cite> is the basename of <cite>path</cite>.</li
 </blockquote>
 </div>
 <div class="section" id="fs-file-system">
-<h2><a class="toc-backref" href="#id10">3.4&nbsp;&nbsp;&nbsp;fs: File System</a></h2>
+<h2><a class="toc-backref" href="#id11">3.5&nbsp;&nbsp;&nbsp;fs: File System</a></h2>
 <p><strong>fs.getcwd()</strong> returns the current working directory.</p>
 <p><strong>fs.chdir(path)</strong> changes the current directory to <cite>path</cite>.</p>
 <p><strong>fs.listdir([path])</strong> returns the list of files and directories in
@@ -542,7 +584,7 @@ file <cite>other_file_name</cite> (string containing the name of another file).<
 <p><strong>fs.aR, fs.aW, fs.aX</strong> are All Read/Write/eXecute mask for <cite>fs.chmod</cite>.</p>
 </div>
 <div class="section" id="z-lzo-qlz-lz4-zlib-ucl-lzma-compression-libraries">
-<h2><a class="toc-backref" href="#id11">3.5&nbsp;&nbsp;&nbsp;z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries</a></h2>
+<h2><a class="toc-backref" href="#id12">3.6&nbsp;&nbsp;&nbsp;z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries</a></h2>
 <p>Compression libraries are based on:
 - <a class="reference external" href="http://www.oberhumer.com/opensource/lzo/">LZO</a>
 - <a class="reference external" href="http://www.quicklz.com/">QuickLZ</a>
@@ -572,11 +614,11 @@ but you can change it in <cite>setup</cite>.</p>
 <p><strong>lzma.decompress(data)</strong> decompresses <cite>data</cite> with XZ Utils and returns the decompressed string.</p>
 </div>
 <div class="section" id="ps-processes">
-<h2><a class="toc-backref" href="#id12">3.6&nbsp;&nbsp;&nbsp;ps: Processes</a></h2>
+<h2><a class="toc-backref" href="#id13">3.7&nbsp;&nbsp;&nbsp;ps: Processes</a></h2>
 <p><strong>ps.sleep(n)</strong> sleeps for <cite>n</cite> seconds.</p>
 </div>
 <div class="section" id="rl-readline">
-<h2><a class="toc-backref" href="#id13">3.7&nbsp;&nbsp;&nbsp;rl: readline</a></h2>
+<h2><a class="toc-backref" href="#id14">3.8&nbsp;&nbsp;&nbsp;rl: readline</a></h2>
 <p>The rl (readline) package was initially inspired by
 <a class="reference external" href="https://github.com/ilua">ilua</a>
 and adapted for BonaLuna.</p>
@@ -584,7 +626,7 @@ and adapted for BonaLuna.</p>
 <p><strong>rl.add(line)</strong> adds <cite>line</cite> to the readline history (Linux only).</p>
 </div>
 <div class="section" id="socket-lua-socket-and-networking-tools">
-<h2><a class="toc-backref" href="#id14">3.8&nbsp;&nbsp;&nbsp;socket: Lua Socket (and networking tools)</a></h2>
+<h2><a class="toc-backref" href="#id15">3.9&nbsp;&nbsp;&nbsp;socket: Lua Socket (and networking tools)</a></h2>
 <p>The socket package is based on <a class="reference external" href="http://w3.impa.br/~diego/software/luasocket/">Lua Socket</a>
 and adapted for BonaLuna.</p>
 <p>The documentation of <cite>Lua Socket</cite> is available at the <a class="reference external" href="http://w3.impa.br/~diego/software/luasocket/reference.html">Lua Socket documentation web site</a>.</p>
@@ -606,7 +648,7 @@ Methods are:</p>
 </blockquote>
 </div>
 <div class="section" id="struct-un-pack-structures">
-<h2><a class="toc-backref" href="#id15">3.9&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></h2>
+<h2><a class="toc-backref" href="#id16">3.10&nbsp;&nbsp;&nbsp;struct: (un)pack structures</a></h2>
 <p>The struct package is taken from
 <a class="reference external" href="http://www.inf.puc-rio.br/~roberto/struct/">Library for Converting Data to and from C Structs for Lua 5.1</a>
 and adapted for BonaLuna.</p>
@@ -615,7 +657,7 @@ and adapted for BonaLuna.</p>
 <p><strong>struct.size(fmt)</strong> returns the size of a string formatted according to the format string <cite>fmt</cite>. For obvious reasons, the format string cannot contain neither the option <cite>s</cite> nor the option <cite>c0</cite>.</p>
 </div>
 <div class="section" id="sys-system-management">
-<h2><a class="toc-backref" href="#id16">3.10&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
+<h2><a class="toc-backref" href="#id17">3.11&nbsp;&nbsp;&nbsp;sys: System management</a></h2>
 <p><strong>sys.hostname()</strong> returns the host name.</p>
 <p><strong>sys.domainname()</strong> returns the domain name.</p>
 <p><strong>sys.hostid()</strong> returns the host id.</p>
@@ -623,14 +665,14 @@ and adapted for BonaLuna.</p>
 </div>
 </div>
 <div class="section" id="self-running-scripts">
-<h1><a class="toc-backref" href="#id17">4&nbsp;&nbsp;&nbsp;Self running scripts</a></h1>
+<h1><a class="toc-backref" href="#id18">4&nbsp;&nbsp;&nbsp;Self running scripts</a></h1>
 <p>It is possible to add scripts to the BonaLuna interpretor
 to make a single executable file containing the interpretor
 and some BonaLuna scripts.</p>
 <p>This feature is inspired by
 <a class="reference external" href="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua">srlua</a>.</p>
 <div class="section" id="pegar-lua-parameters">
-<h2><a class="toc-backref" href="#id18">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></h2>
+<h2><a class="toc-backref" href="#id19">4.1&nbsp;&nbsp;&nbsp;<cite>pegar.lua</cite> parameters</a></h2>
 <p><strong>compile:on|off|min</strong> turn compilation on, off or on when chunks are smaller than sources (<cite>min</cite> is the default value)</p>
 <p><strong>compress:on|off|min</strong> turn compression on, off or on when chunks are smaller than sources (<cite>min</cite> is the default value)</p>
 <p><strong>read:original_interpretor</strong> reads the initial interpretor</p>
@@ -647,7 +689,7 @@ it is relative to the current working directory.</p>
 </div>
 </div>
 <div class="section" id="examples">
-<h1><a class="toc-backref" href="#id19">5&nbsp;&nbsp;&nbsp;Examples</a></h1>
+<h1><a class="toc-backref" href="#id20">5&nbsp;&nbsp;&nbsp;Examples</a></h1>
 <p>This documentation has been generated by a BonaLuna script.
 <a class="reference external" href="bonaluna.lua">bonaluna.lua</a> also contains some tests.</p>
 </div>

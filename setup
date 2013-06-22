@@ -1,15 +1,17 @@
 # Compression libraries : LZO, MINILZO, QLZ, LZ4, UCL, LZMA, ZLIB
 # Cryptography library  : CRYPT
 # Networking library    : CURL, SOCKET (Lua Socket)
+# Arbitrary precision   : BC
 
 # Minimal Bonaluna distribution
 #export LIBRARIES="QLZ"
 
 # Complete BonaLuna distribution
-#export LIBRARIES="LZO QLZ LZ4 UCL LZMA ZLIB CRYPT CURL SOCKET"
+#export LIBRARIES="LZO QLZ LZ4 UCL LZMA ZLIB CRYPT CURL SOCKET BC"
+#export LIBRARIES="LZO QLZ LZ4 UCL ZLIB CRYPT SOCKET BC"
 
 # Standard BonaLuna distribution
-export LIBRARIES="ZLIB CRYPT SOCKET"
+export LIBRARIES="ZLIB CRYPT SOCKET BC"
 
 # Icon for the Win32 executable
 export ICON="bl.ico"

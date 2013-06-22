@@ -2,7 +2,7 @@
 
 # BonaLuna compilation script
 #
-# Copyright (C) 2010-2011 Christophe Delord
+# Copyright (C) 2010-2013 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
 # BonaLuna is based on Lua 5.2
@@ -19,16 +19,18 @@ QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
 LZ4_SRC="LZ4 - BSD"
 LZ4_URL=http://lz4.googlecode.com/files/LZ4%20-%20BSD.zip
-ZLIB_SRC=zlib-1.2.6
-ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.bz2
+ZLIB_SRC=zlib-1.2.8
+ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
-LZMA_SRC=xz-5.0.3
+LZMA_SRC=xz-5.0.4
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
-CURL_SRC=curl-7.23.1
+CURL_SRC=curl-7.31.0
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 SOCKET_SRC=luasocket-2.0.2
 SOCKET_URL=http://luaforge.net/frs/download.php/2664/$SOCKET_SRC.tar.gz
+BC_SRC=bc
+BC_URL=http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/5.2/lbc.tar.gz
 
 function error()
 {
@@ -72,7 +74,7 @@ mkdir -p $BUILD
 # Check configuration
 #####################
 
-for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET
+for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET BC
 do
     eval USE_$lib=false
 done
@@ -94,6 +96,9 @@ do
                             export PEGAR_CONF+=" lua:$SOCKET_SRC/ftp.lua=$TARGET/ftp.lua"
                             export PEGAR_CONF+=" lua:$SOCKET_SRC/http.lua=$TARGET/http.lua"
                             export PEGAR_CONF+=" lua:ftp.lua"
+                            ;;
+        BC)                 export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true
+                            export PEGAR_CONF+=" lua:bc.lua"
                             ;;
         *)                  echo "Unknown library: $lib"; exit 1;;
     esac
@@ -119,7 +124,7 @@ case "$(uname)" in
     MINGW32*)   PLATFORM=Windows ;;
     *)          case "$CC" in
                     gcc)        PLATFORM=Linux ;;
-                    *mingw32*)  PLATFORM=Windows ;;
+                    *mingw*)    PLATFORM=Windows ;;
                 esac
                 ;;
 esac
@@ -127,9 +132,11 @@ esac
 case "$PLATFORM" in
     Linux)      LUA_CONF+=" -DLUA_USE_LINUX"
                 CC_LIBS2+=" -ldl -lreadline -lrt"
+                HOST=""
                 ;;
     Windows)    #LUA_CONF+=" -DLUA_USE_LONGLONG"
                 CC_LIBS2+=" -lws2_32 -ladvapi32"
+                HOST="--host i586-mingw32"
                 ;;
 esac
 
@@ -170,7 +177,7 @@ $USE_LZMA && (
 
 $USE_ZLIB && (
     [ -e $(basename $ZLIB_URL) ] || wget $ZLIB_URL
-    [ -e $ZLIB_SRC ] || tar xjf $(basename $ZLIB_URL)
+    [ -e $ZLIB_SRC ] || tar xzf $(basename $ZLIB_URL)
 )
 
 $USE_CURL && (
@@ -181,6 +188,11 @@ $USE_CURL && (
 $USE_SOCKET && (
     [ -e $(basename $SOCKET_URL) ] || wget $SOCKET_URL
     [ -e $SOCKET_SRC ] || tar xzf $(basename $SOCKET_URL)
+)
+
+$USE_BC && (
+    [ -e $(basename $BC_URL) ] || wget $BC_URL
+    [ -e $BC_SRC ] || tar xzf $(basename $BC_URL)
 )
 
 # Target initialisation
@@ -200,6 +212,7 @@ $USE_UCL && ! [ -e $TARGET/$UCL_SRC ] && cp -rf $UCL_SRC $TARGET/
 $USE_LZMA && ! [ -e $TARGET/$LZMA_SRC ] && cp -rf $LZMA_SRC $TARGET/
 $USE_CURL && ! [ -e $TARGET/$CURL_SRC ] && cp -rf $CURL_SRC $TARGET/
 $USE_SOCKET && cp -f $SOCKET_SRC/src/*.{c,h,lua} $TARGET/
+$USE_BC && cp -f $BC_SRC/*.{c,h} $TARGET/
 
 case "$PLATFORM" in
     Linux)      ;;
@@ -267,6 +280,9 @@ awk '
         print "  {LUA_SOCKETLIBNAME, luaopen_socket_core},"
         print "  {LUA_MIMELIBNAME, luaopen_mime_core},"
         print "#endif"
+        print "#if defined(USE_BC)"
+        print "  {LUA_BCLIBNAME, luaopen_bc},"
+        print "#endif"
         }
     {print}
 ' $LUA_SRC/src/linit.c > $TARGET/linit.c
@@ -285,12 +301,13 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
         print "#define l_tg(x) (x##l)"
         next
     }
-    /#define[ \t]*LUA_NUMBER_SCAN/ {
-        print "#define LUA_NUMBER_SCAN \"%Lf\""
+    /#define[ \t]*LUA_UACNUMBER[ \t]*double/ {
+        print "#define LUA_UACNUMBER long double"
         next
     }
-    /#define[ \t]*LUA_NUMBER_FMT/ {
-        print "#define LUA_NUMBER_FMT \"%.14Lg\""
+
+    /#define[ \t]*LUA_NUMBER_SCAN/ {
+        print "#define LUA_NUMBER_SCAN \"%Lf\""
         next
     }
     /#define[ \t]*LUA_NUMBER_FMT/ {
@@ -303,6 +320,10 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
     }
     /#define[ \t]*lua_str2number/ {
         print "#define lua_str2number(s,p) strtold((s), (p))"
+        next
+    }
+    /#define[ \t]*lua_strx2number/ {
+        print "#define lua_strx2number(s,p) strtold((s), (p))"
         next
     }
     /#define[ \t]*LUA_INTEGER/ {
@@ -332,24 +353,29 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
 
 [ $BITS = 64 ] && sed \
     -e "s/32/64/g" \
-    -e "s/\(NBITS\)/\1$BITS/g" \
-    -e "s/\(ALLONES\)/\1$BITS/g" \
-    -e "s/\(trim\)/\1$BITS/g" \
-    -e "s/\(getuintarg\)/\1$BITS/g" \
-    -e "s/\(andaux\)/\1$BITS/g" \
-    -e "s/\(b_and\)/\1$BITS/g" \
-    -e "s/\(b_test\)/\1$BITS/g" \
-    -e "s/\(b_or\)/\1$BITS/g" \
-    -e "s/\(b_xor\)/\1$BITS/g" \
-    -e "s/\(b_not\)/\1$BITS/g" \
-    -e "s/\(b_shift\)/\1$BITS/g" \
-    -e "s/\(b_lshift\)/\1$BITS/g" \
-    -e "s/\(b_rshift\)/\1$BITS/g" \
-    -e "s/\(b_arshift\)/\1$BITS/g" \
-    -e "s/\(b_rot\)/\1$BITS/g" \
-    -e "s/\(b_lrot\)/\1$BITS/g" \
-    -e "s/\(b_rrot\)/\1$BITS/g" \
-    -e "s/\(bitlib\)/\1$BITS/g" \
+    -e "s/\(NBITS\)/\1_64/g" \
+    -e "s/\(ALLONES\)/\1_64/g" \
+    -e "s/\(trim\)/\1_64/g" \
+    -e "s/\(mask\)/\1_64/g" \
+    -e "s/\(lua_UnsignedXXX\)/\1_64/g" \
+    -e "s/\(getuintarg\)/\1_64/g" \
+    -e "s/\(andaux\)/\1_64/g" \
+    -e "s/\(b_and\)/\1_64/g" \
+    -e "s/\(b_test\)/\1_64/g" \
+    -e "s/\(b_or\)/\1_64/g" \
+    -e "s/\(b_xor\)/\1_64/g" \
+    -e "s/\(b_not\)/\1_64/g" \
+    -e "s/\(b_shift\)/\1_64/g" \
+    -e "s/\(b_lshift\)/\1_64/g" \
+    -e "s/\(b_rshift\)/\1_64/g" \
+    -e "s/\(b_arshift\)/\1_64/g" \
+    -e "s/\(b_rot\)/\1_64/g" \
+    -e "s/\(b_lrot\)/\1_64/g" \
+    -e "s/\(b_rrot\)/\1_64/g" \
+    -e "s/\(fieldargs\)/\1_64/g" \
+    -e "s/\(b_extract\)/\1_64/g" \
+    -e "s/\(b_replace\)/\1_64/g" \
+    -e "s/\(bitlib\)/\1_64/g" \
     $TARGET/lbitlib.c > $TARGET/lbitlib64.c
 [ $BITS = 64 ] && CC_LIBS+=" $TARGET/lbitlib64.c"
 
@@ -488,6 +514,17 @@ $USE_SOCKET && (
 
 )
 
+# BC patches
+############
+
+$USE_BC && (
+    sed -i \
+        -e 's/MYNAME/LUA_BCLIBNAME/g' \
+        -e 's/MYVERSION/BCLIBVERSION/g' \
+        -e 's/MYTYPE/BCLIBTYPE/g' \
+        $TARGET/lbc.c
+)
+
 # External libraries
 ####################
 
@@ -504,7 +541,7 @@ CC_LIBS+=" -L$LIBRARY_PATH"
 LIB_LZO=$TARGET/$LZO_SRC/src/.libs/liblzo2.a
 $USE_LZO && ! [ -e $LIB_LZO ] && (
     cd $TARGET/$LZO_SRC
-    ./configure && make
+    ./configure $HOST && make
 )
 $USE_LZO && cp -f $LIB_LZO $LIBRARY_PATH/
 $USE_LZO && cp -f $TARGET/$LZO_SRC/include/lzo/*.h $INCLUDE_PATH/
@@ -536,7 +573,7 @@ $USE_UCL && ! [ -e $LIB_UCL ] && (
     cd $TARGET/$UCL_SRC
     case $PLATFORM in
         Linux)      ./configure && make ;;
-        Windows)    ./configure LIBS=-lwinmm && make ;;
+        Windows)    ./configure $HOST LIBS=-lwinmm && make ;;
     esac
 )
 $USE_UCL && cp -f $LIB_UCL $LIBRARY_PATH/
@@ -551,7 +588,7 @@ $USE_UCL && LUA_CONF+=" -DUCL_LEVEL=6"
 LIB_LZMA=$TARGET/$LZMA_SRC/src/liblzma/.libs/liblzma.a
 $USE_LZMA && ! [ -e $LIB_LZMA ] && (
     cd $TARGET/$LZMA_SRC
-    ./configure --disable-shared && (cd src/liblzma && make)
+    ./configure $HOST --disable-shared && (cd src/liblzma && make)
 )
 $USE_LZMA && cp -f $LIB_LZMA $LIBRARY_PATH/
 $USE_LZMA && cp -f $TARGET/$LZMA_SRC/src/liblzma/api/*.h $INCLUDE_PATH/
@@ -598,7 +635,7 @@ $USE_CURL && ! [ -e $LIB_CURL ] && (
         Linux)      ./configure --disable-shared $CURL_CONF && (
                         cd lib && make
                     );;
-        Windows)    ./configure --disable-shared $CURL_CONF && (
+        Windows)    ./configure $HOST --disable-shared $CURL_CONF && (
                         sed -i "s/CC =.*/CC = $CC/" lib/Makefile.m32
                         sed -i "s/AR =.*/AR = $AR/" lib/Makefile.m32
                         sed -i "s/RANLIB =.*/RANLIB = $RANLIB/" lib/Makefile.m32
@@ -617,12 +654,17 @@ case $PLATFORM in
                 CC_LIBS2+=" -lwldap32" ;;
 esac
 
+# bc configuration
+##################
+
 # Compilation
 #############
 
 case $PLATFORM in
-    Windows)    WINE=wine ;;
-    *)          WINE="" ;;
+    Windows)    WINE=wine
+                ;;
+    *)          WINE=""
+                ;;
 esac
 
 if [ "$PLATFORM" = "Windows" ] && [ -e "$ICON" ]

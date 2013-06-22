@@ -1,6 +1,6 @@
 /* BonaLuna
 
-Copyright (C) 2010-2011 Christophe Delord
+Copyright (C) 2010-2013 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.2
@@ -93,6 +93,10 @@ Freely available under the terms of the Lua license.
 #else
 #include "usocket.c"
 #endif
+#endif
+#ifdef USE_BC
+#include "bc/lbc.c"
+#include "bc/number.c"
 #endif
 
 /* BonaLuna "glue" */
