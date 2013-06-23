@@ -12,10 +12,14 @@ Freely available under the terms of the Lua license.
 
 do
 
+    bc.digits(20)
+
     local bc_number = bc.number
+    local bc_tostring = bc.tostring
     local bc_zero = bc_number(0)
     local bc_one = bc_number(1)
     local bc_two = bc_number(2)
+    local bc_two_pow_32 = bc_two ^ 32
 
     local hexdigits = {}
     for i = 0, 0xF do hexdigits[i] = ("0123456789ABCDEF"):sub(i+1, i+1) end
@@ -31,12 +35,18 @@ do
 
     local function num2str(n, base)
         local sign
+        n = bc.trunc(n)
+        if base == nil then base = 10 end
         if bc.isneg(n) then sign = "- "; n = -n else sign = "" end
         local s = ""
         local d
-        while not bc.iszero(n) do
-            n, d = bc.divmod(n, base)
-            s = hexdigits[bc.tonumber(d)] .. s
+        if bc.iszero(n) then
+            s = "0"
+        else
+            while not bc.iszero(n) do
+                n, d = bc.divmod(n, base)
+                s = hexdigits[bc.tonumber(d)] .. s
+            end
         end
         local prefix
         if base == 16 then
@@ -81,12 +91,16 @@ do
         return bc_number(x)
     end
 
-    bc.tostring = num2str
-
     function bc.hex(x) return num2str(x, 16) end
     function bc.dec(x) return num2str(x, 10) end
     function bc.oct(x) return num2str(x, 8) end
     function bc.bin(x) return num2str(x, 2) end
+
+    function bc.tostring(x)
+        local s = bc_tostring(x)
+        s = s:gsub("(%.[0-9]-)0+$", "%1"):gsub("%.$", "")
+        return s
+    end
 
     -- bit wise operations
 
@@ -101,7 +115,7 @@ do
         if x:isneg() or y:isneg() then error("bc.band can not use negative numbers") end
         local z = bc_zero
         local i = 0
-        local b = bc_two ^ 32
+        local b = bc_two_pow_32
         x = bc.trunc(x)
         y = bc.trunc(y)
         while not x:iszero() and not bc.iszero(y) do
@@ -118,7 +132,7 @@ do
         if x:isneg() or y:isneg() then error("bc.bor can not use negative numbers") end
         local z = bc_zero
         local i = 0
-        local b = bc_two ^ 32
+        local b = bc_two_pow_32
         x = bc.trunc(x)
         y = bc.trunc(y)
         while not x:iszero() or not bc.iszero(y) do
@@ -135,7 +149,7 @@ do
         if x:isneg() or y:isneg() then error("bc.bxor can not use negative numbers") end
         local z = bc_zero
         local i = 0
-        local b = bc_two ^ 32
+        local b = bc_two_pow_32
         x = bc.trunc(x)
         y = bc.trunc(y)
         while not x:iszero() or not bc.iszero(y) do
@@ -265,6 +279,29 @@ do
     bc.sinh = _f1(math.sinh)
     bc.tan = _f1(math.tan)
     bc.tanh = _f1(math.tanh)
+
+    -- fix the modulo bug for negative numbers
+
+    local bc_mod = bc.mod
+    local bc_divmod = bc.divmod
+
+    function bc.mod(x, y)
+        x = bc.number(x)
+        y = bc.number(y)
+        local r = bc_mod(x, y)
+        if x:isneg() ~= y:isneg() then r = r + y end
+        return r
+    end
+
+    function bc.divmod(x, y)
+        x = bc.number(x)
+        y = bc.number(y)
+        local q, r = bc_divmod(x, y)
+        if x:isneg() ~= y:isneg() then r = r + y; q = q - 1 end
+        return q, r
+    end
+
+    bc.__mod = bc.mod
 
 end
 
