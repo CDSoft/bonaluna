@@ -30,13 +30,13 @@
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__
-    | **Lua**: `Lua license <http://www.lua.org/license.html#5>`__
+    | **Lua**, **Lpeg**: `Lua license <http://www.lua.org/license.html#5>`__
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.2.0.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.3.0.tgz
 
-:Version: 2.2.0
+:Version: 2.3.0
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -304,6 +304,16 @@ file `other_file_name` (string containing the name of another file).
 **fs.oR, fs.oW, fs.oX** are the Other Read/Write/eXecute mask for `fs.chmod`.
 
 **fs.aR, fs.aW, fs.aX** are All Read/Write/eXecute mask for `fs.chmod`.
+
+lpeg, re: parsing library
+-------------------------
+
+Bonaluna parsing library is Lpeg.
+Both lpeg and re modules are loaded when Bonaluna is started.
+
+The documentation of these modules are available on Lpeg web site:
+- `Lpeg <http://www.inf.puc-rio.br/~roberto/lpeg/>`__
+- `Re <http://www.inf.puc-rio.br/~roberto/lpeg/re.html>`__
 
 z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries
 --------------------------------------------------------

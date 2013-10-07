@@ -98,6 +98,8 @@ Freely available under the terms of the Lua license.
 #include "bc/lbc.c"
 #include "bc/number.c"
 #endif
+#ifdef USE_LPEG
+#endif
 
 /* BonaLuna "glue" */
 #include "glue.c"

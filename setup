@@ -2,20 +2,21 @@
 # Cryptography library  : CRYPT
 # Networking library    : CURL, SOCKET (Lua Socket)
 # Arbitrary precision   : BC
+# Parsing library       : LPEG
 
 # Minimal Bonaluna distribution
-#export LIBRARIES="QLZ"
+#export LIBRARIES=""
 
 # Complete BonaLuna distribution
-#export LIBRARIES="LZO QLZ LZ4 UCL LZMA ZLIB CRYPT CURL SOCKET BC"
-#export LIBRARIES="LZO QLZ LZ4 UCL ZLIB CRYPT SOCKET BC"
+#export LIBRARIES="LZO QLZ LZ4 UCL LZMA ZLIB CRYPT CURL SOCKET BC LPEG"
+#export LIBRARIES="QLZ UCL ZLIB CRYPT SOCKET BC LPEG"
 
 # Standard BonaLuna distribution
-export LIBRARIES="ZLIB CRYPT SOCKET BC"
+export LIBRARIES="ZLIB CRYPT SOCKET BC LPEG"
 
 # Icon for the Win32 executable
 export ICON="bl.ico"
 
 # Compression
 #export COMPRESS="upx --best"
-#export COMPRESS="upx --ultra-brute"
+export COMPRESS="upx --ultra-brute"

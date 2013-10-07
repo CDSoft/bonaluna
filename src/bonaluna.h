@@ -72,3 +72,6 @@ LUAMOD_API int (luaopen_mime_core) (lua_State *L);
 
 #define LUA_BCLIBNAME "bc"
 LUAMOD_API int (luaopen_bc) (lua_State *L);
+
+#define LUA_LPEGLIBNAME "lpeg"
+LUAMOD_API int (luaopen_lpeg) (lua_State *L);

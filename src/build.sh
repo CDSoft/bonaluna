@@ -31,6 +31,8 @@ SOCKET_SRC=luasocket-2.0.2
 SOCKET_URL=http://luaforge.net/frs/download.php/2664/$SOCKET_SRC.tar.gz
 BC_SRC=bc
 BC_URL=http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/5.2/lbc.tar.gz
+LPEG_SRC=lpeg-0.12
+LPEG_URL=http://www.inf.puc-rio.br/~roberto/lpeg/${LPEG_SRC}.tar.gz
 
 function error()
 {
@@ -74,7 +76,7 @@ mkdir -p $BUILD
 # Check configuration
 #####################
 
-for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET BC
+for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET BC LPEG
 do
     eval USE_$lib=false
 done
@@ -99,6 +101,9 @@ do
                             ;;
         BC)                 export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true
                             export PEGAR_CONF+=" lua:bc.lua"
+                            ;;
+        LPEG)               export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true
+                            export PEGAR_CONF+=" lua:lpeg.lua=$TARGET/lpeg.lua"
                             ;;
         *)                  echo "Unknown library: $lib"; exit 1;;
     esac
@@ -195,6 +200,11 @@ $USE_BC && (
     [ -e $BC_SRC ] || tar xzf $(basename $BC_URL)
 )
 
+$USE_LPEG && (
+    [ -e $(basename $LPEG_URL) ] || wget $LPEG_URL
+    [ -e $LPEG_SRC ] || tar xzf $(basename $LPEG_URL)
+)
+
 # Target initialisation
 #######################
 
@@ -213,6 +223,7 @@ $USE_LZMA && ! [ -e $TARGET/$LZMA_SRC ] && cp -rf $LZMA_SRC $TARGET/
 $USE_CURL && ! [ -e $TARGET/$CURL_SRC ] && cp -rf $CURL_SRC $TARGET/
 $USE_SOCKET && cp -f $SOCKET_SRC/src/*.{c,h,lua} $TARGET/
 $USE_BC && cp -f $BC_SRC/*.{c,h} $TARGET/
+$USE_LPEG && cp -rf $LPEG_SRC $TARGET/
 
 case "$PLATFORM" in
     Linux)      ;;
@@ -283,6 +294,9 @@ awk '
         print "#if defined(USE_BC)"
         print "  {LUA_BCLIBNAME, luaopen_bc},"
         print "#endif"
+        print "#if defined(USE_LPEG)"
+        print "  {LUA_LPEGLIBNAME, luaopen_lpeg},"
+        print "#endif"
         }
     {print}
 ' $LUA_SRC/src/linit.c > $TARGET/linit.c
@@ -294,7 +308,7 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
     /#define[ \t]*LUA_NUMBER_DOUBLE/ {
         print "// #define LUA_NUMBER_DOUBLE"
         next
-    }
+    =lpeg.lua}
     /#define[ \t]*LUA_NUMBER[ \t]*double/ {
         print "#define LUA_NUMBER long double"
         print "#define LUA_USELONGLONG"
@@ -525,6 +539,16 @@ $USE_BC && (
         $TARGET/lbc.c
 )
 
+# LPEG patches
+##############
+
+$USE_LPEG && (
+    (   sed -e '/re.lua/q' lpeg.lua
+        sed -e 's/\(.*_ENV = nil.*\)/-- \1/' $TARGET/$LPEG_SRC/re.lua
+        sed -e '1,/re.lua/d' lpeg.lua
+    ) > $TARGET/lpeg.lua
+)
+
 # External libraries
 ####################
 
@@ -656,6 +680,23 @@ esac
 
 # bc configuration
 ##################
+
+# Lpeg configuration
+####################
+
+LIB_LPEG=$TARGET/$LPEG_SRC/liblpeg.a
+$USE_LPEG && ! [ -e $LIB_LPEG ] && (
+    cd $TARGET/$LPEG_SRC
+    $CC $CC_INC -I`pwd`/.. -c lpcap.c
+    $CC $CC_INC -I`pwd`/.. -c lpcode.c
+    $CC $CC_INC -I`pwd`/.. -c lpprint.c
+    $CC $CC_INC -I`pwd`/.. -c lptree.c
+    $CC $CC_INC -I`pwd`/.. -c lpvm.c
+    $AR rcs `basename $LIB_LPEG` *.o
+)
+$USE_LPEG && cp -f $LIB_LPEG $LIBRARY_PATH/
+$USE_LPEG && cp -f $TARGET/$LPEG_SRC/*.h $INCLUDE_PATH/
+$USE_LPEG && CC_LIBS2+=" $LIBRARY_PATH/liblpeg.a"
 
 # Compilation
 #############

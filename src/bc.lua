@@ -282,8 +282,17 @@ do
 
     -- fix the modulo bug for negative numbers
 
+    local bc_div = bc.div
     local bc_mod = bc.mod
     local bc_divmod = bc.divmod
+
+    function bc.div(x, y)
+        x = bc.number(x)
+        y = bc.number(y)
+        local q = bc_div(x, y)
+        if x:isneg() ~= y:isneg() then q = q - 1 end
+        return q
+    end
 
     function bc.mod(x, y)
         x = bc.number(x)
@@ -301,6 +310,7 @@ do
         return q, r
     end
 
+    bc.__div = bc.div
     bc.__mod = bc.mod
 
 end
