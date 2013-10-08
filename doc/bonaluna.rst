@@ -34,9 +34,9 @@
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.3.0.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.3.1.tgz
 
-:Version: 2.3.0
+:Version: 2.3.1
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -321,7 +321,7 @@ z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries
 Compression libraries are based on:
 - `LZO <http://www.oberhumer.com/opensource/lzo/>`__
 - `QuickLZ <http://www.quicklz.com/>`__
-- `LZ4 <http://code.google.com/p/lz4/>`__
+- `LZ4/LZ4HC <http://code.google.com/p/lz4/>`__
 - `ZLIB <http://www.zlib.net/>`__
 - `UCL <http://www.oberhumer.com/opensource/ucl/>`__
 - `XZ Utils <http://tukaani.org/xz/>`__
@@ -352,6 +352,10 @@ but you can change it in `setup`.
 **lz4.compress(data)** compresses `data` with LZ4 and returns the compressed string.
 
 **lz4.decompress(data)** decompresses `data` with LZ4 and returns the decompressed string.
+
+**lz4hc.compress(data)** compresses `data` with LZ4HC and returns the compressed string.
+
+**lz4hc.decompress(data)** decompresses `data` with LZ4HC and returns the decompressed string.
 
 **zlib.compress(data)** compresses `data` with ZLIB and returns the compressed string.
 

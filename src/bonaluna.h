@@ -46,6 +46,9 @@ LUAMOD_API int (luaopen_qlz) (lua_State *L);
 #define LUA_LZ4LIBNAME "lz4"
 LUAMOD_API int (luaopen_lz4) (lua_State *L);
 
+#define LUA_LZ4HCLIBNAME "lz4hc"
+LUAMOD_API int (luaopen_lz4hc) (lua_State *L);
+
 #define LUA_ZLIBLIBNAME "zlib"
 LUAMOD_API int (luaopen_zlib) (lua_State *L);
 

@@ -17,8 +17,8 @@ LZO_SRC=lzo-2.06
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
-LZ4_SRC="LZ4 - BSD"
-LZ4_URL=http://lz4.googlecode.com/files/LZ4%20-%20BSD.zip
+LZ4_SRC=lz4-r106
+LZ4_URL=https://dl.dropboxusercontent.com/u/59565338/LZ4/${LZ4_SRC}.tar.gz
 ZLIB_SRC=zlib-1.2.8
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
@@ -171,8 +171,8 @@ $USE_QLZ && (
 )
 
 $USE_LZ4 && (
-    [ -e "$LZ4_SRC".zip ] || wget $LZ4_URL
-    [ -e "$LZ4_SRC" ] || unzip "$LZ4_SRC.zip"
+    [ -e "$LZ4_SRC".tar.gz ] || wget $LZ4_URL
+    [ -e "$LZ4_SRC" ] || tar xzf "$LZ4_SRC.tar.gz"
 )
 
 $USE_LZMA && (
@@ -216,7 +216,7 @@ cp -f $LUA_SRC/src/* $TARGET/
     cp -f $TARGET/$LZO_SRC/include/lzo/*.h $TARGET/
 }
 $USE_QLZ && cp -f $QLZ_SRC/*.{c,h} $TARGET/
-$USE_LZ4 && cp -f "$LZ4_SRC"/LZ4/lz4.{c,h} $TARGET/
+$USE_LZ4 && cp -f "$LZ4_SRC"/{lz4,lz4hc}.{c,h} $TARGET/
 $USE_ZLIB && ! [ -e $TARGET/$ZLIB_SRC ] && cp -rf $ZLIB_SRC $TARGET/
 $USE_UCL && ! [ -e $TARGET/$UCL_SRC ] && cp -rf $UCL_SRC $TARGET/
 $USE_LZMA && ! [ -e $TARGET/$LZMA_SRC ] && cp -rf $LZMA_SRC $TARGET/
@@ -271,6 +271,7 @@ awk '
         print "#endif"
         print "#if defined(USE_LZ4)"
         print "  {LUA_LZ4LIBNAME, luaopen_lz4},"
+        print "  {LUA_LZ4HCLIBNAME, luaopen_lz4hc},"
         print "#endif"
         print "#if defined(USE_ZLIB)"
         print "  {LUA_ZLIBLIBNAME, luaopen_zlib},"
@@ -421,7 +422,15 @@ $USE_QLZ && (
 #############
 
 $USE_LZ4 && (
-    sed -i 's/\/\/ *\(#define SAFEWRITEBUFFER\)/\1/' $TARGET/lz4.h
+    for name in STEPSIZE ALLOCATOR U16_S U32_S U64_S MAX_DISTANCE A64 A32 A16 \
+                HASHTABLESIZE ML_MASK LZ4_COPYSTEP AARCH INITBASE \
+                LZ4_READ_LITTLEENDIAN_16 LZ4_WRITE_LITTLEENDIAN_16 \
+                LZ4_WILDCOPY LZ4_NbCommonBytes limitedOutput_directive \
+                U16 U32 U64 S32 HTYPE
+    do
+        sed -i "s/$name/LZ4_$name/g" $TARGET/lz4.c
+        sed -i "s/$name/LZ4HC_$name/g" $TARGET/lz4hc.c
+    done
 )
 
 # Luacurl patches

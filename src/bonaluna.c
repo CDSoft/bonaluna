@@ -907,8 +907,20 @@ LUAMOD_API int luaopen_qlz (lua_State *L)
 
 int bl_lz4_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-    char *lz4_dst = (char*)malloc(src_len + src_len/2 + 8 + sizeof(t_z_header));
+    char *lz4_dst = (char*)malloc(LZ4_COMPRESSBOUND(src_len) + sizeof(t_z_header));
     int lz4_dst_len = LZ4_compress((char*)src, lz4_dst+sizeof(t_z_header), src_len);
+    ((t_z_header*)lz4_dst)->sig = LZ4_SIG;
+    ((t_z_header*)lz4_dst)->len = src_len;
+    *dst = lz4_dst;
+    *dst_len = lz4_dst_len;
+    *dst_len += sizeof(t_z_header);
+    return 0;
+}
+
+int bl_lz4hc_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    char *lz4_dst = (char*)malloc(LZ4_COMPRESSBOUND(src_len) + sizeof(t_z_header));
+    int lz4_dst_len = LZ4_compressHC((char*)src, lz4_dst+sizeof(t_z_header), src_len);
     ((t_z_header*)lz4_dst)->sig = LZ4_SIG;
     ((t_z_header*)lz4_dst)->len = src_len;
     *dst = lz4_dst;
@@ -921,18 +933,36 @@ int bl_lz4_decompress_core(lua_State *L, const char *src, size_t src_len, char *
 {
     if (((t_z_header*)src)->sig == LZ4_SIG)
     {
-        *dst = (char*)malloc(((t_z_header*)src)->len + 3);
-        *dst_len = LZ4_decode((char*)(src+sizeof(t_z_header)), *dst, src_len-sizeof(t_z_header));
+        *dst_len = ((t_z_header*)src)->len + 3;
+        *dst = (char*)malloc(*dst_len);
+        int r = LZ4_decompress_safe((char*)(src+sizeof(t_z_header)), *dst, src_len-sizeof(t_z_header), *dst_len);
+        if (r < 0)
+        {
+            free(dst);
+            lua_pushnil(L);
+            lua_pushfstring(L, "lz4: LZ4_decompress_safe (error: %d)", *dst_len);
+            return 2;
+        }
+        *dst_len = r;
         return 0;
     }
     return -1;
 }
 
+#define bl_lz4hc_decompress_core bl_lz4_decompress_core
+
 COMPRESSOR(lz4)
+COMPRESSOR(lz4hc)
 
 LUAMOD_API int luaopen_lz4 (lua_State *L)
 {
     luaL_newlib(L, lz4lib);
+    return 1;
+}
+
+LUAMOD_API int luaopen_lz4hc (lua_State *L)
+{
+    luaL_newlib(L, lz4hclib);
     return 1;
 }
 
@@ -1111,6 +1141,7 @@ int bl_z_compress_core(lua_State *L, const char *src, size_t src_len, char **dst
 #endif
 #ifdef USE_LZ4
     COMPRESS(lz4)
+    COMPRESS(lz4hc)
 #endif
 #ifdef USE_ZLIB
     COMPRESS(zlib)
@@ -1160,6 +1191,7 @@ int bl_z_decompress_core(lua_State *L, const char *src, size_t src_len, char **d
 #endif
 #ifdef USE_LZ4
     DECOMPRESS(lz4)
+    DECOMPRESS(lz4hc)
 #endif
 #ifdef USE_ZLIB
     DECOMPRESS(zlib)

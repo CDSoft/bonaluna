@@ -745,7 +745,7 @@ z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries
 Compression libraries are based on:
 - `LZO <http://www.oberhumer.com/opensource/lzo/>`__
 - `QuickLZ <http://www.quicklz.com/>`__
-- `LZ4 <http://code.google.com/p/lz4/>`__
+- `LZ4/LZ4HC <http://code.google.com/p/lz4/>`__
 - `ZLIB <http://www.zlib.net/>`__
 - `UCL <http://www.oberhumer.com/opensource/ucl/>`__
 - `XZ Utils <http://tukaani.org/xz/>`__
@@ -779,6 +779,10 @@ doc [[
 
 **lz4.decompress(data)** decompresses `data` with LZ4 and returns the decompressed string.
 
+**lz4hc.compress(data)** compresses `data` with LZ4HC and returns the compressed string.
+
+**lz4hc.decompress(data)** decompresses `data` with LZ4HC and returns the decompressed string.
+
 **zlib.compress(data)** compresses `data` with ZLIB and returns the compressed string.
 
 **zlib.decompress(data)** decompresses `data` with ZLIB and returns the decompressed string.
@@ -796,7 +800,7 @@ if z then
     local a = "This is a test string"
     local b = "And this is another test string"
     local big = string.rep("a lot of bytes; ", 100000)
-    local libs = {"z", "minilzo", "lzo", "qlz", "lz4", "zlib", "ucl", "lzma"}
+    local libs = {"z", "minilzo", "lzo", "qlz", "lz4", "lz4hc", "zlib", "ucl", "lzma"}
     for name in iter(libs) do
         local lib = _G[name]
         if lib then

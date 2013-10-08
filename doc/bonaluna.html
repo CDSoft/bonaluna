@@ -374,9 +374,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.3.0.tgz">http://cdsoft.fr/bl/bonaluna-2.3.0.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.3.1.tgz">http://cdsoft.fr/bl/bonaluna-2.3.1.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.3.0</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.3.1</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -612,7 +612,7 @@ Both lpeg and re modules are loaded when Bonaluna is started.</p>
 <p>Compression libraries are based on:
 - <a class="reference external" href="http://www.oberhumer.com/opensource/lzo/">LZO</a>
 - <a class="reference external" href="http://www.quicklz.com/">QuickLZ</a>
-- <a class="reference external" href="http://code.google.com/p/lz4/">LZ4</a>
+- <a class="reference external" href="http://code.google.com/p/lz4/">LZ4/LZ4HC</a>
 - <a class="reference external" href="http://www.zlib.net/">ZLIB</a>
 - <a class="reference external" href="http://www.oberhumer.com/opensource/ucl/">UCL</a>
 - <a class="reference external" href="http://tukaani.org/xz/">XZ Utils</a></p>
@@ -630,6 +630,8 @@ but you can change it in <cite>setup</cite>.</p>
 <p><strong>qlz.decompress(data)</strong> decompresses <cite>data</cite> with QLZ and returns the decompressed string.</p>
 <p><strong>lz4.compress(data)</strong> compresses <cite>data</cite> with LZ4 and returns the compressed string.</p>
 <p><strong>lz4.decompress(data)</strong> decompresses <cite>data</cite> with LZ4 and returns the decompressed string.</p>
+<p><strong>lz4hc.compress(data)</strong> compresses <cite>data</cite> with LZ4HC and returns the compressed string.</p>
+<p><strong>lz4hc.decompress(data)</strong> decompresses <cite>data</cite> with LZ4HC and returns the decompressed string.</p>
 <p><strong>zlib.compress(data)</strong> compresses <cite>data</cite> with ZLIB and returns the compressed string.</p>
 <p><strong>zlib.decompress(data)</strong> decompresses <cite>data</cite> with ZLIB and returns the decompressed string.</p>
 <p><strong>ucl.compress(data)</strong> compresses <cite>data</cite> with UCL and returns the compressed string.</p>

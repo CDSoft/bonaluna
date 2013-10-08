@@ -62,6 +62,7 @@ Freely available under the terms of the Lua license.
 #endif
 #ifdef USE_LZ4
 #include "lz4.c"
+#include "lz4hc.c"
 #endif
 #include "bonaluna.c"
 #include "struct.c"
