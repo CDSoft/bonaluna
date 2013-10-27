@@ -54,7 +54,8 @@ do
             end
         else
             local bits_per_digit = math.log(base, 2)
-            for i = 1, bits/bits_per_digit do
+            n = bc.mod(n, bc_two ^ bits)
+            for i = 1, math.ceil(bits/bits_per_digit) do
                 n, d = bc.divmod(n, base)
                 s = hexdigits[bc.tonumber(d)] .. s
             end
