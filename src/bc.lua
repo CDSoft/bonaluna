@@ -33,17 +33,28 @@ do
         return s
     end
 
-    local function num2str(n, base)
+    local function num2str(n, base, bits)
         local sign
         n = bc.trunc(n)
         if base == nil then base = 10 end
+        if bits ~= nil then
+            n = bc.mod(n, bc_two ^ bits)
+        end
         if bc.isneg(n) then sign = "- "; n = -n else sign = "" end
         local s = ""
         local d
-        if bc.iszero(n) then
-            s = "0"
+        if bits == nil then
+            if bc.iszero(n) then
+                s = "0"
+            else
+                while not bc.iszero(n) do
+                    n, d = bc.divmod(n, base)
+                    s = hexdigits[bc.tonumber(d)] .. s
+                end
+            end
         else
-            while not bc.iszero(n) do
+            local bits_per_digit = math.log(base, 2)
+            for i = 1, bits/bits_per_digit do
                 n, d = bc.divmod(n, base)
                 s = hexdigits[bc.tonumber(d)] .. s
             end
@@ -51,10 +62,11 @@ do
         local prefix
         if base == 16 then
             prefix = "0x "
-            s = groupby(s, 4)
+            if not bits or bits > 8 then s = groupby(s, 4) end
         elseif base == 10 then
             prefix = " "
             s = groupby(s, 3)
+            s = s:gsub("^(0+)(.)", "%2") -- remove leadding zeros
         elseif base == 8 and s ~= "0" then
             prefix = "0o "
         elseif base == 2 then
@@ -91,10 +103,10 @@ do
         return bc_number(x)
     end
 
-    function bc.hex(x) return num2str(x, 16) end
-    function bc.dec(x) return num2str(x, 10) end
-    function bc.oct(x) return num2str(x, 8) end
-    function bc.bin(x) return num2str(x, 2) end
+    function bc.hex(x, bits) return num2str(x, 16, bits) end
+    function bc.dec(x, bits) return num2str(x, 10, bits) end
+    function bc.oct(x, bits) return num2str(x, 8, bits) end
+    function bc.bin(x, bits) return num2str(x, 2, bits) end
 
     function bc.tostring(x)
         local s = bc_tostring(x)
@@ -105,70 +117,86 @@ do
     -- bit wise operations
 
     function bc.bnot(x, bits)
-        if x:isneg() then error("bc.bnot can not use negative numbers") end
-        local b = bc_two ^ bits
-        x = x % b
-        return (b-1-x) % b
+        --if x:isneg() then error("bc.bnot can not use negative numbers") end
+        if bits == nil then
+            return -x-1
+        else
+            local b = bc_two ^ bits
+            x = x % b
+            return (b-1-x) % b
+        end
     end
 
-    function bc.band(x, y)
-        if x:isneg() or y:isneg() then error("bc.band can not use negative numbers") end
+    function bc.band(x, y, bits)
+        --if x:isneg() or y:isneg() then error("bc.band can not use negative numbers") end
         local z = bc_zero
         local i = 0
         local b = bc_two_pow_32
+        local nb_32bit = (bits ~= nil) and bits/32 or 1e308
         x = bc.trunc(x)
         y = bc.trunc(y)
-        while not x:iszero() and not bc.iszero(y) do
+        while not x:iszero() and not bc.iszero(y) and (i <= nb_32bit) do
             local xd, yd
             x, xd = bc.divmod(x, b)
             y, yd = bc.divmod(y, b)
             z = z + bit32.band(bc.tonumber(xd), bc.tonumber(yd))*(b^i)
             i = i + 1
         end
+        if bits ~= nil then
+            z = bc.mod(z, bc_two ^ bits)
+        end
         return z
     end
 
-    function bc.bor(x, y)
-        if x:isneg() or y:isneg() then error("bc.bor can not use negative numbers") end
+    function bc.bor(x, y, bits)
+        --if x:isneg() or y:isneg() then error("bc.bor can not use negative numbers") end
         local z = bc_zero
         local i = 0
         local b = bc_two_pow_32
+        local nb_32bit = (bits ~= nil) and bits/32 or 1e308
         x = bc.trunc(x)
         y = bc.trunc(y)
-        while not x:iszero() or not bc.iszero(y) do
+        while not x:iszero() or not bc.iszero(y) and (i <= nb_32bit) do
             local xd, yd
             x, xd = bc.divmod(x, b)
             y, yd = bc.divmod(y, b)
             z = z + bit32.bor(bc.tonumber(xd), bc.tonumber(yd))*(b^i)
             i = i + 1
         end
+        if bits ~= nil then
+            z = bc.mod(z, bc_two ^ bits)
+        end
         return z
     end
 
-    function bc.bxor(x, y)
-        if x:isneg() or y:isneg() then error("bc.bxor can not use negative numbers") end
+    function bc.bxor(x, y, bits)
+        --if x:isneg() or y:isneg() then error("bc.bxor can not use negative numbers") end
         local z = bc_zero
         local i = 0
         local b = bc_two_pow_32
+        local nb_32bit = (bits ~= nil) and bits/32 or 1e308
         x = bc.trunc(x)
         y = bc.trunc(y)
-        while not x:iszero() or not bc.iszero(y) do
+        while not x:iszero() or not bc.iszero(y) and (i <= nb_32bit) do
             local xd, yd
             x, xd = bc.divmod(x, b)
             y, yd = bc.divmod(y, b)
             z = z + bit32.bxor(bc.tonumber(xd), bc.tonumber(yd))*(b^i)
             i = i + 1
         end
+        if bits ~= nil then
+            z = bc.mod(z, bc_two ^ bits)
+        end
         return z
     end
 
-    function bc.btest(x, y)
-        if x:isneg() or y:isneg() then error("bc.btest can not use negative numbers") end
-        return not bc.band(x, y):iszero()
+    function bc.btest(x, y, bits)
+        --if x:isneg() or y:isneg() then error("bc.btest can not use negative numbers") end
+        return not bc.band(x, y, bits):iszero()
     end
 
     function bc.extract(x, field, width)
-        if x:isneg() then error("bc.extract can not use negative numbers") end
+        --if x:isneg() then error("bc.extract can not use negative numbers") end
         x = bc.trunc(x)
         if width == nil then width = 1 end
         local shift = bc_two ^ field
@@ -177,7 +205,7 @@ do
     end
 
     function bc.replace(x, v, field, width)
-        if x:isneg() then error("bc.replace can not use negative numbers") end
+        --if x:isneg() then error("bc.replace can not use negative numbers") end
         x = bc.trunc(x)
         if width == nil then width = 1 end
         local shift = bc_two ^ field
@@ -186,14 +214,14 @@ do
     end
 
     function bc.lshift(x, disp)
-        if x:isneg() then error("bc.lshift can not use negative numbers") end
+        --if x:isneg() then error("bc.lshift can not use negative numbers") end
         if disp < 0 then return bc.rshift(x, -disp) end
         x = bc.trunc(x)
         return x * bc_two^disp
     end
 
     function bc.rshift(x, disp)
-        if x:isneg() then error("bc.rshift can not use negative numbers") end
+        --if x:isneg() then error("bc.rshift can not use negative numbers") end
         if disp < 0 then return bc.lshift(x, -disp) end
         x = bc.trunc(x)
         return bc.trunc(x / bc_two^disp)
