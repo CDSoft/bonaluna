@@ -10,6 +10,9 @@ Freely available under the terms of the Lua license.
 
 --]]
 
+-- bc : arbitrary precision library for Lua based on GNU bc
+-- m : artibtrary precision integers and Lua floatting point numbers mixed in a single package
+
 do
 
     bc.digits(20)
@@ -341,6 +344,257 @@ do
 
     bc.__div = bc.div
     bc.__mod = bc.mod
+
+end
+
+do
+    -- m.Num is a numeric object holding either a bc integer for a Lua float
+    -- m also redefines math fonctions
+
+    m = {}
+
+    local meta = {}
+
+    function m.Float(n)
+        if type(n) == "table" and n.float then return n end
+        local self
+        if type(n) == "table" and n.int then self = {float = bc.tonumber(n.int)}
+        else self = {float = tonumber(n) or bc.tonumber(n)}
+        end
+        function self.toint() return m.Int(self.float) end
+        function self.tofloat() return self end
+        function self.tonumber() return self.float end
+        assert(self.int or self.float)
+        return setmetatable(self, meta)
+    end
+
+    function m.Int(n)
+        if type(n) == "table" and n.int then return n end
+        local self
+        bc.digits(0)
+        if type(n) == "table" and n.float then self = {int = bc.number(n.float)}
+        else self = {int = bc.number(n)}
+        end
+        function self.toint() return self end
+        function self.tofloat() return m.Float(self.int) end
+        function self.tonumber() return bc.tonumber(self.int) end
+        assert(self.int or self.float)
+        return setmetatable(self, meta)
+    end
+
+    function m.Num(n)
+        if type(n) == "table" and (n.int or n.float) then
+            -- already a m.Num object
+            return n
+        end
+        local self
+        if type(n) == "number" then
+            if math.floor(n) == math.ceil(n) and math.abs(n) < 2^53 then
+                -- a float representing an integer
+                self = m.Int(n)
+            else
+                self = m.Float(n)
+            end
+        else
+            bc.digits(0)
+            local int = bc.number(n)
+            local float = tonumber(n)
+            if float == nil or int == float then
+                -- can be an integer
+                self = m.Int(int)
+            else
+                -- not an integer
+                self = m.Float(float)
+            end
+        end
+
+        return self
+    end
+
+    function meta.__tostring(n)
+        return n.int and bc.tostring(n.int) or tostring(n.float)
+    end
+
+    function m.tonumber(n)
+        if type(n) == "number" then return n end
+        return n.tonumber()
+    end
+
+    local function _op1(op)
+        return function(a)
+            a = m.Num(a)
+            if a.int then
+                return m.Int(op(a.int))
+            else
+                return m.Float(op(a.float))
+            end
+        end
+    end
+
+    local function _op2(op)
+        return function(a, b)
+            a = m.Num(a)
+            b = m.Num(b)
+            if a.int and b.int then
+                return m.Int(op(a.int, b.int))
+            else
+                return m.Float(op(a.tofloat().float, b.tofloat().float))
+            end
+        end
+    end
+
+    local function _boolop2(op)
+        return function(a, b)
+            a = m.Num(a)
+            b = m.Num(b)
+            return op(a.int or a.float, b.int or b.float)
+        end
+    end
+
+    meta.__add = _op2(function(a, b) return a+b end)
+    meta.__sub = _op2(function(a, b) return a-b end)
+    meta.__mul = _op2(function(a, b) return a*b end)
+    function meta.__div(a, b)
+        a = m.Num(a)
+        b = m.Num(b)
+        if a.int and b.int then
+            local q, r = bc.divmod(a.int, b.int)
+            if r==0 then
+                return m.Int(q)
+            else
+                return m.Float(a.int/b.int)
+            end
+        else
+            return m.Float(a.tonumber() / b.tonumber())
+        end
+    end
+    function meta.__pow(a, b)
+        a = m.Num(a)
+        b = m.Num(b)
+        if a.int and b.int and b.int >= 0 then
+            return m.Int(a.int ^ b.int)
+        else
+            return m.Float(a.tonumber() ^ b.tonumber())
+        end
+    end
+    meta.__unm = _op1(function(a) return -a end)
+
+    meta.__eq = _boolop2(function(a, b) return a == b end)
+    meta.__lt = _boolop2(function(a, b) return a < b end)
+    meta.__le = _boolop2(function(a, b) return a <= b end)
+
+    local function _f1(f)
+        local bc_f = bc[f]
+        local math_f = math[f]
+        return function(x)
+            x = m.Num(x)
+            if x.int then
+                return m.Int(bc_f(x.int))
+            else
+                return m.Float(math_f(x.float))
+            end
+        end
+    end
+
+    local function _f1_float_float(f)
+        local math_f = math[f]
+        return function(x)
+            x = m.tonumber(x)
+            return m.Float(math_f(x))
+        end
+    end
+
+    local function _f2_float_float_float(f)
+        local math_f = math[f]
+        return function(x, y)
+            x = m.tonumber(x)
+            y = y and m.tonumber(y)
+            return m.Float(math_f(x, y))
+        end
+    end
+
+    m.abs = _f1("abs")
+    m.acos = _f1_float_float("acos")
+    m.asin = _f1_float_float("asin")
+    m.atan = _f1_float_float("atan")
+    m.atan2 = _f2_float_float_float("atan2")
+    function m.ceil(x) x = m.Num(x); return x.int and x or m.Int(math.ceil(x.float)) end
+    m.cos = _f1_float_float("cos")
+    m.cosh = _f1_float_float("cosh")
+    m.deg = _f1_float_float("deg")
+    m.exp = _f1_float_float("exp")
+    function m.floor(x) x = m.Num(x); return x.int and x or m.Int(math.floor(x.float)) end
+    m.fmod = _f2_float_float_float("fmod")
+    function m.frexp(x) x = m.Num(x); local mant, exp = math.frexp(x.tofloat().float); return m.Float(mant), m.Int(exp) end
+    m.huge = m.Num(math.huge)
+    m.ldexp = _f2_float_float_float("ldexp")
+    m.log = _f2_float_float_float("log")
+    function m.max(x, ...)
+        for i, y in ipairs({...}) do
+            if y > x then
+                x = y
+            end
+        end
+        return x
+    end
+    function m.min(x, ...)
+        for i, y in ipairs({...}) do
+            if y < x then
+                x = y
+            end
+        end
+        return x
+    end
+    function m.modf(x)
+        x = m.Num(x)
+        if x.int then
+            return x, m.Num(0)
+        else
+            local i, f = math.modf(x.float)
+            return m.Int(i), m.Float(f)
+        end
+    end
+    m.pi = m.Num(math.pi)
+    m.pow = meta.__pow
+    m.rad = _f1_float_float("rad")
+    function m.random(x, y)
+        if not x then return m.Float(math.random()) end
+        x = m.Int(x).tonumber()
+        if not y then return m.Int(math.random(x)) end
+        y = m.Int(y).tonumber()
+        return m.Int(math.random(x, y))
+    end
+    function m.randomseed(x)
+        x = m.tonumber(x)
+        math.randomseed(x)
+    end
+    m.sin = _f1_float_float("sin")
+    m.sinh = _f1_float_float("sinh")
+    m.sqrt = _f1_float_float("sqrt")
+    m.tan = _f1_float_float("tan")
+    m.tanh = _f1_float_float("tanh")
+
+    function m.hex(x, bits) x = m.Num(x); return bc.hex(x.int, bits) end
+    function m.dec(x, bits) x = m.Num(x); return bc.dec(x.int, bits) end
+    function m.oct(x, bits) x = m.Num(x); return bc.oct(x.int, bits) end
+    function m.bin(x, bits) x = m.Num(x); return bc.bin(x.int, bits) end
+
+    function m.bnot(x, bits) return m.Int(bc.bnot(m.Int(x).int, bits)) end
+    function m.band(x, y, bits) return m.Int(bc.band(m.Int(x).int, m.Int(y).int, bits)) end
+    function m.bor(x, y, bits) return m.Int(bc.bor(m.Int(x).int, m.Int(y).int, bits)) end
+    function m.bxor(x, y, bits) return m.Int(bc.bxor(m.Int(x).int, m.Int(y).int, bits)) end
+    function m.btest(x, y, bits) return bc.btest(m.Int(x).int, m.Int(y).int, bits) end
+    function m.extract(x, field, width) return m.Int(bc.extract(m.Int(x).int, m.Int(field).int, m.Int(width).int)) end
+    function m.replace(x, v, field, width) return m.Int(bc.replace(m.Int(x).int, m.Int(v).int, m.Int(field).int, m.Int(width).int)) end
+    function m.lshift(x, disp) return m.Int(bc.lshift(m.Int(x).int, disp)) end
+    function m.rshift(x, disp) return m.Int(bc.rshift(m.Int(x).int, disp)) end
+
+    function m.div(x, y) return m.Int(bc.div(m.Int(x).int, m.Int(y).int)) end
+    function m.mod(x, y) return m.Int(bc.div(m.Int(x).int, m.Int(y).int)) end
+    function m.divmod(x, y)
+        local q, r = bc.divmod(m.Int(x).int, m.Int(y).int)
+        return m.Int(q), m.Int(r)
+    end
 
 end
 

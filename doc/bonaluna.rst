@@ -34,9 +34,9 @@
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.3.2.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.3.3.tgz
 
-:Version: 2.3.2
+:Version: 2.3.3
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -100,8 +100,8 @@ Example::
 
 .. [#] See `Object Orientation Closure Approach <http://lua-users.org/wiki/ObjectOrientationClosureApproach>`__.
 
-bc: arbitrary precision library for Lua based on GNU bc
--------------------------------------------------------
+bc, m: arbitrary precision library for Lua based on GNU bc
+----------------------------------------------------------
 
 lbc is a public domain package written by Luiz Henrique de Figueiredo and available at 
 `Libraries and tools for Lua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc>`__
@@ -161,8 +161,61 @@ Functions added by BonaLuna
 Math and bitwise operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Functions of the math and bit32 modules also exists in the bc module.
-These functions produce bc numbers but works internally with Lua numbers.
+Functions of the math and bit32 modules also exist in the bc module.
+These functions produce bc numbers but work internally with Lua numbers.
+Do not expect these functions to be precise.
+
+m package
+~~~~~~~~~
+
+The m package extends the bc package by mixing arbitrary precision integer (bc)
+and Lua numbers (float). It produces bc integers when possible and Lua numbers
+otherwise.
+
+
+bn: arbitrary precision library for Lua written in pure Lua
+-----------------------------------------------------------
+
+basic bn functions
+~~~~~~~~~~~~~~~~~~
+
+**bn.Int(x)** builds a big integer from a Lua number, a string or a big number
+
+**bn.Rat(x)** builds a big rational from a Lua number, a string or a big number
+
+**bn.Float(x)** builds a float from a Lua number, a string or a big number
+
+**bn.tonumber(x)** converts a big number to a Lua number
+
+**bn.tostring(x, base, bits), __tostring(x)** converts a big number to a string
+
+**__unm(x)** returns ``-x``
+
+**__add(x,y)** returns ``x+y``
+
+**__sub(x,y)** returns ``x-y``
+
+**__mul(x,y)** returns ``x*y``
+
+**__div(x,y)** returns ``x/y``
+
+**__mod(x,y)** return ``x mod y``
+
+**bn.divmod(x,y)** returns ``[x/y], x mod y``
+
+**__pow(x,y)** returns ``x**y``
+
+**__eq(x,y), __lt(x,y)** compares x and y
+
+**x:iszero()** is true if x == 0
+
+**x:isone()** is true if x == 1
+
+Math and bitwise operators
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Functions of the math and bit32 modules also exist in the bn module.
+These functions produce bn numbers but may work internally with Lua numbers.
 Do not expect these functions to be precise.
 
 

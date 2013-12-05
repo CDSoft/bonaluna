@@ -213,8 +213,8 @@ Example::
 ]]
 
 doc [[
-bc: arbitrary precision library for Lua based on GNU bc
--------------------------------------------------------
+bc, m: arbitrary precision library for Lua based on GNU bc
+----------------------------------------------------------
 
 lbc is a public domain package written by Luiz Henrique de Figueiredo and available at 
 `Libraries and tools for Lua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc>`__
@@ -274,9 +274,16 @@ Functions added by BonaLuna
 Math and bitwise operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Functions of the math and bit32 modules also exists in the bc module.
-These functions produce bc numbers but works internally with Lua numbers.
+Functions of the math and bit32 modules also exist in the bc module.
+These functions produce bc numbers but work internally with Lua numbers.
 Do not expect these functions to be precise.
+
+m package
+~~~~~~~~~
+
+The m package extends the bc package by mixing arbitrary precision integer (bc)
+and Lua numbers (float). It produces bc integers when possible and Lua numbers
+otherwise.
 
 ]]
 
@@ -305,6 +312,255 @@ if bc then
     assert(bc.hex(bc.lshift(bc.number("0x12345678"), -8)) == "0x 0012 3456")
     assert(bc.hex(bc.rshift(bc.number("0x12345678"), 8)) == "0x 0012 3456")
     assert(bc.hex(bc.rshift(bc.number("0x12345678"), -8)) == "0x 0012 3456 7800")
+end
+
+if m then
+    local pi = m.Float(math.pi)
+    assert(tostring(pi) == "3.1415926535898")
+    assert(pi.tonumber() == math.pi)
+    --[[
+print("pi", pi)
+
+a = m.Int(42)
+print("a", a, m.hex(a, 16), m.dec(a), m.oct(a, 32), m.bin(a, 8))
+
+print("a+1", a+1, "a+0.1", a+0.1)
+print("pi+1", pi+1, "pi+0.1", pi+0.1)
+print("a-1", a-1, "a-0.1", a-0.1)
+print("pi-1", pi-1, "pi-0.1", pi-0.1)
+print("a*2", a*2, "a*0.5", (a*0.5).float)
+print("pi*2", pi*2, "pi*0.5", pi*0.5)
+print("a/2", a/2, "a/5", a/5)
+print("pi/2", pi/2, "pi/5", pi/5)
+print("a^2", a^2, "a^-1", a^-1, "a^0.5", a^0.5)
+print("-a", -a, "-pi", -pi)
+print("a==a", a==a, "pi==pi", pi==pi, "a<pi", a<pi, "a>pi", a>pi)
+print("abs(a)", m.abs(a), "abs(pi)", m.abs(pi))
+print("abs(-a)", m.abs(-a), "abs(-pi)", m.abs(-pi))
+print("sin(pi)", m.sin(pi))
+print("cos(pi)", m.cos(pi))
+print("floor(pi)", m.floor(pi), "ceil(pi)", m.ceil(pi))
+print("fmod(10.6, 0.3)", m.fmod(10.6, 0.3))
+print("frexp(1234.5678)", m.frexp(1234.5678))
+print("huge", m.huge)
+print("ldexp(0.25, -1)", m.ldexp(0.25, -1))
+print("log(1000)", m.log(1000), "log(1000, 10)", m.log(1000, 10))
+print("max(pi, a)", m.max(pi, a))
+print("min(pi, a)", m.min(pi, a))
+print("modf(pi)", m.modf(pi))
+print("pi", m.pi)
+m.randomseed(12.6)
+print("random()", m.random(), "random(10)", m.random(10), "random(10, 100)", m.random(10, 100))
+
+A = 0x0FF0
+B = 0x1234
+print("not A", m.hex(m.bnot(A, 16)))
+print("A and B", m.hex(m.band(A, B, 16)))
+print("A or B", m.hex(m.bor(A, B, 16)))
+print("A xor B", m.hex(m.bxor(A, B, 16)))
+print("A btest B", m.btest(A, B, 16))
+print("A btest ~A", m.btest(A, m.bnot(A, 16), 16))
+print("extract(B, 4, 8)", m.hex(m.extract(B, 4, 8)))
+print("replace(B, 0xAB, 4, 8)", m.hex(m.replace(B, 0xAB, 4, 8)))
+print("lshift(B, 4)", m.hex(m.lshift(B, 4)), "lshift(B, -4)", m.hex(m.lshift(B, -4)))
+print("rshift(B, -4)", m.hex(m.rshift(B, -4)), "rshift(B, 4)", m.hex(m.rshift(B, 4)))
+
+print("div(10, 3)", m.div(10, 3), "mod(10, 3)", m.mod(10, 3))
+print("divmod(10, 3)", m.divmod(10, 3))
+    --]]
+end
+
+doc [[
+bn: arbitrary precision library for Lua written in pure Lua
+-----------------------------------------------------------
+
+basic bn functions
+~~~~~~~~~~~~~~~~~~
+
+**bn.Int(x)** builds a big integer from a Lua number, a string or a big number
+
+**bn.Rat(x)** builds a big rational from a Lua number, a string or a big number
+
+**bn.Float(x)** builds a float from a Lua number, a string or a big number
+
+**bn.tonumber(x)** converts a big number to a Lua number
+
+**bn.tostring(x, base, bits), __tostring(x)** converts a big number to a string
+
+**__unm(x)** returns ``-x``
+
+**__add(x,y)** returns ``x+y``
+
+**__sub(x,y)** returns ``x-y``
+
+**__mul(x,y)** returns ``x*y``
+
+**__div(x,y)** returns ``x/y``
+
+**__mod(x,y)** return ``x mod y``
+
+**bn.divmod(x,y)** returns ``[x/y], x mod y``
+
+**__pow(x,y)** returns ``x**y``
+
+**__eq(x,y), __lt(x,y)** compares x and y
+
+**x:iszero()** is true if x == 0
+
+**x:isone()** is true if x == 1
+
+Math and bitwise operators
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Functions of the math and bit32 modules also exist in the bn module.
+These functions produce bn numbers but may work internally with Lua numbers.
+Do not expect these functions to be precise.
+
+]]
+
+if bn then
+
+    local x = bn.Int("0123456789012345678901234567890123456789")
+    local y = bn.Int("9999999999999999999999999999999999999999")
+
+    assert(x:tostring() == "123 456 789 012 345 678 901 234 567 890 123 456 789")
+    assert((-x):tostring() == "-123 456 789 012 345 678 901 234 567 890 123 456 789")
+
+    assert(bn.dec(x) == "123 456 789 012 345 678 901 234 567 890 123 456 789")
+    assert(bn.dec(-x) == "-123 456 789 012 345 678 901 234 567 890 123 456 789")
+    assert(bn.hex(x) == "0x 5CE0 E9A5 6015 FEC5 AADF A328 AE39 8115")
+    assert(bn.hex(-x) == "-0x 5CE0 E9A5 6015 FEC5 AADF A328 AE39 8115")
+    assert(bn.oct(x) == "0o 1347016464530012776613253375062425616300425")
+    assert(bn.oct(-x) == "-0o 1347016464530012776613253375062425616300425")
+    assert(bn.bin(x) == "0b 101 1100 1110 0000 1110 1001 1010 0101 0110 0000 0001 0101 1111 1110 1100 0101 1010 1010 1101 1111 1010 0011 0010 1000 1010 1110 0011 1001 1000 0001 0001 0101")
+    assert(bn.bin(-x) == "-0b 101 1100 1110 0000 1110 1001 1010 0101 0110 0000 0001 0101 1111 1110 1100 0101 1010 1010 1101 1111 1010 0011 0010 1000 1010 1110 0011 1001 1000 0001 0001 0101")
+
+    assert(bn.dec(x, 96) == "029 737 151 512 469 004 522 285 007 125")
+    assert(bn.dec(-x, 96) == "049 491 011 001 795 333 071 258 943 211")
+    assert(bn.hex(x, 96) == "0x 6015 FEC5 AADF A328 AE39 8115")
+    assert(bn.hex(-x, 96) == "0x 9FEA 013A 5520 5CD7 51C6 7EEB")
+    assert(bn.oct(x, 96) == "0o 30012776613253375062425616300425")
+    assert(bn.oct(-x, 96) == "0o 47765001164524402715352161477353")
+    assert(bn.bin(x, 96) == "0b 0110 0000 0001 0101 1111 1110 1100 0101 1010 1010 1101 1111 1010 0011 0010 1000 1010 1110 0011 1001 1000 0001 0001 0101")
+    assert(bn.bin(-x, 96) == "0b 1001 1111 1110 1010 0000 0001 0011 1010 0101 0101 0010 0000 0101 1100 1101 0111 0101 0001 1100 0110 0111 1110 1110 1011")
+
+    assert(x:tonumber() == 0123456789012345678901234567890123456789)
+    assert(x:toInt() == bn.Int(x) and x:toInt() == x)
+    assert(x:toRat() == x)
+    assert(x:toFloat() == bn.Float(0123456789012345678901234567890123456789))
+
+    assert(x+y == bn.Int("10123456789012345678901234567890123456788"))
+    assert(x+(-y) == bn.Int("-9876543210987654321098765432109876543210"))
+    assert((-x)+y == bn.Int("9876543210987654321098765432109876543210"))
+    assert((-x)+(-y) == bn.Int("-10123456789012345678901234567890123456788"))
+    assert(x + bn.Rat(1,2) == bn.Rat("246913578024691357802469135780246913579", 2))
+    assert(bn.Int(4) + bn.Float(0.1) == bn.Float(4.1))
+
+    assert(x-y == bn.Int("-9876543210987654321098765432109876543210"))
+    assert(x-(-y) == bn.Int("10123456789012345678901234567890123456788"))
+    assert((-x)-y == bn.Int("-10123456789012345678901234567890123456788"))
+    assert((-x)-(-y) == bn.Int("9876543210987654321098765432109876543210"))
+    assert(x - bn.Rat(1,2) == bn.Rat("246913578024691357802469135780246913577", 2))
+    assert(bn.Int(4) - bn.Float(0.1) == bn.Float(3.9))
+
+    assert(x*y == bn.Int("1234567890123456789012345678901234567889876543210987654321098765432109876543211"))
+    assert(x*(-y) == bn.Int("-1234567890123456789012345678901234567889876543210987654321098765432109876543211"))
+    assert((-x)*y == bn.Int("-1234567890123456789012345678901234567889876543210987654321098765432109876543211"))
+    assert((-x)*(-y) == bn.Int("1234567890123456789012345678901234567889876543210987654321098765432109876543211"))
+    assert(x * bn.Rat(1,2) == bn.Rat(x, 2))
+    assert(bn.Int(4) * bn.Float(0.1) == bn.Float(0.4))
+
+    local q, r = bn.divmod(x, y); assert(q == bn.Int("0") and r == x)
+    local q, r = bn.divmod(-x, y); assert(q == bn.Int("-1") and r == y-x)
+    local q, r = bn.divmod(x, -y); assert(q == bn.Int("-1") and r == y-x)
+    local q, r = bn.divmod(-x, -y); assert(q == bn.Int("0") and r == x)
+
+    local q, r = bn.divmod(y, x); assert(q == bn.Int("81") and r == bn.Int("90000000009000000000900000000090"))
+    local q, r = bn.divmod(-y, x); assert(q == bn.Int("-82") and r == bn.Int("123456699012345669901234566990123456699"))
+    local q, r = bn.divmod(y, -x); assert(q == bn.Int("-82") and r == bn.Int("123456699012345669901234566990123456699"))
+    local q, r = bn.divmod(-y, -x); assert(q == bn.Int("81") and r == bn.Int("90000000009000000000900000000090"))
+
+    assert(x/y == bn.Rat("13717421", "1111111111"))
+    assert(x/(-y) == -bn.Rat("13717421", "1111111111"))
+    assert((-x)/y == -bn.Rat("13717421", "1111111111"))
+    assert((-x)/(-y) == bn.Rat("13717421", "1111111111"))
+
+    assert(y/x == bn.Rat("1111111111", "13717421"))
+    assert(y/(-x) == bn.Rat("-1111111111", "13717421"))
+    assert((-y)/x == bn.Rat("-1111111111", "13717421"))
+    assert((-y)/(-x) == bn.Rat("1111111111", "13717421"))
+
+    assert(x / bn.Rat(1,2) == bn.Int(x) * bn.Int(2))
+    assert(bn.Int(4) / bn.Float(0.1) == bn.Float(40))
+
+    assert((x*y)/y == x)
+    assert((-x*y)/y == -x)
+    assert((x*y)/-y == -x)
+    assert((-x*y)/-y == x)
+
+    assert(x^bn.Int("17") == x*x*x*x*x*x*x*x*x*x*x*x*x*x*x*x*x)
+    assert(x^bn.Int("1") == x)
+    assert(x^bn.Int("0") == bn.one)
+    assert(x^bn.Int("-2") == bn.Rat(1, x*x))
+    assert(bn.tonumber(x^bn.Rat(1,2)) == x:tonumber()^0.5)
+    assert(bn.Int(4) ^ bn.Float(0.1) == bn.Float(4^0.1))
+
+    assert(x==x) assert(x~=y)
+    assert(x<=x) assert(x<=y) assert(x>=x) assert(y>=x)
+    assert(x<y) assert(y>x)
+    assert(not (x>=y)) assert(not (x>y))
+
+    assert(x == bn.Rat(bn.Int(2)*x, 2)) assert(x ~= bn.Rat(bn.Int(2)*x, 3))
+    assert(x <= bn.Rat(bn.Int(2)*x, 2)) assert(x <= bn.Rat(bn.Int(2)*x+bn.one, 2))
+    assert(x >= bn.Rat(bn.Int(2)*x, 2)) assert(x >= bn.Rat(bn.Int(2)*x-bn.one, 2))
+    assert(x < bn.Rat(bn.Int(2)*x+bn.one, 2)) assert(x > bn.Rat(bn.Int(2)*x-bn.one, 2))
+    assert(not(x > bn.Rat(bn.Int(2)*x, 2))) assert(not(x < bn.Rat(bn.Int(2)*x, 2)))
+
+    assert(bn.Int(4) == bn.Float(4)) assert(bn.Int(4) ~= bn.Float(4.01))
+    assert(bn.Int(4) <= bn.Float(4)) assert(bn.Int(4) < bn.Float(4.01))
+    assert(bn.Int(4) >= bn.Float(4)) assert(bn.Int(4) > bn.Float(3.99))
+
+    assert(bn.Rat(x, y):tostring() == "13 717 421 / 1 111 111 111")
+    assert(bn.Rat(x, -y):tostring() == "-13 717 421 / 1 111 111 111")
+    assert(bn.Rat(-x, y):tostring() == "-13 717 421 / 1 111 111 111")
+    assert(bn.Rat(-x, -y):tostring() == "13 717 421 / 1 111 111 111")
+    assert(bn.Rat(y, x):tostring() == "1 111 111 111 / 13 717 421")
+
+    assert(bn.Rat(x, y):tonumber() == 13717421/1111111111)
+    assert(bn.Rat(x, y):toInt() == bn.Int(13717421/1111111111))
+    assert(bn.Rat(x, y):toRat() == bn.Rat(x, y))
+    assert(bn.Rat(x, y):toFloat() == bn.Float(13717421/1111111111))
+
+    assert(bn.Rat(-x, y) == bn.Rat(x, -y))
+    assert(bn.Rat(-x, y) == -bn.Rat(x, y))
+
+    assert(bn.Rat(1, 2) + bn.Rat(3, 4) == bn.Rat(5, 4))
+    assert(bn.Rat(1, 2) - bn.Rat(3, 4) == bn.Rat(-1, 4))
+    assert(bn.Rat(1, 2) * bn.Rat(3, 4) == bn.Rat(3, 8))
+    assert(bn.Rat(1, 2) / bn.Rat(3, 4) == bn.Rat(4, 6))
+
+    assert(bn.Rat(1, 2) + bn.one == bn.Rat(3, 2))
+    assert(bn.Rat(1, 2) - bn.one == bn.Rat(-1, 2))
+    assert(bn.Rat(1, 2) * bn.Int(3) == bn.Rat(3, 2))
+    assert(bn.Rat(1, 2) / bn.Int(3) == bn.Rat(1, 6))
+
+    assert(bn.Rat(1, 2) + bn.Float(5.5) == bn.Float(0.5 + 5.5))
+    assert(bn.Rat(1, 2) - bn.Float(5.5) == bn.Float(0.5 - 5.5))
+    assert(bn.Rat(1, 2) * bn.Float(5.5) == bn.Float(0.5 * 5.5))
+    assert(bn.Rat(1, 2) / bn.Float(5.5) == bn.Float(0.5 / 5.5))
+
+    assert(bn.hex(bn.bnot(bn.Int("0xAA55 FFFF 0000"), 64), 64) == "0x FFFF 55AA 0000 FFFF")
+    assert(bn.hex(bn.band(bn.Int("0x12345678"), bn.Int("0x000F_F000")), 32) == "0x 0004 5000")
+    assert(bn.hex(bn.bor(bn.Int("0x12345678"), bn.Int("0x000F_F000")), 32) == "0x 123F F678")
+    assert(bn.hex(bn.bxor(bn.Int("0xAAAA5555"), bn.Int("0x00FF_FF00")), 32) == "0x AA55 AA55")
+    assert(bn.btest(bn.Int("0x12345678"), bn.Int("0x000F_F000")))
+    assert(not bn.btest(bn.Int("0x12300678"), bn.Int("0x000F_F000")))
+    assert(bn.hex(bn.extract(bn.Int("0x12345678"), 12, 8), 16) == "0x 0045")
+    assert(bn.hex(bn.replace(bn.Int("0x12345678"), bn.Int(0xFF), 12, 8)) == "0x 123F F678")
+    assert(bn.hex(bn.lshift(bn.Int("0x12345678"), 8), 48) == "0x 0012 3456 7800")
+    assert(bn.hex(bn.lshift(bn.Int("0x12345678"), -8), 32) == "0x 0012 3456")
+    assert(bn.hex(bn.rshift(bn.Int("0x12345678"), 8), 32) == "0x 0012 3456")
+    assert(bn.hex(bn.rshift(bn.Int("0x12345678"), -8), 48) == "0x 0012 3456 7800")
 end
 
 doc [[

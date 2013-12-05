@@ -76,7 +76,7 @@ mkdir -p $BUILD
 # Check configuration
 #####################
 
-for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET BC LPEG
+for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET BN BC LPEG
 do
     eval USE_$lib=false
 done
@@ -99,6 +99,7 @@ do
                             export PEGAR_CONF+=" lua:$SOCKET_SRC/http.lua=$TARGET/http.lua"
                             export PEGAR_CONF+=" lua:ftp.lua"
                             ;;
+        BN)                 export PEGAR_CONF+=" lua:bn.lua"; eval USE_$lib=true;;
         BC)                 export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true
                             export PEGAR_CONF+=" lua:bc.lua"
                             ;;
