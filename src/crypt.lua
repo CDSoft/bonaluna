@@ -1,4 +1,4 @@
---[[ BonaLuna cryptography librarie
+--[[ BonaLuna cryptography library
 
 Copyright (C) 2010-2013 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html

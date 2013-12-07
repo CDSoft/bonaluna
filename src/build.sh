@@ -310,7 +310,7 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
     /#define[ \t]*LUA_NUMBER_DOUBLE/ {
         print "// #define LUA_NUMBER_DOUBLE"
         next
-    =lpeg.lua}
+    }
     /#define[ \t]*LUA_NUMBER[ \t]*double/ {
         print "#define LUA_NUMBER long double"
         print "#define LUA_USELONGLONG"
