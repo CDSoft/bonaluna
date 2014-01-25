@@ -64,6 +64,7 @@ doc([[
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
+    | **ser**: `MIT license`
 :Download: http://cdsoft.fr/bl/bonaluna-]]..BONALUNA_VERSION..[[.tgz
 
 :Version: ]]..BONALUNA_VERSION..[[
@@ -148,6 +149,12 @@ do
     assert(L2[1] == L1[1])
     assert(L2[2] == L1[2])
     assert(L2[3] == L1[3])
+    L2 = {"c", "b", "a"}
+    L3 = list(sort(L2)) -- no side effect, L2 shall not be sorted
+    assert(L2[1] == "c" and L3[1] == "a")
+    assert(L2[2] == "b" and L3[2] == "b")
+    assert(L2[3] == "a" and L3[3] == "c")
+    assert(#L2 == 3 and #L3 == 3)
     -- map
     L2 = list(map(string.upper, L1))
     assert(#L2 == 3)
@@ -587,6 +594,14 @@ of the key (128 (default), 192 or 256), `mode` is the encryption/decryption
 mode ("cbc" (default) or "ecb").
 `crypt.AES` objects have two methods: `encrypt(data)` and `decrypt(data)`.
 
+**crypt.BTEA(password)** returns a BTEA codec
+(a tiny cipher with reasonable security and efficiency,
+see http://en.wikipedia.org/wiki/XXTEA).
+`password` is the encryption/decryption key (only the first 16 bytes are used).
+`crypt.BTEA` objects have two methods: `encrypt(data)` and `decrypt(data)`.
+BTEA encrypts 32-bit words so the length of data should be a multiple of 4
+(if not, BTEA will add null padding at the end of data).
+
 **crypt.random(bits)** returns a string with `bits` random bits.
 
 ]]
@@ -624,6 +639,15 @@ if crypt then
     end
     end
     end
+    -- btea
+    while #data % 4 ~= 0 do data = data.."." end
+    local btea = crypt.BTEA("my key")
+    local btea2 = crypt.BTEA("your key")
+    assert(btea.encrypt(data) ~= data)
+    assert(btea.decrypt(btea.encrypt(data)) == data)
+    assert(btea2.encrypt(data) ~= data)
+    assert(btea2.decrypt(btea2.encrypt(data)) == data)
+    assert(btea2.encrypt(data) ~= btea.encrypt(data))
     -- random
     for size in iter{0, 8, 64, 128} do
         local r1 = crypt.random(size)
@@ -699,7 +723,9 @@ doc [[
 function rm_rf(path)
     if fs.stat(path) then
         for name in reverse(fs.walk(path)) do
-            assert(fs.remove(name))
+            while fs.stat(name) do
+                assert(fs.remove(name))
+            end
         end
     end
 end
@@ -1013,7 +1039,7 @@ It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__
 
 Future versions of BonaLuna may remove or add some compression library.
 
-Currently, only zlib is used in the default BonaLuna distribution
+Currently, only LZ4 is used in the default BonaLuna distribution
 but you can change it in `setup`.
 ]]
 
@@ -1105,6 +1131,31 @@ and adapted for BonaLuna.
 **rl.add(line)** adds `line` to the readline history (Linux only).
 
 ]]
+
+doc [[
+ser: serialization
+------------------
+
+The ser package is written by Robin Wellner (https://github.com/gvx/Ser)
+and integrated in BonaLuna in two functions:
+
+**ser.serialize(table)** returns a string that can be evaluated to build
+the initial `table`.
+
+**ser.deserialize(src)** evaluates `src` and returns a table.
+]]
+
+do
+    local s = ser.serialize({{42}, 43, 0/0, "42", 1/0, -1/0})
+    local t = ser.deserialize(s)
+    assert(t[1][1] == 42)
+    assert(t[2] == 43)
+    assert(t[3] ~= t[3]) -- nan != nan !!!
+    assert(t[4] == "42")
+    assert(t[5] == 2/0)
+    assert(t[6] == -3/0)
+    assert(#t == 6)
+end
 
 doc [[
 socket: Lua Socket (and networking tools)

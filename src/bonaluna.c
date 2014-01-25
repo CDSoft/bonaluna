@@ -1251,9 +1251,47 @@ static int crypt_rnd(lua_State *L)
     return 1;
 }
 
+#include "btea.c"
+
+#define MIN(a, b) ((a) <= (b) ? (a) : (b))
+
+static int crypt_btea(lua_State *L, int encrypt)
+{
+    const char *key_str = luaL_checkstring(L, 1);
+    size_t key_len = lua_rawlen(L, 1);
+    const char *src = luaL_checkstring(L, 2);
+    size_t src_len = lua_rawlen(L, 2);
+
+    uint32_t key[4] = {0, 0, 0, 0};
+    memcpy(key, key_str, MIN(16, key_len));
+
+    int buffer_len = (src_len + sizeof(uint32_t) - 1) / sizeof(uint32_t);
+    uint32_t *buffer = (uint32_t*)malloc(buffer_len*sizeof(uint32_t));
+    if (!buffer) luaL_error(L, "crypt: not enought memory");
+    memset(buffer, 0, buffer_len*sizeof(uint32_t));
+    memcpy(buffer, src, src_len);
+    btea(buffer, encrypt*buffer_len, key);
+
+    lua_pushlstring(L, (const char *)buffer, buffer_len*sizeof(uint32_t));
+    free(buffer);
+    return 1;
+}
+
+static int crypt_btea_encrypt(lua_State *L)
+{
+    return crypt_btea(L, +1);
+}
+
+static int crypt_btea_decrypt(lua_State *L)
+{
+    return crypt_btea(L, -1);
+}
+
 static const luaL_Reg cryptlib[] =
 {
     {"rnd", crypt_rnd},
+    {"btea_encrypt", crypt_btea_encrypt},
+    {"btea_decrypt", crypt_btea_decrypt},
     {NULL, NULL}
 };
 

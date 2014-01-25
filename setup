@@ -12,7 +12,7 @@
 #export LIBRARIES="QLZ UCL ZLIB CRYPT SOCKET BN LPEG"
 
 # Standard BonaLuna distribution
-export LIBRARIES="ZLIB CRYPT SOCKET BN LPEG"
+export LIBRARIES="LZ4 CRYPT SOCKET BN LPEG"
 
 # Icon for the Win32 executable
 export ICON="bl.ico"

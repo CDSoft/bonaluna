@@ -1226,6 +1226,26 @@ do
 end
 
 -----------------------------------------------------------------------
+-- crypt.btea
+-----------------------------------------------------------------------
+
+-- [[ based on BTEA (http://en.wikipedia.org/wiki/XXTEA)
+-- ]]
+
+do
+    function crypt.BTEA(key)
+        local btea = {}
+        function btea.encrypt(data)
+            return crypt.btea_encrypt(key, data)
+        end
+        function btea.decrypt(data)
+            return crypt.btea_decrypt(key, data)
+        end
+        return btea
+    end
+end
+
+-----------------------------------------------------------------------
 -- crypt.random
 -----------------------------------------------------------------------
 

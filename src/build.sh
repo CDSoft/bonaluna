@@ -10,22 +10,22 @@
 #
 # Freely available under the terms of the Lua license.
 
-LUA_SRC=lua-5.2.2
+LUA_SRC=lua-5.2.3
 LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
 
 LZO_SRC=lzo-2.06
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
-LZ4_SRC=lz4-r106
+LZ4_SRC=lz4-r109
 LZ4_URL=https://dl.dropboxusercontent.com/u/59565338/LZ4/${LZ4_SRC}.tar.gz
 ZLIB_SRC=zlib-1.2.8
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
-LZMA_SRC=xz-5.0.4
+LZMA_SRC=xz-5.0.5
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
-CURL_SRC=curl-7.31.0
+CURL_SRC=curl-7.33.0
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 SOCKET_SRC=luasocket-2.0.2
 SOCKET_URL=http://luaforge.net/frs/download.php/2664/$SOCKET_SRC.tar.gz
@@ -118,7 +118,7 @@ $USE_LZO && $USE_MINILZO && {
 # Check parameters
 ##################
 
-[ -x /usr/bin/$CC ] || error "Unknown compiler: $CC"
+(which $CC > /dev/null) || error "Unknown compiler: $CC"
 [ "$BITS" = "32" ] || [ "$BITS" = "64" ] || error "Wrong integer size (should be 32 or 64)"
 
 CC_OPTS="-O2 -std=gnu99"
@@ -536,6 +536,9 @@ $USE_SOCKET && (
         -e 's/module("socket.http")/socket.http = {}; local _ENV = socket.http/' \
         $TARGET/http.lua
 
+    # replace table.getn by the # operator
+    sed -i 's/table\.getn/#/g' $TARGET/{ltn12,url}.lua
+
 )
 
 # BC patches
@@ -711,11 +714,11 @@ $USE_LPEG && CC_LIBS2+=" $LIBRARY_PATH/liblpeg.a"
 # Compilation
 #############
 
-case $PLATFORM in
-    Windows)    WINE=wine
-                ;;
-    *)          WINE=""
-                ;;
+case `uname`-$PLATFORM in
+    Linux-Windows)  WINE=wine
+                    ;;
+    *)              WINE=""
+                    ;;
 esac
 
 if [ "$PLATFORM" = "Windows" ] && [ -e "$ICON" ]

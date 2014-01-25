@@ -34,9 +34,10 @@
     | **miniLZO**, **QuickLZ**: GPL v2
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-:Download: http://cdsoft.fr/bl/bonaluna-2.3.4.tgz
+    | **ser**: `MIT license`
+:Download: http://cdsoft.fr/bl/bonaluna-2.4.0.tgz
 
-:Version: 2.3.4
+:Version: 2.4.0
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -242,6 +243,14 @@ of the key (128 (default), 192 or 256), `mode` is the encryption/decryption
 mode ("cbc" (default) or "ecb").
 `crypt.AES` objects have two methods: `encrypt(data)` and `decrypt(data)`.
 
+**crypt.BTEA(password)** returns a BTEA codec
+(a tiny cipher with reasonable security and efficiency,
+see http://en.wikipedia.org/wiki/XXTEA).
+`password` is the encryption/decryption key (only the first 16 bytes are used).
+`crypt.BTEA` objects have two methods: `encrypt(data)` and `decrypt(data)`.
+BTEA encrypts 32-bit words so the length of data should be a multiple of 4
+(if not, BTEA will add null padding at the end of data).
+
 **crypt.random(bits)** returns a string with `bits` random bits.
 
 
@@ -383,7 +392,7 @@ It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__
 
 Future versions of BonaLuna may remove or add some compression library.
 
-Currently, only zlib is used in the default BonaLuna distribution
+Currently, only LZ4 is used in the default BonaLuna distribution
 but you can change it in `setup`.
 
 **z.compress(data)** compresses `data` using the best compressor and returns the compressed string.
@@ -438,6 +447,17 @@ and adapted for BonaLuna.
 
 **rl.add(line)** adds `line` to the readline history (Linux only).
 
+
+ser: serialization
+------------------
+
+The ser package is written by Robin Wellner (https://github.com/gvx/Ser)
+and integrated in BonaLuna in two functions:
+
+**ser.serialize(table)** returns a string that can be evaluated to build
+the initial `table`.
+
+**ser.deserialize(src)** evaluates `src` and returns a table.
 
 socket: Lua Socket (and networking tools)
 -----------------------------------------
