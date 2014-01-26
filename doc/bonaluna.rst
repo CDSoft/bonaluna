@@ -1,6 +1,6 @@
 ..  BonaLuna
 
-..  Copyright (C) 2010-2013 Christophe Delord
+..  Copyright (C) 2010-2014 Christophe Delord
     http://www.cdsoft.fr/bl/bonaluna.html
 
 ..  BonaLuna is based on Lua 5.2
@@ -26,7 +26,7 @@
 :Contact: http://cdsoft.fr/contact.html
 :Web: http://cdsoft.fr/bl/bonaluna.html
 :License:
-    | Copyright (C) 2010-2013 Christophe Delord,
+    | Copyright (C) 2010-2014 Christophe Delord,
       `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
     | Freely available under the terms of the
       `Lua license <http://www.lua.org/license.html#5>`__

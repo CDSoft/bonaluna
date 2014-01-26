@@ -1,6 +1,6 @@
 --[[ BonaLuna bignumber library
 
-Copyright (C) 2010-2013 Christophe Delord
+Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.2

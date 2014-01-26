@@ -2,7 +2,7 @@
 
 # BonaLuna compilation script
 #
-# Copyright (C) 2010-2013 Christophe Delord
+# Copyright (C) 2010-2014 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
 # BonaLuna is based on Lua 5.2
@@ -17,18 +17,18 @@ LZO_SRC=lzo-2.06
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
-LZ4_SRC=lz4-r109
-LZ4_URL=https://dl.dropboxusercontent.com/u/59565338/LZ4/${LZ4_SRC}.tar.gz
+LZ4_SRC=lz4-r112
+LZ4_URL=http://lz4.googlecode.com/files/$LZ4_SRC.tar.gz
 ZLIB_SRC=zlib-1.2.8
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
 LZMA_SRC=xz-5.0.5
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
-CURL_SRC=curl-7.33.0
+CURL_SRC=curl-7.34.0
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 SOCKET_SRC=luasocket-2.0.2
-SOCKET_URL=http://luaforge.net/frs/download.php/2664/$SOCKET_SRC.tar.gz
+SOCKET_URL=http://files.luaforge.net/releases/luasocket/luasocket/$SOCKET_SRC/$SOCKET_SRC.tar.gz
 BC_SRC=bc
 BC_URL=http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/5.2/lbc.tar.gz
 LPEG_SRC=lpeg-0.12
@@ -673,11 +673,11 @@ $USE_CURL && ! [ -e $LIB_CURL ] && (
                         cd lib && make
                     );;
         Windows)    ./configure $HOST --disable-shared $CURL_CONF && (
-                        sed -i "s/CC =.*/CC = $CC/" lib/Makefile.m32
-                        sed -i "s/AR =.*/AR = $AR/" lib/Makefile.m32
-                        sed -i "s/RANLIB =.*/RANLIB = $RANLIB/" lib/Makefile.m32
-                        sed -i "s/RC =.*/RC = $WINDRES/" lib/Makefile.m32
-                        sed -i "s/STRIP =.*/STRIP = $STRIP -g/" lib/Makefile.m32
+                        sed -i "s/CC\t=.*/CC = $CC/" lib/Makefile.m32
+                        sed -i "s/AR\t=.*/AR = $AR/" lib/Makefile.m32
+                        sed -i "s/RANLIB\t=.*/RANLIB = $RANLIB/" lib/Makefile.m32
+                        sed -i "s/RC\t=.*/RC = $WINDRES/" lib/Makefile.m32
+                        sed -i "s/STRIP\t=.*/STRIP = $STRIP -g/" lib/Makefile.m32
                         cd lib && make -f Makefile.m32
                     );;
     esac
