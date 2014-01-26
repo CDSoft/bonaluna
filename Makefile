@@ -15,7 +15,7 @@ UNAME = $(shell uname)
 
 ifneq "$(findstring Linux,$(UNAME))" ""
 
-all: bl bl.exe
+all: bl.exe bl
 
 bl: $(DEPENDENCIES)
 	. setup && cd src && $(BUILD) linux $@ gcc 32

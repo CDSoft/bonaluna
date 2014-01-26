@@ -35,9 +35,9 @@
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
     | **ser**: `MIT license`
-:Download: http://cdsoft.fr/bl/bonaluna-2.4.1.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.4.2.tgz
 
-:Version: 2.4.1
+:Version: 2.4.2
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
