@@ -387,6 +387,21 @@ do
         end
     end
 
+    function bn.powmod(a, b, m)
+        assert(a.isInt and b.isInt and b.sign >= 0 and m.isInt)
+        local result = bn.one
+        local r
+        a = a % m
+        while not b:iszero() do
+            b, r = bn.divmod(b, bn.two)
+            if r:isone() then
+                result = (result*a) % m
+            end
+            a = (a*a) % m
+        end
+        return result
+    end
+
 -- }}}
 
 -- metatable {{{

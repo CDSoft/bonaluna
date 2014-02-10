@@ -150,6 +150,70 @@ function chain(...)
     end
 end
 
+-- curry
+-- Inspired by http://tinylittlelife.org/?p=249
+-- Contributed by 梦想种子
+function curry(func, ...)
+    local prebinding = {...}
+    local still_need = math.max(1, debug.getinfo(func, "u").nparams - #prebinding)
+    local function helper(arg_chain, still_need)
+        if still_need < 1 then
+            return func(table.unpack(list(arg_chain())))
+        else
+            return function (...)
+                local tail_args = {...}
+                return helper(
+                    function () return chain(arg_chain(), tail_args) end,
+                    still_need - math.max(1, #tail_args)
+                )
+            end
+        end
+    end
+    return helper(function () return prebinding end, still_need)
+end
+
+-- compose
+-- Inspired by https://github.com/Gozala/functional-lua/blob/master/compose.lua
+-- Contributed by 梦想种子
+function compose(f, g, ...)
+    local lambdas = {f, g, ...}
+    return function(...)
+        local state = {...}
+        for lambda in reverse(lambdas) do
+            state = {lambda(table.unpack(state))}
+        end
+        return table.unpack(state)
+    end
+end
+
+-- identity
+-- Taken from https://github.com/Gozala/functional-lua/blob/master/identity.lua
+function identity(...)
+    return ...
+end
+
+-- memoize
+-- Inspired by https://github.com/kikito/memoize.lua
+-- Contributed by 梦想种子
+do
+    local _nil = {}
+    local _value = {}
+
+    function memoize(f)
+        local mem = {}
+        return function (...)
+            local cur = mem
+            for i = 1, select("#", ...) do
+                local k = select(i, ...) or _nil
+                cur[k] = cur[k] or {}
+                cur = cur[k]
+            end
+            cur[_value] = cur[_value] or table.pack(f(...))
+            return table.unpack(cur[_value])
+        end
+    end
+end
+
 -----------------------------------------------------------------------------
 -- fs package
 -----------------------------------------------------------------------------

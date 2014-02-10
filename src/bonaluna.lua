@@ -201,6 +201,98 @@ do
 end
 
 doc [[
+Higher order functions
+----------------------
+
+**curry(f, ...)** returns a curryfied function starting with f and its first arguments (...) if any.
+
+**compose(f, g, ...)** returns the composed function "f(g(...))".
+
+**identity** is the identity function.
+
+**memorize(f)** returns a memoized function.
+]]
+
+do
+
+    -- curry
+
+    local function multiplyAndAdd(a,b,c) return a * b + c end
+    multiplyAndAdd_curried = curry(multiplyAndAdd)
+
+    multiplyBySevenAndAdd_v1 = multiplyAndAdd_curried(7)
+    multiplyBySevenAndAdd_v2 = curry(multiplyAndAdd, 7)
+
+    multiplySevenByEightAndAdd_v1 = multiplyAndAdd_curried(7, 8)
+    multiplySevenByEightAndAdd_v2 = curry(multiplyAndAdd, 7, 8)
+    multiplySevenByEightAndAdd_v3 = multiplyBySevenAndAdd_v1(8)
+    multiplySevenByEightAndAdd_v4 = multiplyBySevenAndAdd_v2(8)
+
+    multiplySevenByEightAndAddNine = curry(multiplyAndAdd, 7, 8, 9)
+
+    assert(multiplyAndAdd(7, 8, 9) == multiplyBySevenAndAdd_v1(8, 9))
+    assert(multiplyAndAdd(7, 8, 9) == multiplyBySevenAndAdd_v2(8, 9))
+    assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAdd_v1(9))
+    assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAdd_v2(9))
+    assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAdd_v3(9))
+    assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAdd_v4(9))
+    assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAddNine())
+
+    -- compose
+
+    local cossin = function(x) return math.cos(x), math.sin(x) end
+    local norm = function(x, y) return math.sqrt(x*x + y*y) end
+
+    assert(compose(norm, cossin)(0.12) == 1.0)
+
+    -- identity
+    for i = 1, 10 do
+        assert(identity(i) == i)
+        assert(#table.pack(identity(i, 2*i)) == 2)
+        assert(table.pack(identity(i, 2*i))[1] == i)
+        assert(table.pack(identity(i, 2*i))[2] == 2*i)
+    end
+
+    -- memoize
+
+    local function chrono(f)
+        local t0 = os.clock()
+        local res = f()
+        return res, os.clock() - t0
+    end
+
+    local function fib(n)
+        if n < 2 then return 1 else return fib(n-2) + fib(n-1) end
+    end
+
+    local N = 36
+    local res1, t1 = chrono(function() return fib(N) end)
+    fib = memoize(fib)
+    local res2, t2 = chrono(function() return fib(N) end)
+
+    assert(res1 == res2)
+    assert(t2 < t1/1000)
+
+    local add = memoize(function(a, ...)
+        local sum = a or 0
+        for i = 1, select("#", ...) do
+            sum = sum + (select(i, ...) or 0)
+        end
+        return "[", sum, "]"
+    end)
+
+    for i = 1, 2 do
+        local r
+        for j = 1, 2 do r = table.pack(add(nil, 2))             assert(r[1] == "[" and r[2] == 2 and r[3] == "]") end
+        for j = 1, 2 do r = table.pack(add(1, 2, nil, 3, nil))  assert(r[1] == "[" and r[2] == 6 and r[3] == "]") end
+        for j = 1, 2 do r = table.pack(add(1, 2, 3))            assert(r[1] == "[" and r[2] == 6 and r[3] == "]") end
+        for j = 1, 2 do r = table.pack(add(5, 6, 3))            assert(r[1] == "[" and r[2] == 14 and r[3] == "]") end
+        for j = 1, 2 do r = table.pack(add(5, 6, 3, 4))         assert(r[1] == "[" and r[2] == 18 and r[3] == "]") end
+    end
+
+end
+
+doc [[
 BonaLuna packages
 =================
 
@@ -408,6 +500,8 @@ basic bn functions
 
 **bn.divmod(x,y)** returns ``[x/y], x mod y``
 
+**bn.powmod(x,y,m)** returns ``x**y mod m``
+
 **__pow(x,y)** returns ``x**y``
 
 **__eq(x,y), __lt(x,y)** compares x and y
@@ -511,6 +605,8 @@ if bn then
     assert(x^bn.Int("-2") == bn.Rat(1, x*x))
     assert(bn.tonumber(x^bn.Rat(1,2)) == x:tonumber()^0.5)
     assert(bn.Int(4) ^ bn.Float(0.1) == bn.Float(4^0.1))
+
+    assert(bn.powmod(x, bn.Int(42), y) == x^bn.Int(42) % y)
 
     assert(x==x) assert(x~=y)
     assert(x<=x) assert(x<=y) assert(x>=x) assert(y>=x)

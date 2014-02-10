@@ -1234,12 +1234,20 @@ end
 
 do
     function crypt.BTEA(key)
-        local btea = {}
-        function btea.encrypt(data)
-            return crypt.btea_encrypt(key, data)
+
+        local key16 = string.sub(key, 1, 16)
+        for i = 17, #key, 16 do
+            key16 = crypt.btea_encrypt(string.sub(key, i, i+15), key16)
         end
+
+        local btea = {}
+
+        function btea.encrypt(data)
+            return crypt.btea_encrypt(key16, data)
+        end
+
         function btea.decrypt(data)
-            return crypt.btea_decrypt(key, data)
+            return crypt.btea_decrypt(key16, data)
         end
         return btea
     end
@@ -1252,7 +1260,7 @@ end
 do
     function crypt.random(bits)
         local bytes = math.max(math.floor((bits+7)/8), 1)
-        return crypt.AES(crypt.rnd(bytes), 256)
+        return crypt.BTEA(crypt.rnd(16))
             .encrypt(crypt.rnd(bytes))
             :sub(1, bytes)
     end

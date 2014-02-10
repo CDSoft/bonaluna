@@ -35,9 +35,9 @@
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
     | **ser**: `MIT license`
-:Download: http://cdsoft.fr/bl/bonaluna-2.4.2.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.4.3.tgz
 
-:Version: 2.4.2
+:Version: 2.4.3
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -83,6 +83,17 @@ Iterators
 **enum(iterator)** generates tuples `(i, x[i])` where `i` is the rank of the value `x[i]` for each value of `iterator`.
 
 **chain(...)** chains several iterators.
+
+Higher order functions
+----------------------
+
+**curry(f, ...)** returns a curryfied function starting with f and its first arguments (...) if any.
+
+**compose(f, g, ...)** returns the composed function "f(g(...))".
+
+**identity** is the identity function.
+
+**memorize(f)** returns a memoized function.
 
 BonaLuna packages
 =================
@@ -203,6 +214,8 @@ basic bn functions
 **__mod(x,y)** return ``x mod y``
 
 **bn.divmod(x,y)** returns ``[x/y], x mod y``
+
+**bn.powmod(x,y,m)** returns ``x**y mod m``
 
 **__pow(x,y)** returns ``x**y``
 
