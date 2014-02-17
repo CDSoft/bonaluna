@@ -18,7 +18,7 @@ do
 
 -- Low level integer routines {{{
     local int, int_copy, int_trim, int_tostring, int_tonumber
-    local int_cmp, int_iszero, int_isone
+    local int_abscmp, int_cmp, int_iszero, int_isone
     local int_neg, int_abs
     local int_add, int_sub, int_mul, int_divmod
     local int_pow
@@ -560,7 +560,6 @@ do
         end
         return a:tonumber() <= b:tonumber()
     end
-
 
 -- }}}
 
