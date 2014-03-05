@@ -375,9 +375,9 @@ Copyright (C) 2010 Lua.org, PUC-Rio. -->
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.4.4.tgz">http://cdsoft.fr/bl/bonaluna-2.4.4.tgz</a></td>
+<tr class="field"><th class="field-name">Download:</th><td class="field-body"><a class="reference external" href="http://cdsoft.fr/bl/bonaluna-2.4.5.tgz">http://cdsoft.fr/bl/bonaluna-2.4.5.tgz</a></td>
 </tr>
-<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.4.4</td>
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">2.4.5</td>
 </tr>
 <tr class="field"><th class="field-name">Abstract:</th><td class="field-body">BonaLuna is a Lua interpretor plus a few packages
 in a single executable.</td>
@@ -433,7 +433,7 @@ at <a class="reference external" href="http://www.lua.org">http://www.lua.org</a
 <p><strong>sort(iterator [, cmp])</strong> returns <cite>iterator</cite> sorted using <cite>cmp</cite> (as <cite>table.sort</cite>)</p>
 <p><strong>map(f, ...)</strong> applies <cite>f</cite> to iterators.</p>
 <p><strong>zip(...)</strong> groups values of the same rank of several iterators.</p>
-<p><strong>filter(p, ...)</strong> selects values according to the predicate <cite>p</cite>.</p>
+<p><strong>filter(p, iterator)</strong> selects values according to the predicate <cite>p</cite>.</p>
 <p><strong>range(i [, j [, s] ])</strong> returns the values of the range [<cite>i</cite>, <cite>j</cite>].
 <cite>s</cite>&nbsp;is the step.
 <cite>range(j)</cite> is equivalent to <cite>range(1, j)</cite>. The default step is 1.</p>
@@ -445,7 +445,7 @@ at <a class="reference external" href="http://www.lua.org">http://www.lua.org</a
 <p><strong>curry(f, ...)</strong> returns a curryfied function starting with f and its first arguments (...) if any.</p>
 <p><strong>compose(f, g, ...)</strong> returns the composed function &quot;f(g(...))&quot;.</p>
 <p><strong>identity</strong> is the identity function.</p>
-<p><strong>memorize(f)</strong> returns a memoized function.</p>
+<p><strong>memoize(f)</strong> returns a memoized function.</p>
 </div>
 </div>
 <div class="section" id="bonaluna-packages">

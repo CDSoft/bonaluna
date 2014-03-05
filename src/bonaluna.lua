@@ -4,7 +4,7 @@ Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.2
-Copyright (C) 2010 Lua.org, PUC-Rio.
+Copyright (C) 1994-2013 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
 
@@ -111,7 +111,7 @@ Iterators
 
 **zip(...)** groups values of the same rank of several iterators.
 
-**filter(p, ...)** selects values according to the predicate `p`.
+**filter(p, iterator)** selects values according to the predicate `p`.
 
 **range(i [, j [, s] ])** returns the values of the range [`i`, `j`].
 `s` is the step.
@@ -210,7 +210,7 @@ Higher order functions
 
 **identity** is the identity function.
 
-**memorize(f)** returns a memoized function.
+**memoize(f)** returns a memoized function.
 ]]
 
 do

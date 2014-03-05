@@ -6,7 +6,7 @@
 # http://cdsoft.fr/bl/bonaluna.html
 #
 # BonaLuna is based on Lua 5.2
-# Copyright (C) 2010 Lua.org, PUC-Rio.
+# Copyright (C) 1994-2013 Lua.org, PUC-Rio
 #
 # Freely available under the terms of the Lua license.
 

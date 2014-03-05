@@ -35,9 +35,9 @@
     | **LZ4**: BSD
     | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
     | **ser**: `MIT license`
-:Download: http://cdsoft.fr/bl/bonaluna-2.4.4.tgz
+:Download: http://cdsoft.fr/bl/bonaluna-2.4.5.tgz
 
-:Version: 2.4.4
+:Version: 2.4.5
 :Abstract:
     BonaLuna is a Lua interpretor plus a few packages
     in a single executable.
@@ -74,7 +74,7 @@ Iterators
 
 **zip(...)** groups values of the same rank of several iterators.
 
-**filter(p, ...)** selects values according to the predicate `p`.
+**filter(p, iterator)** selects values according to the predicate `p`.
 
 **range(i [, j [, s] ])** returns the values of the range [`i`, `j`].
 `s` is the step.
@@ -93,7 +93,7 @@ Higher order functions
 
 **identity** is the identity function.
 
-**memorize(f)** returns a memoized function.
+**memoize(f)** returns a memoized function.
 
 BonaLuna packages
 =================
