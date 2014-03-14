@@ -738,13 +738,14 @@ $WINE $TARGET/$BL ../tools/pegar.lua read:$TARGET/$BL $PEGAR_CONF write:$BL
 #########################
 
 $WINE ./$BL bonaluna.lua || error "Non regression tests failed"
-RST2HTML=$(which rst2html 2>/dev/null || which rst2html.py 2>/dev/null)
-if [ -x "$RST2HTML" ]
+PANDOC=$(which pandoc 2>/dev/null)
+PANDOC_OPT="-S -s --toc -H icon.i"
+if [ -x "$PANDOC" ]
 then
+    echo '<link rel="icon" href="bl.png"/>' > icon.i
     mkdir -p ../doc/lua
     cp -f $LUA_SRC/doc/* ../doc/lua/
-    LANG=en $RST2HTML --section-numbering --language=en --cloak-email-addresses ../doc/bonaluna.rst > ../doc/bonaluna.html
-    sed -i 's/<head>/<head><link rel="icon" href="bl.png"\/>/i' ../doc/bonaluna.html
-    sed -i 's/<title>logo /<title>/' ../doc/bonaluna.html
+    LANG=en $PANDOC $PANDOC_OPT ../doc/bonaluna.md > ../doc/bonaluna.html
     cp bl.png ../doc/
+    rm icon.i
 fi
