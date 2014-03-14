@@ -1,52 +1,45 @@
-..  BonaLuna
+% BonaLuna 2.4.6 - A compact Lua extension
+% [Christophe Delord](http://cdsoft.fr/contact.html)
+% Documentation date: Sat Mar 15 00:00:48 2014
 
-..  Copyright (C) 2010-2014 Christophe Delord
-    http://www.cdsoft.fr/bl/bonaluna.html
+<!--
+BonaLuna
 
-..  BonaLuna is based on Lua 5.2
-    Copyright (C) 2010 Lua.org, PUC-Rio.
+Copyright (C) 2010-2014 Christophe Delord
+http://www.cdsoft.fr/bl/bonaluna.html
 
-..  Freely available under the terms of the Lua license.
+BonaLuna is based on Lua 5.2
+Copyright (C) 2010 Lua.org, PUC-Rio.
 
-=================
- |logo| BonaLuna
-=================
--------------------------
- A compact Lua extension
--------------------------
+Freely available under the terms of the Lua license.
+-->
 
-.. |logo| image:: bl.png
-.. |logo_lua| image:: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
+[logo]: bl.png
+[logo_lua]: http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png
 
-.. sidebar:: Based on `Lua 5.2 <http://www.lua.org>`__ |logo_lua|
+Abstract
+========
 
-    Copyright (C) 2010 `Lua.org <http://www.lua.org>`__, PUC-Rio.
+![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
-:Author: Christophe Delord
-:Contact: http://cdsoft.fr/contact.html
-:Web: http://cdsoft.fr/bl/bonaluna.html
-:License:
-    | Copyright (C) 2010-2014 Christophe Delord,
-      `CDSoft.fr <http://cdsoft.fr/bl/bonaluna.html>`__
-    | Freely available under the terms of the
-      `Lua license <http://www.lua.org/license.html#5>`__
-    | **Lua**, **Lpeg**: `Lua license <http://www.lua.org/license.html#5>`__
-    | **miniLZO**, **QuickLZ**: GPL v2
-    | **LZ4**: BSD
-    | **libcurl**: `MIT/X derivate <http://curl.haxx.se/docs/copyright.html>`__
-    | **ser**: `MIT license`
-:Download: http://cdsoft.fr/bl/bonaluna-2.4.5.tgz
+The current version is 2.4.6
 
-:Version: 2.4.5
-:Abstract:
-    BonaLuna is a Lua interpretor plus a few packages
-    in a single executable.
+Licenses
+--------
 
-.. contents:: Table of Contents
-    :depth: 2
+* ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2014 Christophe Delord, Freely available under the terms of the [Lua license](http://www.lua.org/license.html#5)
+* ![logo_lua][] **[Lua 5.2](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
+* **Lua**, **Lpeg**: [Lua license](http://www.lua.org/license.html#5)
+* **miniLZO**, **QuickLZ**: GPL v2
+* **LZ4**: BSD
+* **libcurl**: [MIT/X derivate](http://curl.haxx.se/docs/copyright.html)
+* **ser**: MIT license
 
-.. sectnum::
-    :depth: 2
+Download
+--------
+
+[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-2.4.6.tgz](http://cdsoft.fr/bl/bonaluna-2.4.6.tgz)
+
 
 Lua
 ===
@@ -54,7 +47,7 @@ Lua
 The original Lua interpretor and documentation is available
 at http://www.lua.org.
 
-BonaLuna is based on `Lua 5.2 <lua/contents.html>`__.
+BonaLuna is based on [Lua 5.2](lua/contents.html).
 
 Global functions
 ================
@@ -101,29 +94,28 @@ BonaLuna packages
 Note about objects
 ------------------
 
-Objects defined in these packages uses closures [#]_ to store internal data.
+Objects defined in these packages uses closures [^1] to store internal data.
 No *self* is required and methods are called with a single dot (`.`),
 not with a colon (`:`).
 
-Example::
+Example:
 
     aes = crypt.AES("my key", 128)
     encrypted = aes.encrypt("some text")
 
-.. [#] See `Object Orientation Closure Approach <http://lua-users.org/wiki/ObjectOrientationClosureApproach>`__.
+[^1]: See [Object Orientation Closure Approach](http://lua-users.org/wiki/ObjectOrientationClosureApproach).
 
 bc, m: arbitrary precision library for Lua based on GNU bc
 ----------------------------------------------------------
 
 lbc is a public domain package written by Luiz Henrique de Figueiredo and available at 
-`Libraries and tools for Lua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc>`__
+[Libraries and tools for Lua](http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc)
 
 This is a big-number library for Lua 5.2. It is based on the arbitrary
 precision library number.c written by Philip A. Nelson for GNU bc-1.06:
 http://www.gnu.org/software/bc/
 
-basic bc functions
-~~~~~~~~~~~~~~~~~~
+### basic bc functions
 
 **bc.version** is the version number of bc
 
@@ -133,29 +125,29 @@ basic bc functions
 
 **bc.tonumber(x)** converts a big number to a Lua number
 
-**bc.tostring(x), __tostring(x)** converts a big number to a string
+**bc.tostring(x), \_\_tostring(x)** converts a big number to a string
 
-**bc.neg(x), __unm(x)** returns ``-x``
+**bc.neg(x), \_\_unm(x)** returns `-x`
 
-**bc.add(x,y), __add(x,y)** returns ``x+y``
+**bc.add(x,y), \_\_add(x,y)** returns `x+y`
 
-**bc.sub(x,y), __sub(x,y)** returns ``x-y``
+**bc.sub(x,y), \_\_sub(x,y)** returns `x-y`
 
-**bc.mul(x,y), __mul(x,y)** returns ``x*y``
+**bc.mul(x,y), \_\_mul(x,y)** returns `x*y`
 
-**bc.div(x,y), __div(x,y)** returns ``x/y``
+**bc.div(x,y), \_\_div(x,y)** returns `x/y`
 
-**bc.mod(x,y), __mod(x,y)** return ``x mod y``
+**bc.mod(x,y), \_\_mod(x,y)** return `x mod y`
 
-**bc.divmod(x,y)** returns ``[x/y], x mod y``
+**bc.divmod(x,y)** returns `[x/y], x mod y`
 
-**bc.pow(x,y), __pow(x,y)** returns ``x**y``
+**bc.pow(x,y), \_\_pow(x,y)** returns `x**y`
 
-**bc.powmod(x,y,m)** returns ``x**y mod m``
+**bc.powmod(x,y,m)** returns `x**y mod m`
 
-**bc.compare(x,y)** returns ``-1`` if x < y, ``0`` if x == y, ``+1`` if x > y
+**bc.compare(x,y)** returns `-1` if x < y, `0` if x == y, `+1` if x > y
 
-**__eq(x,y), __lt(x,y)** compares x and y
+**\_\_eq(x,y), \_\_lt(x,y)** compares x and y
 
 **bc.iszero(x)** is true if x == 0
 
@@ -163,22 +155,19 @@ basic bc functions
 
 **bc.trunc(x,[n])** returns x truncated value
 
-**bc.sqrt(x)** returns ``sqrt(x)``
+**bc.sqrt(x)** returns `sqrt(x)`
 
-Functions added by BonaLuna
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Functions added by BonaLuna
 
 **bc.number(x)** also accepts hexadecimal, octal and binary numbers as strings
 
-Math and bitwise operators
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Math and bitwise operators
 
 Functions of the math and bit32 modules also exist in the bc module.
 These functions produce bc numbers but work internally with Lua numbers.
 Do not expect these functions to be precise.
 
-m package
-~~~~~~~~~
+### m package
 
 The m package extends the bc package by mixing arbitrary precision integer (bc)
 and Lua numbers (float). It produces bc integers when possible and Lua numbers
@@ -188,8 +177,7 @@ otherwise.
 bn: arbitrary precision library for Lua written in pure Lua
 -----------------------------------------------------------
 
-basic bn functions
-~~~~~~~~~~~~~~~~~~
+### basic bn functions
 
 **bn.Int(x)** builds a big integer from a Lua number, a string or a big number
 
@@ -199,34 +187,33 @@ basic bn functions
 
 **bn.tonumber(x)** converts a big number to a Lua number
 
-**bn.tostring(x, base, bits), __tostring(x)** converts a big number to a string
+**bn.tostring(x, base, bits), \_\_tostring(x)** converts a big number to a string
 
-**__unm(x)** returns ``-x``
+**\_\_unm(x)** returns `-x`
 
-**__add(x,y)** returns ``x+y``
+**\_\_add(x,y)** returns `x+y`
 
-**__sub(x,y)** returns ``x-y``
+**\_\_sub(x,y)** returns `x-y`
 
-**__mul(x,y)** returns ``x*y``
+**\_\_mul(x,y)** returns `x*y`
 
-**__div(x,y)** returns ``x/y``
+**\_\_div(x,y)** returns `x/y`
 
-**__mod(x,y)** return ``x mod y``
+**\_\_mod(x,y)** return `x mod y`
 
-**bn.divmod(x,y)** returns ``[x/y], x mod y``
+**bn.divmod(x,y)** returns `[x/y], x mod y`
 
-**bn.powmod(x,y,m)** returns ``x**y mod m``
+**bn.powmod(x,y,m)** returns `x**y mod m`
 
-**__pow(x,y)** returns ``x**y``
+**\_\_pow(x,y)** returns `x**y`
 
-**__eq(x,y), __lt(x,y)** compares x and y
+**\_\_eq(x,y), \_\_lt(x,y)** compares x and y
 
 **x:iszero()** is true if x == 0
 
 **x:isone()** is true if x == 1
 
-Math and bitwise operators
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Math and bitwise operators
 
 Functions of the math and bit32 modules also exist in the bn module.
 These functions produce bn numbers but may work internally with Lua numbers.
@@ -270,10 +257,10 @@ BTEA encrypts 32-bit words so the length of data should be a multiple of 4
 curl: libcurl interface
 -----------------------
 
-`libcurl <http://curl.haxx.se/>`__ is multiprotocol file transfer library.
+[libcurl](http://curl.haxx.se/) is multiprotocol file transfer library.
 This package is a simple Lua interface to libcurl.
 
-This package is based on `Lua-cURL <http://luaforge.net/projects/lua-curl/>`__
+This package is based on [Lua-cURL](http://luaforge.net/projects/lua-curl/)
 and provides the same API plus a few higher level objects.
 
 This package was introduced before `socket` which is based on `Lua Socket`.
@@ -283,20 +270,20 @@ I recommend using `socket` instead of `curl`.
 the FTP server at `url`. `login` and `password` are optional.
 Methods are:
 
-    - `cd(path)` changes the *current working directory*. No connection is
-      made, `path` is just stored internally for later connections.
+- `cd(path)` changes the *current working directory*. No connection is
+  made, `path` is just stored internally for later connections.
 
-    - `get(path)` retrieves `path`.
+- `get(path)` retrieves `path`.
 
-    - `put(path, data)` sends and stores the string `data` to the file `path`.
+- `put(path, data)` sends and stores the string `data` to the file `path`.
 
-    - `rm(path)` deletes the file `path`.
+- `rm(path)` deletes the file `path`.
 
-    - `mkdir(path)` creates the directory `path`.
+- `mkdir(path)` creates the directory `path`.
 
-    - `rmdir(path)` deletes the directory `path`.
+- `rmdir(path)` deletes the directory `path`.
 
-    - `list(path)` returns an iterator listing the directory `path`.
+- `list(path)` returns an iterator listing the directory `path`.
 
 FTP connections are made through the cURL easy interface, each request is in
 fact an entire connection (and deconnection).
@@ -304,10 +291,10 @@ fact an entire connection (and deconnection).
 **curl.HTTP(url)** creates an HTTP object to connect to the HTTP server at `url`.
 Methods are:
 
-    - `get(path)` retrieves `path`.
+- `get(path)` retrieves `path`.
 
-    - `save(path [, name])` retrieves `path` and saves it to `name`.
-      The default value of `name` is the basename of `path`.
+- `save(path [, name])` retrieves `path` and saves it to `name`.
+  The default value of `name` is the basename of `path`.
 
 fs: File System
 ---------------
@@ -336,19 +323,19 @@ The attributes and times are preserved.
 
 **fs.stat(name)** reads attributes of the file `name`.  Attributes are:
 
-    - `name`: name
-    - type: "file" or "directory"
-    - `size`: size in bytes
-    - `mtime`, `atime`, `ctime`: modification, access and creation times.
-    - `mode`: file permissions
-    - `uR`, `uW`, `uX`: user Read/Write/eXecute permissions
-    - `gR`, `gW`, `gX`: group Read/Write/eXecute permissions
-    - `oR`, `oW`, `oX`: other Read/Write/eXecute permissions
+- `name`: name
+- type: "file" or "directory"
+- `size`: size in bytes
+- `mtime`, `atime`, `ctime`: modification, access and creation times.
+- `mode`: file permissions
+- `uR`, `uW`, `uX`: user Read/Write/eXecute permissions
+- `gR`, `gW`, `gX`: group Read/Write/eXecute permissions
+- `oR`, `oW`, `oX`: other Read/Write/eXecute permissions
 
 **fs.inode(name)** reads device and inode attributes of the file `name`.
 Attributes are:
 
-    - `dev`, `ino`: device and inode numbers
+- `dev`, `ino`: device and inode numbers
 
 
 **fs.chmod(name, other_file_name)** sets file `name` permissions as
@@ -387,21 +374,22 @@ Bonaluna parsing library is Lpeg.
 Both lpeg and re modules are loaded when Bonaluna is started.
 
 The documentation of these modules are available on Lpeg web site:
-- `Lpeg <http://www.inf.puc-rio.br/~roberto/lpeg/>`__
-- `Re <http://www.inf.puc-rio.br/~roberto/lpeg/re.html>`__
+- [Lpeg](http://www.inf.puc-rio.br/~roberto/lpeg/)
+- [Re](http://www.inf.puc-rio.br/~roberto/lpeg/re.html)
 
 z, lzo, qlz, lz4, zlib, ucl, lzma: compression libraries
 --------------------------------------------------------
 
 Compression libraries are based on:
-- `LZO <http://www.oberhumer.com/opensource/lzo/>`__
-- `QuickLZ <http://www.quicklz.com/>`__
-- `LZ4/LZ4HC <http://code.google.com/p/lz4/>`__
-- `ZLIB <http://www.zlib.net/>`__
-- `UCL <http://www.oberhumer.com/opensource/ucl/>`__
-- `XZ Utils <http://tukaani.org/xz/>`__
 
-It's inspired by the `Lua Lzo module <http://lua-users.org/wiki/LuaModuleLzo>`__.
+- [LZO](http://www.oberhumer.com/opensource/lzo/)
+- [QuickLZ](http://www.quicklz.com/)
+- [LZ4/LZ4HC](http://code.google.com/p/lz4/)
+- [ZLIB](http://www.zlib.net/)
+- [UCL](http://www.oberhumer.com/opensource/ucl/)
+- [XZ Utils](http://tukaani.org/xz/)
+
+It's inspired by the [Lua Lzo module](http://lua-users.org/wiki/LuaModuleLzo).
 
 Future versions of BonaLuna may remove or add some compression library.
 
@@ -453,7 +441,7 @@ rl: readline
 ------------
 
 The rl (readline) package was initially inspired by
-`ilua <https://github.com/ilua>`_
+[ilua](https://github.com/ilua)
 and adapted for BonaLuna.
 
 **rl.read(prompt)** prints `prompt` and returns the string entered by the user.
@@ -475,10 +463,10 @@ the initial `table`.
 socket: Lua Socket (and networking tools)
 -----------------------------------------
 
-The socket package is based on `Lua Socket <http://w3.impa.br/~diego/software/luasocket/>`__
+The socket package is based on [Lua Socket](http://w3.impa.br/~diego/software/luasocket/)
 and adapted for BonaLuna.
 
-The documentation of `Lua Socket` is available at the `Lua Socket documentation web site <http://w3.impa.br/~diego/software/luasocket/reference.html>`_.
+The documentation of `Lua Socket` is available at the [Lua Socket documentation web site](http://w3.impa.br/~diego/software/luasocket/reference.html).
 
 This package also comes with the following functions.
 
@@ -486,27 +474,27 @@ This package also comes with the following functions.
 the FTP server at `url`. `login` and `password` are optional.
 Methods are:
 
-    - `cd(path)` changes the current working directory.
+- `cd(path)` changes the current working directory.
 
-    - `pwd()` returns the current working directory.
+- `pwd()` returns the current working directory.
 
-    - `get(path)` retrieves `path`.
+- `get(path)` retrieves `path`.
 
-    - `put(path, data)` sends and stores the string `data` to the file `path`.
+- `put(path, data)` sends and stores the string `data` to the file `path`.
 
-    - `rm(path)` deletes the file `path`.
+- `rm(path)` deletes the file `path`.
 
-    - `mkdir(path)` creates the directory `path`.
+- `mkdir(path)` creates the directory `path`.
 
-    - `rmdir(path)` deletes the directory `path`.
+- `rmdir(path)` deletes the directory `path`.
 
-    - `list(path)` returns an iterator listing the directory `path`.
+- `list(path)` returns an iterator listing the directory `path`.
 
 struct: (un)pack structures
 ---------------------------
 
 The struct package is taken from
-`Library for Converting Data to and from C Structs for Lua 5.1 <http://www.inf.puc-rio.br/~roberto/struct/>`_
+[Library for Converting Data to and from C Structs for Lua 5.1](http://www.inf.puc-rio.br/~roberto/struct/)
 and adapted for BonaLuna.
 
 **struct.pack(fmt, d1, d2, ...)** returns a string containing the values `d1`, `d2`, etc. packed according to the format string `fmt`.
@@ -534,7 +522,7 @@ to make a single executable file containing the interpretor
 and some BonaLuna scripts.
 
 This feature is inspired by
-`srlua <http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua>`__.
+[srlua](http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua).
 
 `pegar.lua` parameters
 ----------------------
@@ -569,5 +557,5 @@ Examples
 ========
 
 This documentation has been generated by a BonaLuna script.
-`bonaluna.lua <bonaluna.lua>`__ also contains some tests.
+[bonaluna.lua](bonaluna.lua) also contains some tests.
 
