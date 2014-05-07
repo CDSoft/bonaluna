@@ -731,6 +731,12 @@ $USE_LPEG && CC_LIBS2+=" $LIBRARY_PATH/liblpeg.a"
 
 # the cli pegar.lua script shall not rely on the pegar module
 cat pegar.lua pegar-main.lua > ../tools/pegar.lua
+if [ pegar.lua -nt pegar-main.lua ]
+then
+    touch -r pegar.lua ../tools/pegar.lua
+else
+    touch -r pegar-main.lua ../tools/pegar.lua
+fi
 
 # Compilation
 #############
