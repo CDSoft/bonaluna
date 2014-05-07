@@ -1464,7 +1464,7 @@ do
     local big_str = string.rep("what a big string", 10000)
     for compress in iter{'on', 'off', 'min'} do
     for compile in iter{'on', 'off', 'min'} do
-    for interface in iter{'cli', 'script'} do
+    for interface in Pegar and iter{'cli', 'script'} or iter{"cli"} do
         rm_rf "tmp"
         assert(fs.mkdir "tmp")
         local f = io.open("tmp/hello.lua", "w")

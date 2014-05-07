@@ -1,6 +1,6 @@
 % BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Wed May  7 23:53:57 2014
+% Documentation date: Thu May  8 00:09:35 2014
 
 <!--
 BonaLuna
