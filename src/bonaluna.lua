@@ -25,10 +25,10 @@ function p(fmt, ...)
     io.stderr:write(string.format(fmt, ...).."\n")
 end
 
-BONALUNA_VERSION = assert(io.popen(arg[-1].." -v")):read("*l"):gsub("BonaLuna%s([%d%.]+).*", "%1")
+BONALUNA_VERSION = _BL_VERSION:split(" ")[2]
 
 doc([[
-% BonaLuna ]]..BONALUNA_VERSION..[[ - A compact Lua extension
+% BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
 % Documentation date: ]] .. os.date() .. [[
 
@@ -224,6 +224,7 @@ do
 
     multiplySevenByEightAndAddNine = curry(multiplyAndAdd, 7, 8, 9)
 
+    for i = 1, 3 do
     assert(multiplyAndAdd(7, 8, 9) == multiplyBySevenAndAdd_v1(8, 9))
     assert(multiplyAndAdd(7, 8, 9) == multiplyBySevenAndAdd_v2(8, 9))
     assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAdd_v1(9))
@@ -231,6 +232,7 @@ do
     assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAdd_v3(9))
     assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAdd_v4(9))
     assert(multiplyAndAdd(7, 8, 9) == multiplySevenByEightAndAddNine())
+    end
 
     -- compose
 
@@ -498,6 +500,16 @@ bn: arbitrary precision library for Lua written in pure Lua
 **x:iszero()** is true if x == 0
 
 **x:isone()** is true if x == 1
+
+**bn.zero, bn.one, bn.two** big representations of `0`, `1` and `2`
+
+**bn.bin(x, bits)** returns a string representation of `x` in base 2 on `bits` bits
+
+**bn.oct(x, bits)** returns a string representation of `x` in base 8 on `bits` bits
+
+**bn.dec(x, bits)** returns a string representation of `x` in base 10 on `bits` bits
+
+**bn.hex(x, bits)** returns a string representation of `x` in base 16 on `bits` bits
 
 ### Math and bitwise operators
 
@@ -1243,6 +1255,67 @@ do
 end
 
 doc [[
+strings: string module addendum
+-------------------------------
+
+BonaLuna adds a few functions to the builtin string module:
+
+**string.split(s, sep, maxsplit, plain)** splits `s` using `sep` as a separator.
+If `plain` is true, the separator is considered as plain text.
+`maxsplit` is the maximum number of separators to find (ie the remaining string is returned unsplit.
+This function returns a list of strings.
+
+**string.gsplit(s, sep, maxsplit, plain)** splits the string as `string.split` but returns an iterator.
+
+**string.lines(s)** splits `s` using '\n' as a separator and returns an iterator.
+
+**string.ltrim(s), string.rtrim(s), string.trim(s)** remove left/right/both end spaces
+
+]]
+
+do
+
+    local function assert_teq(t1, t2, t3)
+        t1 = list(t1); t2 = list(t2); t3 = list(t3)
+        assert(#t1 == #t2)
+        assert(#t1 == #t3)
+        for i = 1, #t1 do
+            assert(t1[i] == t2[i])
+            assert(t1[i] == t3[i])
+        end
+    end
+
+    local s = "a,b,c"
+        assert_teq(s:split(","), s:gsplit(","), {"a", "b", "c"})
+        assert_teq(s:split(",", 1), s:gsplit(",", 1), {"a", "b,c"})
+        assert_teq(s:split(",", 2), s:gsplit(",", 2), {"a", "b", "c"})
+        assert_teq(s:split(",", 3), s:gsplit(",", 3), {"a", "b", "c"})
+
+    local s = "a,b,c,"
+        assert_teq(s:split(","), s:gsplit(","), {"a", "b", "c", ""})
+        assert_teq(s:split(",", 1), s:gsplit(",", 1), {"a", "b,c,"})
+        assert_teq(s:split(",", 2), s:gsplit(",", 2), {"a", "b", "c,"})
+        assert_teq(s:split(",", 3), s:gsplit(",", 3), {"a", "b", "c", ""})
+        assert_teq(s:split(",", 4), s:gsplit(",", 4), {"a", "b", "c", ""})
+
+    local s = ",a,b,c"
+        assert_teq(s:split(","), s:gsplit(","), {"", "a", "b", "c"})
+        assert_teq(s:split(",", 1), s:gsplit(",", 1), {"", "a,b,c"})
+        assert_teq(s:split(",", 2), s:gsplit(",", 2), {"", "a", "b,c"})
+        assert_teq(s:split(",", 3), s:gsplit(",", 3), {"", "a", "b", "c"})
+        assert_teq(s:split(",", 4), s:gsplit(",", 4), {"", "a", "b", "c"})
+
+    local s = " \n   ab  \n  cd\r\nef   "
+    local lines = list(s:lines())
+    assert(#lines == 4)
+    assert(lines[1] == " "       and lines[1]:ltrim() == ""      and lines[1]:rtrim() == ""      and lines[1]:trim() == "")
+    assert(lines[2] == "   ab  " and lines[2]:ltrim() == "ab  "  and lines[2]:rtrim() == "   ab" and lines[2]:trim() == "ab")
+    assert(lines[3] == "  cd"    and lines[3]:ltrim() == "cd"    and lines[3]:rtrim() == "  cd"  and lines[3]:trim() == "cd")
+    assert(lines[4] == "ef   "   and lines[4]:ltrim() == "ef   " and lines[4]:rtrim() == "ef"    and lines[4]:trim() == "ef")
+
+end
+
+doc [[
 socket: Lua Socket (and networking tools)
 -----------------------------------------
 
@@ -1330,12 +1403,12 @@ and some BonaLuna scripts.
 This feature is inspired by
 [srlua](http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua).
 
-`pegar.lua` parameters
-----------------------
+`pegar.lua` parameters (command line interface)
+-----------------------------------------------
 
-**compile:on|off|min** turn compilation on, off or on when chunks are smaller than sources (`min` is the default value)
+**compile:on|off|min** turns compilation on, off or on when chunks are smaller than sources (`min` is the default value)
 
-**compress:on|off|min** turn compression on, off or on when chunks are smaller than sources (`min` is the default value)
+**compress:on|off|min** turns compression on, off or on when chunks are smaller than sources (`min` is the default value)
 
 **read:original_interpretor** reads the initial interpretor
 
@@ -1358,6 +1431,30 @@ This feature is inspired by
 When a path starts with `:`, it is relative to the executable path otherwise
 it is relative to the current working directory.
 
+`Pegar` class (useable in BonaLuna scripts)
+-------------------------------------------
+
+The class `Pegar` defines methods to build an executable.
+The methods have the same name as the command line parameters:
+
+**compile(mode)** turns compilation on, off or on
+
+**compress(mode)** turns compression on, off or on
+
+**read(original_interpretor)** reads the initial interpretor (if different from the running interpretor)
+
+**lua(script[, realname])** adds a script to be executed at runtime
+
+**str(name, value)** creates a global variable holding a string
+
+**strf(name, filename)** as above but the string is the content of a file
+
+**file(name[, realname])** adds a file to be created at runtime
+
+**dir(name)** creates a directory at runtime
+
+**write(new_executable)** write a new executable containing the original interpretor and all the added items
+
 ]]
 
 do
@@ -1367,6 +1464,7 @@ do
     local big_str = string.rep("what a big string", 10000)
     for compress in iter{'on', 'off', 'min'} do
     for compile in iter{'on', 'off', 'min'} do
+    for interface in iter{'cli', 'script'} do
         rm_rf "tmp"
         assert(fs.mkdir "tmp")
         local f = io.open("tmp/hello.lua", "w")
@@ -1394,18 +1492,32 @@ do
         f = io.open("tmp/hello.big_str", "w")
         f:write(big_str)
         f:close()
-        os.execute(stub.." ../tools/pegar.lua -q"..
-            " compile:"..compile..
-            " compress:"..compress..
-            " read:"..stub..
-            " file::/hello.flag2=tmp/hello.flag"..
-            " file::/hello.big_file2=tmp/hello.big_file"..
-            " str:big_str=@tmp/hello.big_str"..
-            " dir:tmp/hello.dir"..
-            " str:my_constant=3"..
-            " lua:hello.lua=tmp/hello.lua"..
-            " lua:exit.lua=tmp/exit.lua"..
-            " write:tmp/hello.exe")
+        if interface == 'cli' then
+            os.execute(stub.." ../tools/pegar.lua -q"..
+                " compile:"..compile..
+                " compress:"..compress..
+                " read:"..stub..
+                " file::/hello.flag2=tmp/hello.flag"..
+                " file::/hello.big_file2=tmp/hello.big_file"..
+                " str:big_str=@tmp/hello.big_str"..
+                " dir:tmp/hello.dir"..
+                " str:my_constant=3"..
+                " lua:hello.lua=tmp/hello.lua"..
+                " lua:exit.lua=tmp/exit.lua"..
+                " write:tmp/hello.exe")
+        else
+            Pegar().quiet().
+                compile(compile).
+                compress(compress).
+                file(":/hello.flag2", "tmp/hello.flag").
+                file(":/hello.big_file2", "tmp/hello.big_file").
+                strf("big_str", "tmp/hello.big_str").
+                dir("tmp/hello.dir").
+                str("my_constant", "3").
+                lua("hello.lua", "tmp/hello.lua").
+                lua("exit.lua", "tmp/exit.lua").
+                write("tmp/hello.exe")
+        end
         assert(fs.stat("tmp/hello.exe"))
         assert(tonumber(io.popen("tmp"..fs.sep.."hello.exe a b c"):read("*a")) == 42)
         f = io.open("tmp/hello.flag2", "rb")
@@ -1417,8 +1529,20 @@ do
         assert(fs.stat("tmp/hello.dir").type == "directory")
     end
     end
+    end
     rm_rf "tmp"
 end
+
+doc([[
+External modules
+================
+
+Some external modules are available.
+
+- [Lupy](https://github.com/uleelx/lupy): A small Python-style OO implementation
+- [Tasks](https://github.com/uleelx/TCP-DNS-proxy): TCP DNS proxy which can get the RIGHT IP address. It includes a multi tasking package
+
+]])
 
 doc [[
 Examples

@@ -76,7 +76,7 @@ mkdir -p $BUILD
 # Check configuration
 #####################
 
-for lib in LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET BN BC LPEG
+for lib in PEGAR LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET BN BC LPEG
 do
     eval USE_$lib=false
 done
@@ -84,6 +84,7 @@ PEGAR_CONF+=" lua:stdlib.lua"
 for lib in $LIBRARIES
 do
     case "$lib" in
+        PEGAR)              export PEGAR_CONF+=" lua:pegar.lua"; eval USE_$lib=true;;
         LZO|MINILZO|UCL)    export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
         QLZ|LZ4|ZLIB|LZMA)  export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
         CRYPT)              export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:crypt.lua";;
@@ -247,6 +248,20 @@ awk '
     }
     {print}
 ' $LUA_SRC/src/lua.c > $TARGET/lua.c
+
+awk '
+    /lauxlib.h/ {
+        print
+        print "#include \"bonaluna.h\""
+    }
+    /set global _VERSION/ {
+        print
+        print "  lua_pushliteral(L, BONALUNA_VERSION);"
+        print "  lua_setfield(L, -2, \"_BL_VERSION\");  /* set global _BL_VERSION */"
+        next
+    }
+    {print}
+' $LUA_SRC/src/lbaselib.c > $TARGET/lbaselib.c
 
 awk '
     /lauxlib.h/ {
@@ -710,6 +725,12 @@ $USE_LPEG && ! [ -e $LIB_LPEG ] && (
 $USE_LPEG && cp -f $LIB_LPEG $LIBRARY_PATH/
 $USE_LPEG && cp -f $TARGET/$LPEG_SRC/*.h $INCLUDE_PATH/
 $USE_LPEG && CC_LIBS2+=" $LIBRARY_PATH/liblpeg.a"
+
+# pegar configuration
+#####################
+
+# the cli pegar.lua script shall not rely on the pegar module
+cat pegar.lua pegar-main.lua > ../tools/pegar.lua
 
 # Compilation
 #############

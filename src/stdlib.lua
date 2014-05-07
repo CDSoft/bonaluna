@@ -215,6 +215,52 @@ do
 end
 
 -----------------------------------------------------------------------------
+-- string package addendum
+-----------------------------------------------------------------------------
+
+-- string.split
+-- Contributed by 梦想种子
+function string.split(s, sep, maxsplit, plain)
+    assert(sep and sep ~= "")
+    maxsplit = maxsplit or 1/0
+    local items = {}
+    if #s > 0 then
+        local init = 1
+        for i = 1, maxsplit do
+            local m, n = s:find(sep, init, plain)
+            if m and m <= n then
+                table.insert(items, s:sub(init, m - 1))
+                init = n + 1
+            else
+                break
+            end
+        end
+        table.insert(items, s:sub(init))
+    end
+    return items
+end
+
+function string.gsplit(s, sep, maxsplit, plain)
+    return iter(string.split(s, sep, maxsplit, plain))
+end
+
+function string.lines(s)
+    return s:gsplit('\r?\n\r?')
+end
+
+function string.ltrim(s)
+    return s:match("^%s*(.*)")
+end
+
+function string.rtrim(s)
+    return s:match("(.-)%s*$")
+end
+
+function string.trim(s)
+    return s:match("^%s*(.-)%s*$")
+end
+
+-----------------------------------------------------------------------------
 -- fs package
 -----------------------------------------------------------------------------
 

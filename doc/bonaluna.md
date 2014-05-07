@@ -1,6 +1,6 @@
-% BonaLuna 2.4.6 - A compact Lua extension
+% BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Sat Mar 15 00:00:48 2014
+% Documentation date: Wed May  7 23:47:21 2014
 
 <!--
 BonaLuna
@@ -22,7 +22,7 @@ Abstract
 
 ![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
-The current version is 2.4.6
+The current version is 2.4.7
 
 Licenses
 --------
@@ -38,7 +38,7 @@ Licenses
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-2.4.6.tgz](http://cdsoft.fr/bl/bonaluna-2.4.6.tgz)
+[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-2.4.7.tgz](http://cdsoft.fr/bl/bonaluna-2.4.7.tgz)
 
 
 Lua
@@ -212,6 +212,16 @@ bn: arbitrary precision library for Lua written in pure Lua
 **x:iszero()** is true if x == 0
 
 **x:isone()** is true if x == 1
+
+**bn.zero, bn.one, bn.two** big representations of `0`, `1` and `2`
+
+**bn.bin(x, bits)** returns a string representation of `x` in base 2 on `bits` bits
+
+**bn.oct(x, bits)** returns a string representation of `x` in base 8 on `bits` bits
+
+**bn.dec(x, bits)** returns a string representation of `x` in base 10 on `bits` bits
+
+**bn.hex(x, bits)** returns a string representation of `x` in base 16 on `bits` bits
 
 ### Math and bitwise operators
 
@@ -460,6 +470,23 @@ the initial `table`.
 
 **ser.deserialize(src)** evaluates `src` and returns a table.
 
+strings: string module addendum
+-------------------------------
+
+BonaLuna adds a few functions to the builtin string module:
+
+**string.split(s, sep, maxsplit, plain)** splits `s` using `sep` as a separator.
+If `plain` is true, the separator is considered as plain text.
+`maxsplit` is the maximum number of separators to find (ie the remaining string is returned unsplit.
+This function returns a list of strings.
+
+**string.gsplit(s, sep, maxsplit, plain)** splits the string as `string.split` but returns an iterator.
+
+**string.lines(s)** splits `s` using '\n' as a separator and returns an iterator.
+
+**string.ltrim(s), string.rtrim(s), string.trim(s)** remove left/right/both end spaces
+
+
 socket: Lua Socket (and networking tools)
 -----------------------------------------
 
@@ -524,12 +551,12 @@ and some BonaLuna scripts.
 This feature is inspired by
 [srlua](http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua).
 
-`pegar.lua` parameters
-----------------------
+`pegar.lua` parameters (command line interface)
+-----------------------------------------------
 
-**compile:on|off|min** turn compilation on, off or on when chunks are smaller than sources (`min` is the default value)
+**compile:on|off|min** turns compilation on, off or on when chunks are smaller than sources (`min` is the default value)
 
-**compress:on|off|min** turn compression on, off or on when chunks are smaller than sources (`min` is the default value)
+**compress:on|off|min** turns compression on, off or on when chunks are smaller than sources (`min` is the default value)
 
 **read:original_interpretor** reads the initial interpretor
 
@@ -551,6 +578,39 @@ This feature is inspired by
 
 When a path starts with `:`, it is relative to the executable path otherwise
 it is relative to the current working directory.
+
+`Pegar` class (useable in BonaLuna scripts)
+-------------------------------------------
+
+The class `Pegar` defines methods to build an executable.
+The methods have the same name as the command line parameters:
+
+**compile(mode)** turns compilation on, off or on
+
+**compress(mode)** turns compression on, off or on
+
+**read(original_interpretor)** reads the initial interpretor (if different from the running interpretor)
+
+**lua(script[, realname])** adds a script to be executed at runtime
+
+**str(name, value)** creates a global variable holding a string
+
+**strf(name, filename)** as above but the string is the content of a file
+
+**file(name[, realname])** adds a file to be created at runtime
+
+**dir(name)** creates a directory at runtime
+
+**write(new_executable)** write a new executable containing the original interpretor and all the added items
+
+
+External modules
+================
+
+Some external modules are available.
+
+- [Lupy](https://github.com/uleelx/lupy): A small Python-style OO implementation
+- [Tasks](https://github.com/uleelx/TCP-DNS-proxy): TCP DNS proxy which can get the RIGHT IP address. It includes a multi tasking package
 
 
 Examples

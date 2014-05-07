@@ -3,16 +3,17 @@
 # Networking library    : CURL, SOCKET (Lua Socket)
 # Arbitrary precision   : BC, BN
 # Parsing library       : LPEG
+# Self-running executable maker : PEGAR
 
 # Minimal Bonaluna distribution
 #export LIBRARIES=""
 
 # Complete BonaLuna distribution
-#export LIBRARIES="LZO QLZ LZ4 UCL LZMA ZLIB CRYPT CURL SOCKET BN LPEG"
-#export LIBRARIES="QLZ UCL ZLIB CRYPT SOCKET BN LPEG"
+#export LIBRARIES="PEGAR LZO QLZ LZ4 UCL LZMA ZLIB CRYPT CURL SOCKET BN LPEG"
+#export LIBRARIES="PEGAR QLZ UCL ZLIB CRYPT SOCKET BN LPEG"
 
 # Standard BonaLuna distribution
-export LIBRARIES="LZ4 CRYPT SOCKET BN LPEG"
+export LIBRARIES="PEGAR LZ4 CRYPT SOCKET BN LPEG"
 
 # Icon for the Win32 executable
 export ICON="bl.ico"
