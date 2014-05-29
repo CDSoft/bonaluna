@@ -56,6 +56,9 @@ do
         function self.quiet() log = function() end; return self end
 
         function self.read(exe)
+            -- The default interpretor is the current executable
+            exe = exe or arg[-1]
+            log("read", exe)
             local f = assert(io.open(exe, "rb"))
             local data = assert(f:read "*a")
             f:close()
@@ -88,6 +91,8 @@ do
         end
 
         function self.write(exe)
+            log("write", exe)
+            if not stub then self.read() end
             local f = assert(io.open(exe, "wb"))
             assert(f:write(stub))
             assert(f:write(glue))
@@ -98,6 +103,8 @@ do
         end
 
         function self.lua(script_name, real_name)
+            log("lua", script_name)
+            if not stub then self.read() end
             local f = assert(io.open(real_name or script_name, "rb"))
             local content = assert(f:read "*a")
             f:close()
@@ -131,6 +138,8 @@ do
         end
 
         function self.str(name, value)
+            log("str", name)
+            if not stub then self.read() end
             local compressed_value = z.compress(value) or value
             local smallest = {
                 off = value,
@@ -143,6 +152,8 @@ do
         end
 
         function self.strf(name, file)
+            log("str", name)
+            if not stub then self.read() end
             local f = assert(io.open(file, "rb"))
             local value = assert(f:read "*a")
             f:close()
@@ -150,6 +161,8 @@ do
         end
 
         function self.file(name, real)
+            log("file", name)
+            if not stub then self.read() end
             local f = assert(io.open(real or name, "rb"))
             local content = assert(f:read "*a")
             f:close()
@@ -165,12 +178,11 @@ do
         end
 
         function self.dir(name)
+            log("dir", name)
+            if not stub then self.read() end
             glue = glue .. struct.pack("I4I4I4s", DIR_BLOCK, #name+1, 0, name)
             return self
         end
-
-        -- The default interpretor is the current executable
-        self.read(arg[-1])
 
         return self
     end
@@ -212,18 +224,14 @@ if #arg == 0 then
     os.exit()
 end
 
-local exe = Pegar()
-exe.verbose()
-
-local log = print
+local exe = Pegar().verbose()
 
 for i, cmd in ipairs(arg) do
-    if cmd == '-q' then exe.quiet(); log = function() end
-    elseif cmd == '-v' then exe.verbose(); log = print
+    if cmd == '-q' then exe.quiet()
+    elseif cmd == '-v' then exe.verbose()
     else
         local action, param = string.match(cmd, "^(%w+):(.*)$")
         local param1, param2 = string.match(param, "^(.-)=(.+)$")
-        log(action, param)
         if action == "compile" and (param == 'min' or param == 'on' or param == 'off') then exe.compile(param)
         elseif action == "compress" and (param == 'min' or param == 'on' or param == 'off') then exe.compress(param)
         elseif action == "read" then exe.read(param)

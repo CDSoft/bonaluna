@@ -34,18 +34,14 @@ if #arg == 0 then
     os.exit()
 end
 
-local exe = Pegar()
-exe.verbose()
-
-local log = print
+local exe = Pegar().verbose()
 
 for i, cmd in ipairs(arg) do
-    if cmd == '-q' then exe.quiet(); log = function() end
-    elseif cmd == '-v' then exe.verbose(); log = print
+    if cmd == '-q' then exe.quiet()
+    elseif cmd == '-v' then exe.verbose()
     else
         local action, param = string.match(cmd, "^(%w+):(.*)$")
         local param1, param2 = string.match(param, "^(.-)=(.+)$")
-        log(action, param)
         if action == "compile" and (param == 'min' or param == 'on' or param == 'off') then exe.compile(param)
         elseif action == "compress" and (param == 'min' or param == 'on' or param == 'off') then exe.compress(param)
         elseif action == "read" then exe.read(param)
