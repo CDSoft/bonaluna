@@ -1,6 +1,6 @@
 % BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Thu May 29 10:25:26 2014
+% Documentation date: Mon Jun 16 23:30:36 2014
 
 <!--
 BonaLuna
@@ -22,7 +22,7 @@ Abstract
 
 ![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
-The current version is 2.4.8
+The current version is 2.4.9
 
 Licenses
 --------
@@ -38,7 +38,7 @@ Licenses
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-2.4.8.tgz](http://cdsoft.fr/bl/bonaluna-2.4.8.tgz)
+[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-2.4.9.tgz](http://cdsoft.fr/bl/bonaluna-2.4.9.tgz)
 
 
 Lua

@@ -630,6 +630,9 @@ do
             if n.toFloat then return n:toFloat() end
             error(string.format("Can not convert %s to Float", n))
         else
+            if type(n) == "string" then
+                n = string.gsub(n, "[ _]", "")
+            end
             local self = {n=tonumber(n)}
             self.isFloat = true
             return setmetatable(self, mt)
