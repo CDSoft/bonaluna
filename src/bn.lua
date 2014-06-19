@@ -100,9 +100,9 @@ do
         if n then
             s = s:reverse()
             s = s..(("0"):rep((n-1) - (s:len()-1)%n)) -- padding
-            s = s:gsub("("..("."):rep(n)..")", "%1 ") -- group by n digits
+            s = s:gsub("("..("."):rep(n)..")", "%1_") -- group by n digits
             s = s:reverse()
-            s = s:gsub("^ ", "")
+            s = s:gsub("^_", "")
         end
         return s
     end
@@ -117,7 +117,7 @@ do
                 s = string.format(fmt, n[i]) .. s
             end
             s = groupby(s, base_group[base])
-            s = string.gsub(s, "^[ 0]+", "")
+            s = string.gsub(s, "^[_0]+", "")
             if s == "" then s = "0" end
         else
             local prefix = base_prefix[base]
@@ -144,7 +144,7 @@ do
                 s = string.gsub(s, "^0+", "")
                 if s == "" then s = "0" end
             end
-            if prefix then s = prefix .. " " .. s end
+            if prefix then s = prefix .. "_" .. s end
         end
         if sign < 0 and not bits then s = "-" .. s end
         return s
