@@ -868,10 +868,22 @@ LUAMOD_API int luaopen_ucl (lua_State *L)
 
 int bl_qlz_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-    qlz_state_compress *state_compress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
-    char *qlz_dst = (char*)malloc(src_len + 400 + sizeof(t_z_header));
-    size_t qlz_dst_len = qlz_compress(src, qlz_dst+sizeof(t_z_header), src_len, state_compress);
-    free(state_compress);
+    char *qlz_dst;
+    size_t qlz_dst_len;
+    if (src_len == 0)
+    {
+        /* specific case for the empty string (the decompressor crashes on empty strings) */
+        qlz_dst = (char*)malloc(sizeof(t_z_header));
+        qlz_dst_len = 0;
+    }
+    else
+    {
+        qlz_state_compress *state_compress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
+        qlz_dst = (char*)malloc(src_len + 400 + sizeof(t_z_header));
+        qlz_dst_len = qlz_compress(src, qlz_dst+sizeof(t_z_header), src_len, state_compress);
+        free(state_compress);
+    }
+
     ((t_z_header*)qlz_dst)->sig = QLZ_SIG;
     ((t_z_header*)qlz_dst)->len = src_len;
     *dst = qlz_dst;
@@ -884,11 +896,20 @@ int bl_qlz_decompress_core(lua_State *L, const char *src, size_t src_len, char *
 {
     if (((t_z_header*)src)->sig == QLZ_SIG)
     {
-        qlz_state_decompress *state_decompress = (qlz_state_decompress *)malloc(sizeof(qlz_state_decompress));
-        *dst_len = ((t_z_header*)src)->len;
-        *dst = (char*)malloc(*dst_len);
-        *dst_len = qlz_decompress(src+sizeof(t_z_header), *dst, state_decompress);
-        free(state_decompress);
+        if (((t_z_header*)src)->len == 0)
+        {
+            /* specific case for the empty string (the decompressor crashes on empty strings) */
+            *dst_len = 0;
+            *dst = NULL;
+        }
+        else
+        {
+            qlz_state_decompress *state_decompress = (qlz_state_decompress *)malloc(sizeof(qlz_state_decompress));
+            *dst_len = ((t_z_header*)src)->len;
+            *dst = (char*)malloc(*dst_len);
+            *dst_len = qlz_decompress(src+sizeof(t_z_header), *dst, state_decompress);
+            free(state_decompress);
+        }
         return 0;
     }
     return -1;
