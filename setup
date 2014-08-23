@@ -1,4 +1,4 @@
-# Compression libraries : LZO, MINILZO, QLZ, LZ4, UCL, LZMA, ZLIB
+# Compression libraries : LZO, MINILZO, QLZ, LZ4, UCL, LZMA, ZLIB, LZF
 # Cryptography library  : CRYPT
 # Networking library    : CURL, SOCKET (Lua Socket)
 # Arbitrary precision   : BC, BN
@@ -9,8 +9,8 @@
 #export LIBRARIES=""
 
 # Complete BonaLuna distribution
-#export LIBRARIES="PEGAR LZO QLZ LZ4 UCL LZMA ZLIB CRYPT CURL SOCKET BN LPEG"
-#export LIBRARIES="PEGAR QLZ UCL ZLIB CRYPT SOCKET BN LPEG"
+#export LIBRARIES="PEGAR LZO QLZ LZ4 UCL LZMA ZLIB CRYPT CURL SOCKET BN LPEG LZF"
+#export LIBRARIES="PEGAR QLZ UCL ZLIB CRYPT SOCKET BN LPEG LZF"
 
 # Standard BonaLuna distribution
 export LIBRARIES="PEGAR LZ4 CRYPT SOCKET BN LPEG"
@@ -20,4 +20,4 @@ export ICON="bl.ico"
 
 # Compression
 #export COMPRESS="upx --best"
-export COMPRESS="upx --ultra-brute"
+#export COMPRESS="upx --ultra-brute"

@@ -3,7 +3,7 @@
 Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2013 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
@@ -48,7 +48,7 @@ static int report (lua_State *L, int status);
 
 #define cant(x, name) luaL_error(L, "cannot %s %s: %s", x, name, strerror(errno))
 
-static void glue_setarg(lua_State *L, char **argv, char *exename)
+static void glue_setarg(lua_State *L, char **argv, int argc, int script, char *exename)
 {
     int i;
     lua_newtable(L);
@@ -88,7 +88,7 @@ static int GetModuleFileName(void *null, char *exename, size_t bufsize)
 }
 #endif
 
-static int glue(lua_State *L, char **argv)
+static int glue(lua_State *L, char **argv, int argc, int script)
 {
     int status;
     int i;
@@ -99,13 +99,14 @@ static int glue(lua_State *L, char **argv)
     char *name, *data;
     struct stat st;
     long int end;
+    char pathexe[BL_PATHSIZE];
     char path[BL_PATHSIZE];
     char *path_end; // pointer to the end of the path in the executable name
     char *p;
 
     /* collect arguments */
     if (!GetModuleFileName(NULL, path, sizeof(path))) cant("find", argv[0]);
-    glue_setarg(L, argv, path);
+    strcpy(pathexe, path);
 
     /* open the glue */
     f = fopen(path, "rb");
@@ -148,7 +149,7 @@ static int glue(lua_State *L, char **argv)
 #define UNCOMPRESS_DATA()                                                                           \
         char *uncompressed;                                                                         \
         size_t uncompressed_len;                                                                    \
-        int n = bl_z_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len);       \
+        int n = bl_z_decompress_core(L, data, block.data_len, &uncompressed, &uncompressed_len);    \
         if (n == 0) /* decompression is ok */                                                       \
         {                                                                                           \
             /* The data was compressed */                                                           \
@@ -204,6 +205,7 @@ static int glue(lua_State *L, char **argv)
         {
             case LUA_BLOCK:
                 READ_DATA();
+                glue_setarg(L, argv, argc, script, pathexe);
                 glue_setarg0(L, name);
                 //printf("Run %s\n%s\n", name, data);
                 /* check LUA_SIGNATURE to identify precompiled chunks */
@@ -221,9 +223,10 @@ static int glue(lua_State *L, char **argv)
                     status = luaL_loadbuffer(L, data, block.data_len, name);
                     if (status == LUA_OK) status = docall(L, 0, 0);
                     status = report(L, status);
-
                 }
                 FREE_DATA();
+                /* Restore the arg variable */
+                createargtable(L, argv, argc, script);
                 if (status != LUA_OK) return 0;
                 break;
             case STRING_BLOCK:

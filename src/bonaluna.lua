@@ -3,7 +3,7 @@
 Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2013 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
@@ -39,7 +39,7 @@ BonaLuna
 Copyright (C) 2010-2014 Christophe Delord
 http://www.cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -60,10 +60,11 @@ Licenses
 --------
 
 * ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2014 Christophe Delord, Freely available under the terms of the [Lua license](http://www.lua.org/license.html#5)
-* ![logo_lua][] **[Lua 5.2](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
+* ![logo_lua][] **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
 * **Lua**, **Lpeg**: [Lua license](http://www.lua.org/license.html#5)
 * **miniLZO**, **QuickLZ**: GPL v2
 * **LZ4**: BSD
+* **LZF**: GPL
 * **libcurl**: [MIT/X derivate](http://curl.haxx.se/docs/copyright.html)
 * **ser**: MIT license
 
@@ -314,7 +315,7 @@ bc, m: arbitrary precision library for Lua based on GNU bc
 lbc is a public domain package written by Luiz Henrique de Figueiredo and available at 
 [Libraries and tools for Lua](http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc)
 
-This is a big-number library for Lua 5.2. It is based on the arbitrary
+This is a big-number library for Lua 5.3. It is based on the arbitrary
 precision library number.c written by Philip A. Nelson for GNU bc-1.06:
 http://www.gnu.org/software/bc/
 
@@ -513,9 +514,11 @@ bn: arbitrary precision library for Lua written in pure Lua
 
 ### Math and bitwise operators
 
-Functions of the math and bit32 modules also exist in the bn module.
+Functions of the math, mathx and bit32 modules also exist in the bn module.
 These functions produce bn numbers but may work internally with Lua numbers.
 Do not expect these functions to be precise.
+
+All the functions of mathx are in the math module.
 
 ]]
 
@@ -545,10 +548,10 @@ if bn then
     assert(bn.bin(x, 96) == "0b_0110_0000_0001_0101_1111_1110_1100_0101_1010_1010_1101_1111_1010_0011_0010_1000_1010_1110_0011_1001_1000_0001_0001_0101")
     assert(bn.bin(-x, 96) == "0b_1001_1111_1110_1010_0000_0001_0011_1010_0101_0101_0010_0000_0101_1100_1101_0111_0101_0001_1100_0110_0111_1110_1110_1011")
 
-    assert(x:tonumber() == 0123456789012345678901234567890123456789)
+    assert(x:tonumber() == 0123456789012345678901234567890123456789.0)
     assert(x:toInt() == bn.Int(x) and x:toInt() == x)
     assert(x:toRat() == x)
-    assert(x:toFloat() == bn.Float(0123456789012345678901234567890123456789))
+    assert(x:toFloat() == bn.Float(0123456789012345678901234567890123456789.0))
 
     assert(x+y == bn.Int("10123456789012345678901234567890123456788"))
     assert(x+(-y) == bn.Int("-9876543210987654321098765432109876543210"))
@@ -653,17 +656,31 @@ if bn then
     assert(bn.Rat(1, 2) / bn.Float(5.5) == bn.Float(0.5 / 5.5))
 
     assert(bn.hex(bn.bnot(bn.Int("0xAA55 FFFF 0000"), 64), 64) == "0x_FFFF_55AA_0000_FFFF")
+    assert(bn.hex(~bn.Int("0xAA55 FFFF 0000"), 64) == "0x_FFFF_55AA_0000_FFFF")
+
     assert(bn.hex(bn.band(bn.Int("0x12345678"), bn.Int("0x000F_F000")), 32) == "0x_0004_5000")
+    assert(bn.hex(bn.Int("0x12345678") & bn.Int("0x000F_F000"), 32) == "0x_0004_5000")
+
     assert(bn.hex(bn.bor(bn.Int("0x12345678"), bn.Int("0x000F_F000")), 32) == "0x_123F_F678")
+    assert(bn.hex(bn.Int("0x12345678") | bn.Int("0x000F_F000"), 32) == "0x_123F_F678")
+
     assert(bn.hex(bn.bxor(bn.Int("0xAAAA5555"), bn.Int("0x00FF_FF00")), 32) == "0x_AA55_AA55")
+    assert(bn.hex(bn.Int("0xAAAA5555") ~ bn.Int("0x00FF_FF00"), 32) == "0x_AA55_AA55")
+
     assert(bn.btest(bn.Int("0x12345678"), bn.Int("0x000F_F000")))
     assert(not bn.btest(bn.Int("0x12300678"), bn.Int("0x000F_F000")))
     assert(bn.hex(bn.extract(bn.Int("0x12345678"), 12, 8), 16) == "0x_0045")
     assert(bn.hex(bn.replace(bn.Int("0x12345678"), bn.Int(0xFF), 12, 8)) == "0x_123F_F678")
+
     assert(bn.hex(bn.lshift(bn.Int("0x12345678"), 8), 48) == "0x_0012_3456_7800")
     assert(bn.hex(bn.lshift(bn.Int("0x12345678"), -8), 32) == "0x_0012_3456")
     assert(bn.hex(bn.rshift(bn.Int("0x12345678"), 8), 32) == "0x_0012_3456")
     assert(bn.hex(bn.rshift(bn.Int("0x12345678"), -8), 48) == "0x_0012_3456_7800")
+
+    assert(bn.hex(bn.Int("0x12345678") << 8, 48) == "0x_0012_3456_7800")
+    assert(bn.hex(bn.Int("0x12345678") << -8, 32) == "0x_0012_3456")
+    assert(bn.hex(bn.Int("0x12345678") >> 8, 32) == "0x_0012_3456")
+    assert(bn.hex(bn.Int("0x12345678") >> -8, 48) == "0x_0012_3456_7800")
 end
 
 doc [[
@@ -1128,6 +1145,7 @@ Compression libraries are based on:
 - [LZO](http://www.oberhumer.com/opensource/lzo/)
 - [QuickLZ](http://www.quicklz.com/)
 - [LZ4/LZ4HC](http://code.google.com/p/lz4/)
+- [LZF](http://oldhome.schmorp.de/marc/liblzf.html)
 - [ZLIB](http://www.zlib.net/)
 - [UCL](http://www.oberhumer.com/opensource/ucl/)
 - [XZ Utils](http://tukaani.org/xz/)
@@ -1165,6 +1183,10 @@ doc [[
 
 **lz4hc.decompress(data)** decompresses `data` with LZ4HC and returns the decompressed string.
 
+**lzf.compress(data)** compresses `data` with LZF and returns the compressed string.
+
+**lzf.decompress(data)** decompresses `data` with LZF and returns the decompressed string.
+
 **zlib.compress(data)** compresses `data` with ZLIB and returns the compressed string.
 
 **zlib.decompress(data)** decompresses `data` with ZLIB and returns the decompressed string.
@@ -1179,13 +1201,14 @@ doc [[
 ]]
 
 if z then
-    local a = "This is a test string"
-    local b = "And this is another test string"
+    local a = "This is a test string..."
+    local b = "And this is another test string!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     local big = string.rep("a lot of bytes; ", 100000)
-    local libs = {"z", "minilzo", "lzo", "qlz", "lz4", "lz4hc", "zlib", "ucl", "lzma"}
+    local libs = {"z", "minilzo", "lzo", "qlz", "lz4", "lz4hc", "lzf", "zlib", "ucl", "lzma"}
     for name in iter(libs) do
         local lib = _G[name]
         if lib then
+            assert(lib.decompress(lib.compress("")) == "")
             assert(lib.decompress(lib.compress(a)) == a)
             assert(lib.decompress(lib.compress(b)) == b)
             assert(lib.decompress(lib.compress(big)) == big)

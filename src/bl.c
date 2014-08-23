@@ -3,7 +3,7 @@
 Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2013 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
@@ -34,6 +34,7 @@ Freely available under the terms of the Lua license.
 #include "ltable.c"
 #include "ltm.c"
 #include "lundump.c"
+#include "lutf8lib.c"
 #include "lvm.c"
 #include "lzio.c"
 
@@ -53,6 +54,8 @@ Freely available under the terms of the Lua license.
 #include "ltablib.c"
 #include "linit.c"
 
+#include "lmathx.c"
+
 /* BonaLuna libraries */
 #ifdef USE_MINILZO
 #include "minilzo.c"
@@ -63,6 +66,10 @@ Freely available under the terms of the Lua license.
 #ifdef USE_LZ4
 #include "lz4.c"
 #include "lz4hc.c"
+#endif
+#ifdef USE_LZF
+#include "lzf_c.c"
+#include "lzf_d.c"
 #endif
 #include "bonaluna.c"
 #include "struct.c"
@@ -103,8 +110,11 @@ Freely available under the terms of the Lua license.
 #endif
 
 /* BonaLuna "glue" */
-#include "glue.c"
+static int glue(lua_State *L, char **argv, int argc, int script);
 
 /* lua */
 #include "lua.c"
+
+/* BonaLuna "glue" */
+#include "glue.c"
 

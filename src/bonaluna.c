@@ -3,7 +3,7 @@
 Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2013 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
@@ -271,7 +271,7 @@ static int fs_stat(lua_State *L)
     if (stat(path, &buf)==0)
     {
 #define STRING(VAL, ATTR) lua_pushstring(L, VAL); lua_setfield(L, -2, ATTR)
-#define INTEGER(VAL, ATTR) lua_pushunsigned(L, VAL); lua_setfield(L, -2, ATTR)
+#define INTEGER(VAL, ATTR) lua_pushinteger(L, VAL); lua_setfield(L, -2, ATTR)
         lua_newtable(L); /* stat */
         STRING(path, "name");
         INTEGER(buf.st_size, "size");
@@ -360,7 +360,7 @@ static int fs_inode(lua_State *L)
     struct stat buf;
     if (stat(path, &buf)==0)
     {
-#define INTEGER(VAL, ATTR) lua_pushunsigned(L, VAL); lua_setfield(L, -2, ATTR)
+#define INTEGER(VAL, ATTR) lua_pushinteger(L, VAL); lua_setfield(L, -2, ATTR)
         lua_newtable(L); /* stat */
         INTEGER(buf.st_dev, "dev");
 #ifdef __MINGW32__
@@ -504,7 +504,7 @@ LUAMOD_API int luaopen_fs (lua_State *L)
 {
     luaL_newlib(L, fslib);
 #define STRING(NAME, VAL) lua_pushliteral(L, VAL); lua_setfield(L, -2, NAME)
-#define INTEGER(NAME, VAL) lua_pushunsigned(L, VAL); lua_setfield(L, -2, NAME)
+#define INTEGER(NAME, VAL) lua_pushinteger(L, VAL); lua_setfield(L, -2, NAME)
     /* File separator */
     STRING("sep", LUA_DIRSEP);
     /* File permission bits */
@@ -605,7 +605,7 @@ static int sys_hostid(lua_State *L)
 #ifdef __MINGW32__
     return bl_pusherror(L, "gethostid not defined by mingw");
 #else
-    lua_pushunsigned(L, gethostid());
+    lua_pushinteger(L, gethostid());
     return 1;
 #endif
 }
@@ -637,6 +637,7 @@ LUAMOD_API int luaopen_sys (lua_State *L)
 #define UCL_SIG  0x004C4355
 #define QLZ_SIG  0x005A4C51
 #define LZ4_SIG  0x00345A4C
+#define LZF_SIG  0x00465A4C
 #define ZLIB_SIG 0x42494C5A
 #define LZMA_SIG 0x414D5A4C
 
@@ -968,6 +969,70 @@ LUAMOD_API int luaopen_lz4hc (lua_State *L)
 
 #endif
 
+#ifdef USE_LZF
+
+int bl_lzf_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    char *lzf_dst;
+    unsigned int lzf_dst_len;
+    if (src_len == 0)
+    {
+        /* specific case for the empty string (the decompressor crashes on empty strings) */
+        lzf_dst = (char*)malloc(sizeof(t_z_header));
+        lzf_dst_len = 0;
+    }
+    else
+    {
+        lzf_dst = (char*)malloc(src_len+src_len/16+16 + sizeof(t_z_header));
+        lzf_dst_len = lzf_compress((char*)src, src_len, lzf_dst+sizeof(t_z_header), src_len+src_len/16+16);
+    }
+    ((t_z_header*)lzf_dst)->sig = LZF_SIG;
+    ((t_z_header*)lzf_dst)->len = src_len;
+    *dst = lzf_dst;
+    *dst_len = lzf_dst_len;
+    *dst_len += sizeof(t_z_header);
+    return 0;
+}
+
+int bl_lzf_decompress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
+{
+    if (((t_z_header*)src)->sig == LZF_SIG)
+    {
+        if (((t_z_header*)src)->len == 0)
+        {
+            /* specific case for the empty string (the decompressor crashes on empty strings) */
+            *dst_len = 0;
+            *dst = NULL;
+        }
+        else
+        {
+            *dst_len = ((t_z_header*)src)->len+16;
+            *dst = (char*)malloc(*dst_len);
+            unsigned int r = lzf_decompress((char*)(src+sizeof(t_z_header)), src_len-sizeof(t_z_header), *dst, *dst_len);
+            if (r == 0)
+            {
+                free(dst);
+                lua_pushnil(L);
+                lua_pushfstring(L, "lzf: lzf_decompress");
+                return 2;
+            }
+            *dst_len = r;
+        }
+        return 0;
+    }
+    return -1;
+}
+
+COMPRESSOR(lzf)
+
+LUAMOD_API int luaopen_lzf (lua_State *L)
+{
+    luaL_newlib(L, lzflib);
+    return 1;
+}
+
+#endif
+
 #ifdef USE_ZLIB
 
 int bl_zlib_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
@@ -1143,6 +1208,9 @@ int bl_z_compress_core(lua_State *L, const char *src, size_t src_len, char **dst
     COMPRESS(lz4)
     COMPRESS(lz4hc)
 #endif
+#ifdef USE_LZF
+    COMPRESS(lzf)
+#endif
 #ifdef USE_ZLIB
     COMPRESS(zlib)
 #endif
@@ -1192,6 +1260,9 @@ int bl_z_decompress_core(lua_State *L, const char *src, size_t src_len, char **d
 #ifdef USE_LZ4
     DECOMPRESS(lz4)
     DECOMPRESS(lz4hc)
+#endif
+#ifdef USE_LZF
+    DECOMPRESS(lzf)
 #endif
 #ifdef USE_ZLIB
     DECOMPRESS(zlib)

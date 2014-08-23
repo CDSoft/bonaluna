@@ -3,7 +3,7 @@
 Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2013 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
@@ -14,14 +14,16 @@ local strlen  = string.len
 local strchar = string.char
 local strbyte = string.byte
 local strsub  = string.sub
-local floor   = math.floor
-local bnot    = bit32.bnot
-local band    = bit32.band
-local bor     = bit32.bor
-local bxor    = bit32.bxor
-local lshift  = bit32.lshift
-local rshift  = bit32.rshift
-local rrotate = bit32.rrotate
+local strgsub = string.gsub
+local strrep  = string.rep
+local format  = string.format
+local ceil    = math.ceil
+local random  = math.random
+local max     = math.max
+local lshift  = function(a,n) return (a << n) & 0xFFFFFFFF end
+local rshift  = function(a,n) return (a&0xFFFFFFFF) >> n end
+local lrot    = function(a,n) return lshift(a, n) | rshift(a, 32-n) end
+local rrot    = function(a,n) return rshift(a, n) | lshift(a, 32-n) end
 
 -----------------------------------------------------------------------
 -- crypt.hex
@@ -31,12 +33,12 @@ crypt.hex = {}
 do
     function crypt.hex.encode(s)
         return (s:gsub(".", function(c)
-            return string.format("%02x", c:byte())
+            return format("%02x", c:byte())
         end))
     end
     function crypt.hex.decode(s)
         return (s:gsub("..", function(h)
-            return string.char("0x"..h)
+            return strchar("0x"..h)
         end))
     end
 end
@@ -68,7 +70,7 @@ do  -- http://lua-users.org/wiki/BaseSixtyFour
 
     -- decoding
     function crypt.base64.decode(data)
-        data = string.gsub(data, '[^'..b..'=]', '')
+        data = strgsub(data, '[^'..b..'=]', '')
         return (data:gsub('.', function(x)
             if (x == '=') then return '' end
             local r,f='',(b:find(x)-1)
@@ -125,9 +127,9 @@ do
     function crypt.crc32(s)
         local crc, l, i = 0xFFFFFFFF, strlen(s)
         for i = 1, l, 1 do
-            crc = bxor(rshift(crc, 8), consts[band(bxor(crc, strbyte(s, i)), 0xFF) + 1])
+            crc = (crc>>8) ~ consts[((crc~strbyte(s, i)) & 0xFF) + 1]
         end
-        return bxor(crc, -1)
+        return crc ~ 0xFFFFFFFF
     end
 end
 
@@ -161,8 +163,8 @@ do -- http://lua-users.org/wiki/SecureHashAlgorithm
 
     -- transform a string of bytes in a string of hexadecimal digits
     local function str2hexa (s)
-        local h = string.gsub(s, ".", function(c)
-            return string.format("%02x", string.byte(c))
+        local h = strgsub(s, ".", function(c)
+            return format("%02x", strbyte(c))
         end)
         return h
     end
@@ -174,7 +176,7 @@ do -- http://lua-users.org/wiki/SecureHashAlgorithm
         for i = 1, n do
             local rem = l % 256
             s = strchar(rem) .. s
-            l = (l - rem) / 256
+            l = (l - rem) // 256
         end
         return s
     end
@@ -197,7 +199,7 @@ do -- http://lua-users.org/wiki/SecureHashAlgorithm
     local function preproc (msg, len)
         local extra = 64 - ((len + 1 + 8) % 64)
         len = num2s(8 * len, 8)    -- original len in bits, coded
-        msg = msg .. "\128" .. string.rep("\0", extra) .. len
+        msg = msg .. "\128" .. strrep("\0", extra) .. len
         assert(#msg % 64 == 0)
         return msg
     end
@@ -241,9 +243,9 @@ do -- http://lua-users.org/wiki/SecureHashAlgorithm
         -- Extend the sixteen 32-bit words into sixty-four 32-bit words:
         for j = 17, 64 do
             local v = w[j - 15]
-            local s0 = bxor(rrotate(v, 7), rrotate(v, 18), rshift(v, 3))
+            local s0 = rrot(v, 7) ~ rrot(v, 18) ~ rshift(v, 3)
             v = w[j - 2]
-            local s1 = bxor(rrotate(v, 17), rrotate(v, 19), rshift(v, 10))
+            local s1 = rrot(v, 17) ~ rrot(v, 19) ~ rshift(v, 10)
             w[j] = w[j - 16] + s0 + w[j - 7] + s1
         end
 
@@ -253,11 +255,11 @@ do -- http://lua-users.org/wiki/SecureHashAlgorithm
 
         -- Main loop:
         for i = 1, 64 do
-            local s0 = bxor(rrotate(a, 2), rrotate(a, 13), rrotate(a, 22))
-            local maj = bxor(band(a, b), band(a, c), band(b, c))
+            local s0 = rrot(a, 2) ~ rrot(a, 13) ~ rrot(a, 22)
+            local maj = (a&b) ~ (a&c) ~ (b&c)
             local t2 = s0 + maj
-            local s1 = bxor(rrotate(e, 6), rrotate(e, 11), rrotate(e, 25))
-            local ch = bxor (band(e, f), band(bnot(e), g))
+            local s1 = rrot(e, 6) ~ rrot(e, 11) ~ rrot(e, 25)
+            local ch = (e&f) ~ ((~e)&g)
             local t1 = h + s1 + ch + k[i] + w[i]
 
             h = g
@@ -271,14 +273,14 @@ do -- http://lua-users.org/wiki/SecureHashAlgorithm
         end
 
         -- Add (mod 2^32) this chunk's hash to result so far:
-        H[1] = band(H[1] + a)
-        H[2] = band(H[2] + b)
-        H[3] = band(H[3] + c)
-        H[4] = band(H[4] + d)
-        H[5] = band(H[5] + e)
-        H[6] = band(H[6] + f)
-        H[7] = band(H[7] + g)
-        H[8] = band(H[8] + h)
+        H[1] = (H[1] + a) & 0xFFFFFFFF
+        H[2] = (H[2] + b) & 0xFFFFFFFF
+        H[3] = (H[3] + c) & 0xFFFFFFFF
+        H[4] = (H[4] + d) & 0xFFFFFFFF
+        H[5] = (H[5] + e) & 0xFFFFFFFF
+        H[6] = (H[6] + f) & 0xFFFFFFFF
+        H[7] = (H[7] + g) & 0xFFFFFFFF
+        H[8] = (H[8] + h) & 0xFFFFFFFF
 
     end
 
@@ -343,14 +345,10 @@ do
     ---          projects as long as this header  ---
     ---          stays intact.                    ---
     -------------------------------------------------
-
-    local h0, h1, h2, h3, h4
-
+    -- Adapted by Christophe Delord for Lua 5.3.0 --
     -------------------------------------------------
 
-    local function LeftRotate(val, nr)
-        return lshift(val, nr) + rshift(val, 32 - nr)
-    end
+    local h0, h1, h2, h3, h4
 
     -------------------------------------------------
 
@@ -358,13 +356,13 @@ do
         local i, d
         local str = ""
         for i = 1, 8 do
-            d = band(num, 15)
+            d = num & 15
             if d < 10 then
                 str = strchar(d + 48) .. str
             else
                 str = strchar(d + 87) .. str
             end
-            num = floor(num / 16)
+            num = num >> 4
         end
         return str
     end
@@ -376,7 +374,7 @@ do
         local str2 = ""
         bitlen = strlen(str) * 8
         str = str .. strchar(128)
-        i = 56 - band(strlen(str), 63)
+        i = 56 - (strlen(str)&63)
         if i < 0 then
             i = i + 64
         end
@@ -384,8 +382,8 @@ do
             str = str .. strchar(0)
         end
         for i = 1, 8 do
-            str2 = strchar(band(bitlen, 255)) .. str2
-            bitlen = floor(bitlen / 256)
+            str2 = strchar(bitlen & 0xFF) .. str2
+            bitlen = bitlen >> 8
         end
         return str .. str2
     end
@@ -404,7 +402,7 @@ do
                 end
             end
             for i = 16, 79 do
-                w[i] = LeftRotate(bxor(bxor(w[i - 3], w[i - 8]), bxor(w[i - 14], w[i - 16])), 1)
+                w[i] = lrot(w[i - 3] ~ w[i - 8] ~ w[i - 14] ~ w[i - 16], 1)
             end
             a = h0
             b = h1
@@ -413,30 +411,30 @@ do
             e = h4
             for i = 0, 79 do
                 if i < 20 then
-                    f = bor(band(b, c), band(bnot(b), d))
+                    f = (b&c) ~ ((~b)&d)
                     k = 1518500249
                 elseif i < 40 then
-                    f = bxor(bxor(b, c), d)
+                    f = b ~ c ~ d
                     k = 1859775393
                 elseif i < 60 then
-                    f = bor(bor(band(b, c), band(b, d)), band(c, d))
+                    f = (b&c) | (b&d) | (c&d)
                     k = 2400959708
                 else
-                    f = bxor(bxor(b, c), d)
+                    f = b ~ c ~ d
                     k = 3395469782
                 end
-                t = LeftRotate(a, 5) + f + e + k + w[i]
+                t = lrot(a, 5) + f + e + k + w[i]
                 e = d
                 d = c
-                c = LeftRotate(b, 30)
+                c = lrot(b, 30)
                 b = a
                 a = t
             end
-            h0 = band(h0 + a, 4294967295)
-            h1 = band(h1 + b, 4294967295)
-            h2 = band(h2 + c, 4294967295)
-            h3 = band(h3 + d, 4294967295)
-            h4 = band(h4 + e, 4294967295)
+            h0 = (h0 + a) & 0xFFFFFFFF
+            h1 = (h1 + b) & 0xFFFFFFFF
+            h2 = (h2 + c) & 0xFFFFFFFF
+            h3 = (h3 + d) & 0xFFFFFFFF
+            h4 = (h4 + e) & 0xFFFFFFFF
             str = strsub(str, 65)
         end
     end
@@ -520,25 +518,25 @@ do
     end
 
     local function byteParity(byte)
-        byte = bxor(byte, rshift(byte, 4))
-        byte = bxor(byte, rshift(byte, 2))
-        byte = bxor(byte, rshift(byte, 1))
-        return band(byte, 1)
+        byte = byte ~ rshift(byte, 4)
+        byte = byte ~ rshift(byte, 2)
+        byte = byte ~ rshift(byte, 1)
+        return byte & 1
     end
 
     local function getByte(number, index)
         if index == 0 then
-            return band(number, 0xFF)
+            return number & 0xFF
         else
-            return band(rshift(number, index*8), 0xFF)
+            return rshift(number, index*8) & 0xFF
         end
     end
 
     local function putByte(number, index)
         if index == 0 then
-            return band(number, 0xFF)
+            return number & 0xFF
         else
-            return lshift(band(number, 0xFF), index*8)
+            return lshift(number & 0xFF, index*8)
         end
     end
 
@@ -566,56 +564,56 @@ do
     local function bytesToHex(bytes)
         local hex = ""
         for i, byte in ipairs(bytes) do
-            hex = hex..string.format("%02x ", byte)
+            hex = hex..format("%02x ", byte)
         end
         return hex
     end
 
     local function toHexString(data)
         local type = type(data)
-        if type=="number" then return string.format("%08x", data) end
+        if type=="number" then return format("%08x", data) end
         if type=="table" then return bytesToHex(data) end
-        if type=="string" then return bytesToHex{string.byte(data, 1, #data)} end
+        if type=="string" then return bytesToHex{strbyte(data, 1, #data)} end
         return data
     end
 
     local function padByteString(data)
         local dataLen = #data
-        local random1 = math.random(0, 255)
-        local random2 = math.random(0, 255)
-        local prefix = string.char(random1, random2,
-                                   random1, random2,
-                                   getByte(dataLen, 3),
-                                   getByte(dataLen, 2),
-                                   getByte(dataLen, 1),
-                                   getByte(dataLen, 0))
+        local random1 = random(0, 255)
+        local random2 = random(0, 255)
+        local prefix = strchar(random1, random2,
+                               random1, random2,
+                               getByte(dataLen, 3),
+                               getByte(dataLen, 2),
+                               getByte(dataLen, 1),
+                               getByte(dataLen, 0))
         data = prefix..data
-        local paddingLen = math.ceil(#data/16)*16 - #data
+        local paddingLen = ceil(#data/16)*16 - #data
         local padding = ""
         for i = 1, paddingLen do
-            padding = padding..string.char(math.random(0, 255))
+            padding = padding..strchar(random(0, 255))
         end
         return data..padding
     end
 
     local function properlyDecrypted(data)
-        local random = {string.byte(data, 1, 4)}
+        local random = {strbyte(data, 1, 4)}
         return random[1]==random[3] and random[2]==random[4]
     end
 
     local function unpadByteString(data)
         if properlyDecrypted(data) then
-            local dataLen = putByte(string.byte(data, 5), 3)
-                          + putByte(string.byte(data, 6), 2)
-                          + putByte(string.byte(data, 7), 1)
-                          + putByte(string.byte(data, 8), 0)
-            return string.sub(data, 9, 8+dataLen)
+            local dataLen = putByte(strbyte(data, 5), 3)
+                          + putByte(strbyte(data, 6), 2)
+                          + putByte(strbyte(data, 7), 1)
+                          + putByte(strbyte(data, 8), 0)
+            return strsub(data, 9, 8+dataLen)
         end
     end
 
     local function xorIV(data, IV)
         for i = 1, 16 do
-            data[i] = bxor(data[i], IV[i])
+            data[i] = data[i] ~ IV[i]
         end
     end
 
@@ -627,10 +625,10 @@ do
     local log = {}
 
     -- add two polynoms (its simply xor)
-    local add = bxor
+    local add = function(a, b) return a ~ b end
 
     -- subtract two polynoms (same as addition)
-    local sub = bxor
+    local sub = add
 
     -- inverts element
     -- a^(-1) = g^(order - log(a))
@@ -667,7 +665,7 @@ do
         for i = 0, ord-1 do
             exp[i] = a
             log[a] = i
-            a = bxor(lshift(a, 1), a)
+            a = lshift(a, 1) ~ a
             if a > ord then
                 a = sub(a, irrPolynom)
             end
@@ -714,18 +712,18 @@ do
         for i = 1, 8 do
             result = lshift(result, 1)
 
-            result = result + byteParity(band(byte, mask))
+            result = result + byteParity(byte & mask)
 
             -- simulate roll
-            mask = band(rshift(mask, 1), 0xff)
-            if band(mask, 1) ~= 0 then
-                mask = bor(mask, 0x80)
+            mask = rshift(mask, 1) & 0xff
+            if mask & 1 ~= 0 then
+                mask = mask | 0x80
             else
-                mask = band(mask, 0x7f)
+                mask = mask & 0x7f
             end
         end
 
-        return bxor(result, 0x63)
+        return result ~ 0x63
     end
 
     -- calculate S-Box and inverse S-Box of AES
@@ -789,13 +787,6 @@ do
         end
     end
 
-    -- rotate word: 0xaabbccdd gets 0xbbccddaa
-    -- used for key schedule
-    local function rotWord(word)
-        local tmp = band(word, 0xff000000)
-        return lshift(word, 8) + rshift(tmp, 24)
-    end
-
     -- replace all bytes in a word with the SBox.
     -- used for key schedule
     local function subWord(word)
@@ -811,7 +802,7 @@ do
     -- the necessary number of rounds saved in ROUNDS
     local function expandEncryptionKey(key)
         local keySchedule = {}
-        local keyWords = math.floor(#key / 4)
+        local keyWords = #key // 4
 
         if (keyWords ~= 4 and keyWords ~= 6 and keyWords ~= 8)
         or (keyWords * 4 ~= #key) then
@@ -832,14 +823,14 @@ do
         for i = keyWords, (keySchedule[ROUNDS]+1)*4 - 1 do
             local tmp = keySchedule[i-1]
             if i % keyWords == 0 then
-                tmp = rotWord(tmp)
+                tmp = lrot(tmp, 8)
                 tmp = subWord(tmp)
-                local index = math.floor(i/keyWords)
-                tmp = bxor(tmp, rCon[index])
+                local index = i//keyWords
+                tmp = tmp ~ rCon[index]
             elseif keyWords > 6 and i % keyWords == 4 then
                 tmp = subWord(tmp)
             end
-            keySchedule[i] = bxor(keySchedule[(i-keyWords)], tmp)
+            keySchedule[i] = keySchedule[(i-keyWords)] ~ tmp
         end
 
         return keySchedule
@@ -871,28 +862,6 @@ do
                                    mul(0x0e, b3)), 0)
     end
 
-    -- Optimized inverse mix column
-    -- look at http://fp.gladman.plus.com/cryptography_technology/rijndael/aes.spec.311.pdf
-    -- TODO: make it work
-    local function invMixColumn(word)
-        local b0 = getByte(word, 3)
-        local b1 = getByte(word, 2)
-        local b2 = getByte(word, 1)
-        local b3 = getByte(word, 0)
-
-        local t = bxor(b3, b2)
-        local u = bxor(b1, b0)
-        local v = bxor(t, u)
-        v = bxor(v, mul(0x08, v))
-        w = bxor(v, mul(0x04, bxor(b2, b0)))
-        v = bxor(v, mul(0x04, bxor(b3, b1)))
-
-        return putByte(bxor(bxor(b3, v), mul(0x02, bxor(b0, b3))), 0)
-             + putByte(bxor(bxor(b2, w), mul(0x02, t           )), 1)
-             + putByte(bxor(bxor(b1, v), mul(0x02, bxor(b0, b3))), 2)
-             + putByte(bxor(bxor(b0, w), mul(0x02, u           )), 3)
-    end
-
     -- generate key schedule for aes decryption
     --
     -- uses key schedule for aes encryption and transforms each
@@ -915,35 +884,35 @@ do
     -- xor round key to state
     local function addRoundKey(state, key, round)
         for i = 0, 3 do
-            state[i] = bxor(state[i], key[round*4+i])
+            state[i] = state[i] ~ key[round*4+i]
         end
     end
 
     -- do encryption round (ShiftRow, SubBytes, MixColumn together)
     local function doRound(origState, dstState)
-        dstState[0] =  bxor(bxor(bxor(
-                    table0[getByte(origState[0], 3)],
-                    table1[getByte(origState[1], 2)]),
-                    table2[getByte(origState[2], 1)]),
-                    table3[getByte(origState[3], 0)])
+        dstState[0] =
+                    table0[getByte(origState[0], 3)] ~
+                    table1[getByte(origState[1], 2)] ~
+                    table2[getByte(origState[2], 1)] ~
+                    table3[getByte(origState[3], 0)]
 
-        dstState[1] =  bxor(bxor(bxor(
-                    table0[getByte(origState[1], 3)],
-                    table1[getByte(origState[2], 2)]),
-                    table2[getByte(origState[3], 1)]),
-                    table3[getByte(origState[0], 0)])
+        dstState[1] =
+                    table0[getByte(origState[1], 3)] ~
+                    table1[getByte(origState[2], 2)] ~
+                    table2[getByte(origState[3], 1)] ~
+                    table3[getByte(origState[0], 0)]
 
-        dstState[2] =  bxor(bxor(bxor(
-                    table0[getByte(origState[2], 3)],
-                    table1[getByte(origState[3], 2)]),
-                    table2[getByte(origState[0], 1)]),
-                    table3[getByte(origState[1], 0)])
+        dstState[2] =
+                    table0[getByte(origState[2], 3)] ~
+                    table1[getByte(origState[3], 2)] ~
+                    table2[getByte(origState[0], 1)] ~
+                    table3[getByte(origState[1], 0)]
 
-        dstState[3] =  bxor(bxor(bxor(
-                    table0[getByte(origState[3], 3)],
-                    table1[getByte(origState[0], 2)]),
-                    table2[getByte(origState[1], 1)]),
-                    table3[getByte(origState[2], 0)])
+        dstState[3] =
+                    table0[getByte(origState[3], 3)] ~
+                    table1[getByte(origState[0], 2)] ~
+                    table2[getByte(origState[1], 1)] ~
+                    table3[getByte(origState[2], 0)]
     end
 
     -- do last encryption round (ShiftRow and SubBytes)
@@ -971,29 +940,29 @@ do
 
     -- do decryption round
     local function doInvRound(origState, dstState)
-        dstState[0] =  bxor(bxor(bxor(
-                    tableInv0[getByte(origState[0], 3)],
-                    tableInv1[getByte(origState[3], 2)]),
-                    tableInv2[getByte(origState[2], 1)]),
-                    tableInv3[getByte(origState[1], 0)])
+        dstState[0] =
+                    tableInv0[getByte(origState[0], 3)] ~
+                    tableInv1[getByte(origState[3], 2)] ~
+                    tableInv2[getByte(origState[2], 1)] ~
+                    tableInv3[getByte(origState[1], 0)]
 
-        dstState[1] =  bxor(bxor(bxor(
-                    tableInv0[getByte(origState[1], 3)],
-                    tableInv1[getByte(origState[0], 2)]),
-                    tableInv2[getByte(origState[3], 1)]),
-                    tableInv3[getByte(origState[2], 0)])
+        dstState[1] =
+                    tableInv0[getByte(origState[1], 3)] ~
+                    tableInv1[getByte(origState[0], 2)] ~
+                    tableInv2[getByte(origState[3], 1)] ~
+                    tableInv3[getByte(origState[2], 0)]
 
-        dstState[2] =  bxor(bxor(bxor(
-                    tableInv0[getByte(origState[2], 3)],
-                    tableInv1[getByte(origState[1], 2)]),
-                    tableInv2[getByte(origState[0], 1)]),
-                    tableInv3[getByte(origState[3], 0)])
+        dstState[2] =
+                    tableInv0[getByte(origState[2], 3)] ~
+                    tableInv1[getByte(origState[1], 2)] ~
+                    tableInv2[getByte(origState[0], 1)] ~
+                    tableInv3[getByte(origState[3], 0)]
 
-        dstState[3] =  bxor(bxor(bxor(
-                    tableInv0[getByte(origState[3], 3)],
-                    tableInv1[getByte(origState[2], 2)]),
-                    tableInv2[getByte(origState[1], 1)]),
-                    tableInv3[getByte(origState[0], 0)])
+        dstState[3] =
+                    tableInv0[getByte(origState[3], 3)] ~
+                    tableInv1[getByte(origState[2], 2)] ~
+                    tableInv2[getByte(origState[1], 1)] ~
+                    tableInv3[getByte(origState[0], 0)]
     end
 
     -- do last decryption round
@@ -1124,9 +1093,9 @@ do
         local encryptedData = Buffer()
         for i = 1, #data/16 do
             local offset = (i-1)*16 + 1
-            local byteData = {string.byte(data, offset, offset+15)}
+            local byteData = {strbyte(data, offset, offset+15)}
             modeFunction(keySched, byteData, IV)
-            encryptedData.addString(string.char(table.unpack(byteData)))
+            encryptedData.addString(strchar(table.unpack(byteData)))
         end
         return encryptedData.toString()
     end
@@ -1155,9 +1124,9 @@ do
         local decryptedData = Buffer()
         for i = 1, #data/16 do
             local offset = (i-1)*16 + 1
-            local byteData = {string.byte(data, offset, offset +15)}
+            local byteData = {strbyte(data, offset, offset +15)}
             IV = modeFunction(keySched, byteData, IV)
-            decryptedData.addString(string.char(table.unpack(byteData)))
+            decryptedData.addString(strchar(table.unpack(byteData)))
         end
         return decryptedData.toString()
     end
@@ -1184,14 +1153,14 @@ do
         local padlen = keyLen
         if keyLen == 192/8 then padlen = 32 end
         if padlen > #password then
-            password = password .. string.char(0):rep(padlen-#password)
+            password = password .. strchar(0):rep(padlen-#password)
         else
             password = password:sub(1, padlen)
         end
-        local pwBytes = {string.byte(password, 1, keyLen)}
+        local pwBytes = {strbyte(password, 1, keyLen)}
         password = encryptString(pwBytes, password, encryptCBC)
-        password = string.sub(password, 1, keyLen)
-        return {string.byte(password, 1, #password)}
+        password = strsub(password, 1, keyLen)
+        return {strbyte(password, 1, #password)}
     end
 
     local encryptModeFunctions = {
@@ -1235,9 +1204,9 @@ end
 do
     function crypt.BTEA(key)
 
-        local key16 = string.sub(key, 1, 16)
+        local key16 = strsub(key, 1, 16)
         for i = 17, #key, 16 do
-            key16 = crypt.btea_encrypt(string.sub(key, i, i+15), key16)
+            key16 = crypt.btea_encrypt(strsub(key, i, i+15), key16)
         end
 
         local btea = {}
@@ -1259,7 +1228,7 @@ end
 
 do
     function crypt.random(bits)
-        local bytes = math.max(math.floor((bits+7)/8), 1)
+        local bytes = max((bits+7)//8, 1)
         return crypt.BTEA(crypt.rnd(16))
             .encrypt(crypt.rnd(bytes))
             :sub(1, bytes)

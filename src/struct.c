@@ -56,7 +56,7 @@ typedef unsigned STRUCT_INT Uinttype;
 
 
 /* maximum size (in bytes) for integral types */
-#define MAXINTSIZE	32
+#define STRUCT_MAXINTSIZE	32
 
 /* is 'x' a power of 2? */
 #define isp2(x)		((x) > 0 && ((x) & ((x) - 1)) == 0)
@@ -118,9 +118,9 @@ static size_t optsize (lua_State *L, char opt, const char **fmt) {
     case 'c': return getnum(fmt, 1);
     case 'i': case 'I': {
       int sz = getnum(fmt, sizeof(int));
-      if (sz > MAXINTSIZE)
+      if (sz > STRUCT_MAXINTSIZE)
         luaL_error(L, "integral size %d is larger than limit of %d",
-                       sz, MAXINTSIZE);
+                       sz, STRUCT_MAXINTSIZE);
       return sz;
     }
     default: return 0;  /* other cases do not need alignment */
@@ -168,7 +168,7 @@ static void putinteger (lua_State *L, luaL_Buffer *b, int arg, int endian,
                         int size) {
   lua_Number n = luaL_checknumber(L, arg);
   Uinttype value;
-  char buff[MAXINTSIZE];
+  char buff[STRUCT_MAXINTSIZE];
   if (n < 0)
     value = (Uinttype)(Inttype)n;
   else

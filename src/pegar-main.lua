@@ -1,6 +1,6 @@
 
 local usage = [[
-usage: ]]..arg[-1]..[[ ]]..arg[0]..[[ arguments
+usage: ]]..(arg[0] or arg[1] or arg[-1])..[[ arguments
 
     -q  quiet
     -v  verbose

@@ -3,7 +3,7 @@
 Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2013 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
@@ -143,7 +143,7 @@ do
             local xd, yd
             x, xd = bc.divmod(x, b)
             y, yd = bc.divmod(y, b)
-            z = z + bit32.band(bc.tonumber(xd), bc.tonumber(yd))*(b^i)
+            z = z + (bc.tonumber(xd) & bc.tonumber(yd))*(b^i)
             i = i + 1
         end
         if bits ~= nil then
@@ -164,7 +164,7 @@ do
             local xd, yd
             x, xd = bc.divmod(x, b)
             y, yd = bc.divmod(y, b)
-            z = z + bit32.bor(bc.tonumber(xd), bc.tonumber(yd))*(b^i)
+            z = z + (bc.tonumber(xd) | bc.tonumber(yd))*(b^i)
             i = i + 1
         end
         if bits ~= nil then
@@ -185,7 +185,7 @@ do
             local xd, yd
             x, xd = bc.divmod(x, b)
             y, yd = bc.divmod(y, b)
-            z = z + bit32.bxor(bc.tonumber(xd), bc.tonumber(yd))*(b^i)
+            z = z + (bc.tonumber(xd) ~ bc.tonumber(yd))*(b^i)
             i = i + 1
         end
         if bits ~= nil then

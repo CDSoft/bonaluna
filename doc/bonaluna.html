@@ -13,7 +13,7 @@
 <div id="header">
 <h1 class="title">BonaLuna - A compact Lua extension</h1>
 <h2 class="author"><a href="http://cdsoft.fr/contact.html">Christophe Delord</a></h2>
-<h3 class="date">Documentation date: Thu Jun 19 07:36:19 2014</h3>
+<h3 class="date">Documentation date: Sat Aug 23 09:05:09 2014</h3>
 </div>
 <div id="TOC">
 <ul>
@@ -65,7 +65,7 @@ BonaLuna
 Copyright (C) 2010-2014 Christophe Delord
 http://www.cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -73,22 +73,23 @@ Freely available under the terms of the Lua license.
 
 <h1 id="abstract">Abstract</h1>
 <p><img src="bl.png" alt="logo" /> <a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> is a Lua interpretor plus a few packages in a single executable.</p>
-<p>The current version is 2.4.10</p>
+<p>The current version is 3.0.0-alpha</p>
 <h2 id="licenses">Licenses</h2>
 <ul>
 <li><img src="bl.png" alt="logo" /> <strong><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a></strong>: Copyright (C) 2010-2014 Christophe Delord, Freely available under the terms of the <a href="http://www.lua.org/license.html#5">Lua license</a></li>
-<li><img src="http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png" alt="logo_lua" /> <strong><a href="http://www.lua.org">Lua 5.2</a></strong>: Copyright (C) 2010 <a href="http://www.lua.org&gt;">Lua.org</a>, PUC-Rio.</li>
+<li><img src="http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png" alt="logo_lua" /> <strong><a href="http://www.lua.org">Lua 5.3</a></strong>: Copyright (C) 2010 <a href="http://www.lua.org&gt;">Lua.org</a>, PUC-Rio.</li>
 <li><strong>Lua</strong>, <strong>Lpeg</strong>: <a href="http://www.lua.org/license.html#5">Lua license</a></li>
 <li><strong>miniLZO</strong>, <strong>QuickLZ</strong>: GPL v2</li>
 <li><strong>LZ4</strong>: BSD</li>
+<li><strong>LZF</strong>: GPL</li>
 <li><strong>libcurl</strong>: <a href="http://curl.haxx.se/docs/copyright.html">MIT/X derivate</a></li>
 <li><strong>ser</strong>: MIT license</li>
 </ul>
 <h2 id="download">Download</h2>
-<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-2.4.10.tgz">bonaluna-2.4.10.tgz</a></p>
+<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.0-alpha.tgz">bonaluna-3.0.0-alpha.tgz</a></p>
 <h1 id="lua">Lua</h1>
 <p>The original Lua interpretor and documentation is available at http://www.lua.org.</p>
-<p>BonaLuna is based on <a href="lua/contents.html">Lua 5.2</a>.</p>
+<p>BonaLuna is based on <a href="lua/contents.html">Lua 5.3</a>.</p>
 <h1 id="global-functions">Global functions</h1>
 <h2 id="iterators">Iterators</h2>
 <p><strong>iter(sequence)</strong> returns an iterator of <code>sequence</code> items (a table).</p>
@@ -114,7 +115,7 @@ Freely available under the terms of the Lua license.
 encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <h2 id="bc-m-arbitrary-precision-library-for-lua-based-on-gnu-bc">bc, m: arbitrary precision library for Lua based on GNU bc</h2>
 <p>lbc is a public domain package written by Luiz Henrique de Figueiredo and available at <a href="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc">Libraries and tools for Lua</a></p>
-<p>This is a big-number library for Lua 5.2. It is based on the arbitrary precision library number.c written by Philip A. Nelson for GNU bc-1.06: http://www.gnu.org/software/bc/</p>
+<p>This is a big-number library for Lua 5.3. It is based on the arbitrary precision library number.c written by Philip A. Nelson for GNU bc-1.06: http://www.gnu.org/software/bc/</p>
 <h3 id="basic-bc-functions">basic bc functions</h3>
 <p><strong>bc.version</strong> is the version number of bc</p>
 <p><strong>bc.digits([n])</strong> sets the number of digits used by bc</p>
@@ -167,7 +168,8 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <p><strong>bn.dec(x, bits)</strong> returns a string representation of <code>x</code> in base 10 on <code>bits</code> bits</p>
 <p><strong>bn.hex(x, bits)</strong> returns a string representation of <code>x</code> in base 16 on <code>bits</code> bits</p>
 <h3 id="math-and-bitwise-operators-1">Math and bitwise operators</h3>
-<p>Functions of the math and bit32 modules also exist in the bn module. These functions produce bn numbers but may work internally with Lua numbers. Do not expect these functions to be precise.</p>
+<p>Functions of the math, mathx and bit32 modules also exist in the bn module. These functions produce bn numbers but may work internally with Lua numbers. Do not expect these functions to be precise.</p>
+<p>All the functions of mathx are in the math module.</p>
 <h2 id="crypt-cryptographic-functions">crypt: Cryptographic functions</h2>
 <p>The <code>crypt</code> package is a pure Lua package (i.e. not really fast).</p>
 <p><strong>crypt.hex.encode(data)</strong> encodes <code>data</code> in hexa.</p>
@@ -246,6 +248,7 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <li><a href="http://www.oberhumer.com/opensource/lzo/">LZO</a></li>
 <li><a href="http://www.quicklz.com/">QuickLZ</a></li>
 <li><a href="http://code.google.com/p/lz4/">LZ4/LZ4HC</a></li>
+<li><a href="http://oldhome.schmorp.de/marc/liblzf.html">LZF</a></li>
 <li><a href="http://www.zlib.net/">ZLIB</a></li>
 <li><a href="http://www.oberhumer.com/opensource/ucl/">UCL</a></li>
 <li><a href="http://tukaani.org/xz/">XZ Utils</a></li>
@@ -265,6 +268,8 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <p><strong>lz4.decompress(data)</strong> decompresses <code>data</code> with LZ4 and returns the decompressed string.</p>
 <p><strong>lz4hc.compress(data)</strong> compresses <code>data</code> with LZ4HC and returns the compressed string.</p>
 <p><strong>lz4hc.decompress(data)</strong> decompresses <code>data</code> with LZ4HC and returns the decompressed string.</p>
+<p><strong>lzf.compress(data)</strong> compresses <code>data</code> with LZF and returns the compressed string.</p>
+<p><strong>lzf.decompress(data)</strong> decompresses <code>data</code> with LZF and returns the decompressed string.</p>
 <p><strong>zlib.compress(data)</strong> compresses <code>data</code> with ZLIB and returns the compressed string.</p>
 <p><strong>zlib.decompress(data)</strong> decompresses <code>data</code> with ZLIB and returns the decompressed string.</p>
 <p><strong>ucl.compress(data)</strong> compresses <code>data</code> with UCL and returns the compressed string.</p>

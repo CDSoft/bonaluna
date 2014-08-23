@@ -1,6 +1,6 @@
 % BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Thu Jun 19 07:36:19 2014
+% Documentation date: Sat Aug 23 09:05:09 2014
 
 <!--
 BonaLuna
@@ -8,7 +8,7 @@ BonaLuna
 Copyright (C) 2010-2014 Christophe Delord
 http://www.cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
 Freely available under the terms of the Lua license.
@@ -22,23 +22,24 @@ Abstract
 
 ![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
-The current version is 2.4.10
+The current version is 3.0.0-alpha
 
 Licenses
 --------
 
 * ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2014 Christophe Delord, Freely available under the terms of the [Lua license](http://www.lua.org/license.html#5)
-* ![logo_lua][] **[Lua 5.2](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
+* ![logo_lua][] **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
 * **Lua**, **Lpeg**: [Lua license](http://www.lua.org/license.html#5)
 * **miniLZO**, **QuickLZ**: GPL v2
 * **LZ4**: BSD
+* **LZF**: GPL
 * **libcurl**: [MIT/X derivate](http://curl.haxx.se/docs/copyright.html)
 * **ser**: MIT license
 
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-2.4.10.tgz](http://cdsoft.fr/bl/bonaluna-2.4.10.tgz)
+[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.0-alpha.tgz](http://cdsoft.fr/bl/bonaluna-3.0.0-alpha.tgz)
 
 
 Lua
@@ -47,7 +48,7 @@ Lua
 The original Lua interpretor and documentation is available
 at http://www.lua.org.
 
-BonaLuna is based on [Lua 5.2](lua/contents.html).
+BonaLuna is based on [Lua 5.3](lua/contents.html).
 
 Global functions
 ================
@@ -111,7 +112,7 @@ bc, m: arbitrary precision library for Lua based on GNU bc
 lbc is a public domain package written by Luiz Henrique de Figueiredo and available at 
 [Libraries and tools for Lua](http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc)
 
-This is a big-number library for Lua 5.2. It is based on the arbitrary
+This is a big-number library for Lua 5.3. It is based on the arbitrary
 precision library number.c written by Philip A. Nelson for GNU bc-1.06:
 http://www.gnu.org/software/bc/
 
@@ -225,9 +226,11 @@ bn: arbitrary precision library for Lua written in pure Lua
 
 ### Math and bitwise operators
 
-Functions of the math and bit32 modules also exist in the bn module.
+Functions of the math, mathx and bit32 modules also exist in the bn module.
 These functions produce bn numbers but may work internally with Lua numbers.
 Do not expect these functions to be precise.
+
+All the functions of mathx are in the math module.
 
 
 crypt: Cryptographic functions
@@ -395,6 +398,7 @@ Compression libraries are based on:
 - [LZO](http://www.oberhumer.com/opensource/lzo/)
 - [QuickLZ](http://www.quicklz.com/)
 - [LZ4/LZ4HC](http://code.google.com/p/lz4/)
+- [LZF](http://oldhome.schmorp.de/marc/liblzf.html)
 - [ZLIB](http://www.zlib.net/)
 - [UCL](http://www.oberhumer.com/opensource/ucl/)
 - [XZ Utils](http://tukaani.org/xz/)
@@ -429,6 +433,10 @@ but you can change it in `setup`.
 **lz4hc.compress(data)** compresses `data` with LZ4HC and returns the compressed string.
 
 **lz4hc.decompress(data)** decompresses `data` with LZ4HC and returns the decompressed string.
+
+**lzf.compress(data)** compresses `data` with LZF and returns the compressed string.
+
+**lzf.decompress(data)** decompresses `data` with LZF and returns the decompressed string.
 
 **zlib.compress(data)** compresses `data` with ZLIB and returns the compressed string.
 

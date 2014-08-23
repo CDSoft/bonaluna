@@ -3,7 +3,7 @@
 Copyright (C) 2010-2014 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
-BonaLuna is based on Lua 5.2
+BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2013 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
@@ -15,9 +15,11 @@ Freely available under the terms of the Lua license.
 #define BONALUNA_COPYRIGHT  BONALUNA_VERSION " Copyright (C) 2010-2014 cdsoft.fr, Christophe Delord"
 #define BONALUNA_AUTHORS    "Christophe Delord"
 
-#if defined(USE_MINILZO) || defined(USE_LZO) || defined(USE_QLZ) || defined(USE_LZ4) || defined(USE_ZLIB) || defined(USE_UCL) || defined(USE_LZMA)
+#if defined(USE_MINILZO) || defined(USE_LZO) || defined(USE_QLZ) || defined(USE_LZ4) || defined(USE_LZF) || defined(USE_ZLIB) || defined(USE_UCL) || defined(USE_LZMA)
     #define USE_Z
 #endif
+
+LUALIB_API int luaopen_mathx(lua_State *L);
 
 #define LUA_FSLIBNAME "fs"
 LUAMOD_API int (luaopen_fs) (lua_State *L);
@@ -48,6 +50,9 @@ LUAMOD_API int (luaopen_lz4) (lua_State *L);
 
 #define LUA_LZ4HCLIBNAME "lz4hc"
 LUAMOD_API int (luaopen_lz4hc) (lua_State *L);
+
+#define LUA_LZFLIBNAME "lzf"
+LUAMOD_API int (luaopen_lzf) (lua_State *L);
 
 #define LUA_ZLIBLIBNAME "zlib"
 LUAMOD_API int (luaopen_zlib) (lua_State *L);

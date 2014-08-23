@@ -5,13 +5,14 @@
 # Copyright (C) 2010-2014 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
-# BonaLuna is based on Lua 5.2
+# BonaLuna is based on Lua 5.3
 # Copyright (C) 1994-2013 Lua.org, PUC-Rio
 #
 # Freely available under the terms of the Lua license.
 
-LUA_SRC=lua-5.2.3
-LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
+LUA_SRC=lua-5.3.0-alpha
+#LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
+LUA_URL=http://www.lua.org/work/$LUA_SRC.tar.gz
 
 LZO_SRC=lzo-2.06
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
@@ -19,6 +20,8 @@ QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
 LZ4_SRC=lz4-r112
 LZ4_URL=http://lz4.googlecode.com/files/$LZ4_SRC.tar.gz
+LZF_SRC=liblzf-3.6
+LZF_URL=http://dist.schmorp.de/liblzf/$LZF_SRC.tar.gz
 ZLIB_SRC=zlib-1.2.8
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
@@ -33,6 +36,8 @@ BC_SRC=bc
 BC_URL=http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/5.2/lbc.tar.gz
 LPEG_SRC=lpeg-0.12
 LPEG_URL=http://www.inf.puc-rio.br/~roberto/lpeg/${LPEG_SRC}.tar.gz
+MATHX_SRC=mathx
+MATHX_URL=http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/5.3/lmathx.tar.gz
 
 function error()
 {
@@ -76,7 +81,7 @@ mkdir -p $BUILD
 # Check configuration
 #####################
 
-for lib in PEGAR LZO MINILZO UCL QLZ LZ4 LZMA ZLIB CRYPT CURL SOCKET BN BC LPEG
+for lib in PEGAR LZO MINILZO UCL QLZ LZ4 LZF LZMA ZLIB CRYPT CURL SOCKET BN BC LPEG
 do
     eval USE_$lib=false
 done
@@ -87,6 +92,7 @@ do
         PEGAR)              export PEGAR_CONF+=" lua:pegar.lua"; eval USE_$lib=true;;
         LZO|MINILZO|UCL)    export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
         QLZ|LZ4|ZLIB|LZMA)  export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
+        LZF)                export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;;
         CRYPT)              export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:crypt.lua";;
         CURL)               export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true; export PEGAR_CONF+=" lua:curl.lua";;
         SOCKET)             export LUA_CONF+=" -DUSE_$lib"; eval USE_$lib=true;
@@ -155,6 +161,9 @@ BONALUNA_CONF="$BONALUNA_CONF -DBONALUNA_PLATFORM=\"$PLATFORM\""
 [ -e $(basename $LUA_URL) ] || wget $LUA_URL
 [ -e $LUA_SRC ] || tar xzf $(basename $LUA_URL)
 
+[ -e $(basename $MATHX_URL) ] || wget $MATHX_URL
+[ -e $MATHX_SRC ] || tar xzf $(basename $MATHX_URL)
+
 ( $USE_LZO || $USE_MINILZO ) && (
     [ -e $(basename $LZO_URL) ] || wget $LZO_URL
     [ -e $LZO_SRC ] || tar xzf $(basename $LZO_URL)
@@ -175,6 +184,11 @@ $USE_QLZ && (
 $USE_LZ4 && (
     [ -e "$LZ4_SRC".tar.gz ] || wget $LZ4_URL
     [ -e "$LZ4_SRC" ] || tar xzf "$LZ4_SRC.tar.gz"
+)
+
+$USE_LZF && (
+    [ -e "$LZF_SRC".tar.gz ] || wget $LZF_URL
+    [ -e "$LZF_SRC" ] || tar xzf "$LZF_SRC.tar.gz"
 )
 
 $USE_LZMA && (
@@ -212,6 +226,7 @@ $USE_LPEG && (
 
 mkdir -p $TARGET
 cp -f $LUA_SRC/src/* $TARGET/
+cp -f $MATHX_SRC/lmathx.c $TARGET/
 ( $USE_LZO || $USE_MINILZO ) && {
     ! [ -e $TARGET/$LZO_SRC ] && cp -rf $LZO_SRC $TARGET/
     cp -f $TARGET/$LZO_SRC/minilzo/*.{c,h} $TARGET/
@@ -219,6 +234,7 @@ cp -f $LUA_SRC/src/* $TARGET/
 }
 $USE_QLZ && cp -f $QLZ_SRC/*.{c,h} $TARGET/
 $USE_LZ4 && cp -f "$LZ4_SRC"/{lz4,lz4hc}.{c,h} $TARGET/
+$USE_LZF && cp -f "$LZF_SRC"/{lzf_c.c,lzf_d.c,lzf.h,lzfP.h} $TARGET/
 $USE_ZLIB && ! [ -e $TARGET/$ZLIB_SRC ] && cp -rf $ZLIB_SRC $TARGET/
 $USE_UCL && ! [ -e $TARGET/$UCL_SRC ] && cp -rf $UCL_SRC $TARGET/
 $USE_LZMA && ! [ -e $TARGET/$LZMA_SRC ] && cp -rf $LZMA_SRC $TARGET/
@@ -237,12 +253,12 @@ esac
 
 awk '
     /LUA_COPYRIGHT/ {
-        print "printf(\"%s\\n\", BONALUNA_COPYRIGHT);"
+    print "  luai_writestring(BONALUNA_COPYRIGHT, strlen(BONALUNA_COPYRIGHT)); luai_writeline();"
         print
         next
     }
     /runargs\(L/ {
-        print "if (!glue(L, argv)) return 0;"
+        print "  if (!glue(L, argv, argc, script)) return 0;"
         print
         next
     }
@@ -266,6 +282,8 @@ awk '
 awk '
     /lauxlib.h/ {
         print "#include \"bonaluna.h\""
+        print
+        next
     }
     /LUA_MATHLIBNAME/ {
         print "  {LUA_FSLIBNAME,  luaopen_fs},"
@@ -288,6 +306,9 @@ awk '
         print "#if defined(USE_LZ4)"
         print "  {LUA_LZ4LIBNAME, luaopen_lz4},"
         print "  {LUA_LZ4HCLIBNAME, luaopen_lz4hc},"
+        print "#endif"
+        print "#if defined(USE_LZF)"
+        print "  {LUA_LZFLIBNAME, luaopen_lzf},"
         print "#endif"
         print "#if defined(USE_ZLIB)"
         print "  {LUA_ZLIBLIBNAME, luaopen_zlib},"
@@ -314,6 +335,9 @@ awk '
         print "#if defined(USE_LPEG)"
         print "  {LUA_LPEGLIBNAME, luaopen_lpeg},"
         print "#endif"
+        print
+        print "  {LUA_MATHLIBNAME\"x\", luaopen_mathx},"
+        next
         }
     {print}
 ' $LUA_SRC/src/linit.c > $TARGET/linit.c
@@ -449,6 +473,13 @@ $USE_LZ4 && (
     done
 )
 
+# LZF patches
+#############
+
+$USE_LZF && (
+    sed -i 's/\<expect\>/lzf_expect/' $TARGET/lzf_c.c
+)
+
 # Luacurl patches
 #################
 
@@ -575,6 +606,10 @@ $USE_LPEG && (
         sed -e 's/\(.*_ENV = nil.*\)/-- \1/' $TARGET/$LPEG_SRC/re.lua
         sed -e '1,/re.lua/d' lpeg.lua
     ) > $TARGET/lpeg.lua
+    sed -i \
+        -e 's/compatibility with Lua 5.2/compatibility with Lua 5.3/' \
+        -e 's/LUA_VERSION_NUM == 502/LUA_VERSION_NUM == 503/' \
+        $TARGET/$LPEG_SRC/lptypes.h
 )
 
 # External libraries
@@ -736,6 +771,22 @@ then
     touch -r pegar.lua ../tools/pegar.lua
 else
     touch -r pegar-main.lua ../tools/pegar.lua
+fi
+
+# Icon
+######
+
+if ! [ -e bl.png ] || ! [ -e bl.ico ]
+then
+    convert -size 1024x1024 xc:none \
+        -fill "#00007F" -stroke "#00007F" -strokewidth 0 \
+        -draw "circle 512,512, 96,512" \
+        -fill "#FFFF00" -stroke "#FFFF00" -strokewidth 0 \
+        -draw "circle 768,256 976,256" \
+        bl-1024.png
+    convert bl-1024.png -resize 64x64 bl.png
+    convert -resize 32x32 bl-1024.png bl.ico
+    rm bl-1024.png
 fi
 
 # Compilation
