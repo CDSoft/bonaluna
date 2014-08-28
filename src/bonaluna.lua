@@ -488,6 +488,8 @@ bn: arbitrary precision library for Lua written in pure Lua
 
 **\_\_div(x,y)** returns `x/y`
 
+**\_\_idiv(x,y)** return `x // y`
+
 **\_\_mod(x,y)** return `x mod y`
 
 **bn.divmod(x,y)** returns `[x/y], x mod y`

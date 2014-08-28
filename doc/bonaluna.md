@@ -1,6 +1,6 @@
 % BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Sat Aug 23 09:53:51 2014
+% Documentation date: Thu Aug 28 06:39:01 2014
 
 <!--
 BonaLuna
@@ -22,7 +22,7 @@ Abstract
 
 ![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
-The current version is 3.0.0-alpha
+The current version is 3.0.1-alpha
 
 Licenses
 --------
@@ -39,7 +39,7 @@ Licenses
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.0-alpha.tgz](http://cdsoft.fr/bl/bonaluna-3.0.0-alpha.tgz)
+[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.1-alpha.tgz](http://cdsoft.fr/bl/bonaluna-3.0.1-alpha.tgz)
 
 
 Lua
@@ -199,6 +199,8 @@ bn: arbitrary precision library for Lua written in pure Lua
 **\_\_mul(x,y)** returns `x*y`
 
 **\_\_div(x,y)** returns `x/y`
+
+**\_\_idiv(x,y)** return `x // y`
 
 **\_\_mod(x,y)** return `x mod y`
 

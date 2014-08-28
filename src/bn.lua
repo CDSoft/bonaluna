@@ -508,7 +508,10 @@ do
         return bn.Float(a:tonumber() / b:tonumber())
     end
 
-    function mt.__idiv(a, b) return bn.Int(a) // bn.Int(b) end
+    function mt.__idiv(a, b)
+        local q, r = bn.divmod(a, b)
+        return q
+    end
 
     function mt.__mod(a, b)
         local q, r = bn.divmod(a, b)
