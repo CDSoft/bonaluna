@@ -1,6 +1,6 @@
 % BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Thu Aug 28 06:39:01 2014
+% Documentation date: Tue Oct 28 07:51:12 2014
 
 <!--
 BonaLuna
@@ -22,7 +22,7 @@ Abstract
 
 ![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
-The current version is 3.0.1-alpha
+The current version is 3.0.2-beta
 
 Licenses
 --------
@@ -39,7 +39,7 @@ Licenses
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.1-alpha.tgz](http://cdsoft.fr/bl/bonaluna-3.0.1-alpha.tgz)
+[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.2-beta.tgz](http://cdsoft.fr/bl/bonaluna-3.0.2-beta.tgz)
 
 
 Lua
@@ -265,6 +265,12 @@ see http://en.wikipedia.org/wiki/XXTEA).
 `crypt.BTEA` objects have two methods: `encrypt(data)` and `decrypt(data)`.
 BTEA encrypts 32-bit words so the length of data should be a multiple of 4
 (if not, BTEA will add null padding at the end of data).
+
+**crypt.RC4(password, drop)** return a RC4 codec
+(a popular stream cypher, see http://en.wikipedia.org/wiki/RC4).
+`password` is the encryption/decryption key.
+`drop` is the numbre of bytes ignores before encoding (768 by default).
+`crypt.RC4` returns the encryption/decryption function.
 
 **crypt.random(bits)** returns a string with `bits` random bits.
 

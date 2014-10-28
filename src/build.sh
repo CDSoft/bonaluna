@@ -10,25 +10,26 @@
 #
 # Freely available under the terms of the Lua license.
 
-LUA_SRC=lua-5.3.0-alpha
+LUA_SRC=lua-5.3.0-beta
 #LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
 LUA_URL=http://www.lua.org/work/$LUA_SRC.tar.gz
 
-LZO_SRC=lzo-2.06
+LZO_SRC=lzo-2.08
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
-LZ4_SRC=lz4-r112
-LZ4_URL=http://lz4.googlecode.com/files/$LZ4_SRC.tar.gz
+LZ4_REV=r123
+LZ4_SRC=lz4-$LZ4_REV
+LZ4_URL=https://github.com/Cyan4973/lz4/archive/$LZ4_REV.tar.gz
 LZF_SRC=liblzf-3.6
 LZF_URL=http://dist.schmorp.de/liblzf/$LZF_SRC.tar.gz
 ZLIB_SRC=zlib-1.2.8
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
-LZMA_SRC=xz-5.0.5
+LZMA_SRC=xz-5.0.7
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
-CURL_SRC=curl-7.34.0
+CURL_SRC=curl-7.38.0
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 SOCKET_SRC=luasocket-2.0.2
 SOCKET_URL=http://files.luaforge.net/releases/luasocket/luasocket/$SOCKET_SRC/$SOCKET_SRC.tar.gz
@@ -128,7 +129,7 @@ $USE_LZO && $USE_MINILZO && {
 (which $CC > /dev/null) || error "Unknown compiler: $CC"
 [ "$BITS" = "32" ] || [ "$BITS" = "64" ] || error "Wrong integer size (should be 32 or 64)"
 
-CC_OPTS="-O2 -std=gnu99"
+CC_OPTS="-O2 -std=gnu99 -DLUA_COMPAT_5_2"
 CC_LIBS2="-lm"
 BONALUNA_CONF="-DBL_VERSION=\"$(cat ../VERSION)\"" 
 CC_INC+=" -I. -I$TARGET"
@@ -182,8 +183,8 @@ $USE_QLZ && (
 )
 
 $USE_LZ4 && (
-    [ -e "$LZ4_SRC".tar.gz ] || wget $LZ4_URL
-    [ -e "$LZ4_SRC" ] || tar xzf "$LZ4_SRC.tar.gz"
+    [ -e "$LZ4_REV".tar.gz ] || wget $LZ4_URL
+    [ -e "$LZ4_SRC" ] || tar xzf "$LZ4_REV.tar.gz"
 )
 
 $USE_LZF && (
@@ -233,7 +234,7 @@ cp -f $MATHX_SRC/lmathx.c $TARGET/
     cp -f $TARGET/$LZO_SRC/include/lzo/*.h $TARGET/
 }
 $USE_QLZ && cp -f $QLZ_SRC/*.{c,h} $TARGET/
-$USE_LZ4 && cp -f "$LZ4_SRC"/{lz4,lz4hc}.{c,h} $TARGET/
+$USE_LZ4 && cp -f "$LZ4_SRC"/{lz4,lz4hc,lz4frame}.{c,h} $TARGET/
 $USE_LZF && cp -f "$LZF_SRC"/{lzf_c.c,lzf_d.c,lzf.h,lzfP.h} $TARGET/
 $USE_ZLIB && ! [ -e $TARGET/$ZLIB_SRC ] && cp -rf $ZLIB_SRC $TARGET/
 $USE_UCL && ! [ -e $TARGET/$UCL_SRC ] && cp -rf $UCL_SRC $TARGET/
@@ -463,13 +464,13 @@ $USE_QLZ && (
 
 $USE_LZ4 && (
     for name in STEPSIZE ALLOCATOR U16_S U32_S U64_S MAX_DISTANCE A64 A32 A16 \
-                HASHTABLESIZE ML_MASK LZ4_COPYSTEP AARCH INITBASE \
+                HASHTABLESIZE ML_MASK LZ4_COPYSTEP AARCH \
                 LZ4_READ_LITTLEENDIAN_16 LZ4_WRITE_LITTLEENDIAN_16 \
                 LZ4_WILDCOPY LZ4_NbCommonBytes limitedOutput_directive \
-                U16 U32 U64 S32 HTYPE
+                U16 U32 U64 S32 limitedOutput
     do
-        sed -i "s/$name/LZ4_$name/g" $TARGET/lz4.c
-        sed -i "s/$name/LZ4HC_$name/g" $TARGET/lz4hc.c
+        sed -i "s/\b$name\b/LZ4_$name/g" $TARGET/lz4.c
+        sed -i "s/\b$name\b/LZ4HC_$name/g" $TARGET/lz4hc.c
     done
 )
 
@@ -750,11 +751,11 @@ esac
 LIB_LPEG=$TARGET/$LPEG_SRC/liblpeg.a
 $USE_LPEG && ! [ -e $LIB_LPEG ] && (
     cd $TARGET/$LPEG_SRC
-    $CC $CC_INC -I`pwd`/.. -c lpcap.c
-    $CC $CC_INC -I`pwd`/.. -c lpcode.c
-    $CC $CC_INC -I`pwd`/.. -c lpprint.c
-    $CC $CC_INC -I`pwd`/.. -c lptree.c
-    $CC $CC_INC -I`pwd`/.. -c lpvm.c
+    $CC $CC_OPTS $CC_INC -I`pwd`/.. -c lpcap.c
+    $CC $CC_OPTS $CC_INC -I`pwd`/.. -c lpcode.c
+    $CC $CC_OPTS $CC_INC -I`pwd`/.. -c lpprint.c
+    $CC $CC_OPTS $CC_INC -I`pwd`/.. -c lptree.c
+    $CC $CC_OPTS $CC_INC -I`pwd`/.. -c lpvm.c
     $AR rcs `basename $LIB_LPEG` *.o
 )
 $USE_LPEG && cp -f $LIB_LPEG $LIBRARY_PATH/

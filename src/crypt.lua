@@ -17,6 +17,7 @@ local strsub  = string.sub
 local strgsub = string.gsub
 local strrep  = string.rep
 local format  = string.format
+local concat  = table.concat
 local ceil    = math.ceil
 local random  = math.random
 local max     = math.max
@@ -1218,7 +1219,55 @@ do
         function btea.decrypt(data)
             return crypt.btea_decrypt(key16, data)
         end
+
         return btea
+
+    end
+end
+
+-----------------------------------------------------------------------
+-- crypt.RC4
+-----------------------------------------------------------------------
+
+-- [[ based http://en.wikipedia.org/wiki/RC4
+--          http://www.users.zetnet.co.uk/hopwood/crypto/scan/cs.html#RC4-drop
+-- ]]
+
+do
+    function crypt.RC4(key, drop)
+
+        -- Key Scheduling
+        local s = {}
+        local i = 1
+        local j = 1
+        for i = 1, 256 do s[i] = i-1 end
+        for i = 1, 256 do
+            j = ((j-1 + s[i] + strbyte(key, (i%#key)+1)) & 0xFF) + 1
+            s[i], s[j] = s[j], s[i]
+        end
+        i = 1
+        j = 1
+
+        -- RC4 encoding
+        function rc4(input)
+            local output = {}
+            for p = 1, #input do
+                i = (i & 0xFF) + 1
+                local si = s[i]
+                j = ((j-1 + si) & 0xFF) + 1
+                local sj = s[j]
+                s[i] = sj
+                s[j] = si
+                output[p] = strchar(strbyte(input, p) ~ s[((si+sj)&0xFF)+1])
+            end
+            return concat(output)
+        end
+
+        -- throw the first bytes
+        rc4(string.rep("\0", drop or 768))
+
+        return rc4
+
     end
 end
 
@@ -1229,8 +1278,6 @@ end
 do
     function crypt.random(bits)
         local bytes = max((bits+7)//8, 1)
-        return crypt.BTEA(crypt.rnd(16))
-            .encrypt(crypt.rnd(bytes))
-            :sub(1, bytes)
+        return crypt.RC4(crypt.rnd(8), 0)(crypt.rnd(bytes))
     end
 end

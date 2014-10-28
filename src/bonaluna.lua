@@ -717,6 +717,12 @@ see http://en.wikipedia.org/wiki/XXTEA).
 BTEA encrypts 32-bit words so the length of data should be a multiple of 4
 (if not, BTEA will add null padding at the end of data).
 
+**crypt.RC4(password, drop)** return a RC4 codec
+(a popular stream cypher, see http://en.wikipedia.org/wiki/RC4).
+`password` is the encryption/decryption key.
+`drop` is the numbre of bytes ignores before encoding (768 by default).
+`crypt.RC4` returns the encryption/decryption function.
+
 **crypt.random(bits)** returns a string with `bits` random bits.
 
 ]]
@@ -754,6 +760,14 @@ if crypt then
     end
     end
     end
+    -- rc4
+    local rc4_in = crypt.RC4("my key")
+    local rc4_out = crypt.RC4("my key")
+    local rc4_in2 = crypt.RC4("your key")
+    local rc4_out2 = crypt.RC4("your key")
+    assert(rc4_out(rc4_in(data)) == data)
+    assert(rc4_out2(rc4_in2(data)) == data)
+    assert(rc4_out2(rc4_in(data)) ~= data)
     -- btea
     while #data % 4 ~= 0 do data = data.."." end
     local btea = crypt.BTEA("my key")

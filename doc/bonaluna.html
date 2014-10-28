@@ -13,7 +13,7 @@
 <div id="header">
 <h1 class="title">BonaLuna - A compact Lua extension</h1>
 <h2 class="author"><a href="http://cdsoft.fr/contact.html">Christophe Delord</a></h2>
-<h3 class="date">Documentation date: Thu Aug 28 06:39:01 2014</h3>
+<h3 class="date">Documentation date: Tue Oct 28 07:51:12 2014</h3>
 </div>
 <div id="TOC">
 <ul>
@@ -73,7 +73,7 @@ Freely available under the terms of the Lua license.
 
 <h1 id="abstract">Abstract</h1>
 <p><img src="bl.png" alt="logo" /> <a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> is a Lua interpretor plus a few packages in a single executable.</p>
-<p>The current version is 3.0.1-alpha</p>
+<p>The current version is 3.0.2-beta</p>
 <h2 id="licenses">Licenses</h2>
 <ul>
 <li><img src="bl.png" alt="logo" /> <strong><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a></strong>: Copyright (C) 2010-2014 Christophe Delord, Freely available under the terms of the <a href="http://www.lua.org/license.html#5">Lua license</a></li>
@@ -86,7 +86,7 @@ Freely available under the terms of the Lua license.
 <li><strong>ser</strong>: MIT license</li>
 </ul>
 <h2 id="download">Download</h2>
-<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.1-alpha.tgz">bonaluna-3.0.1-alpha.tgz</a></p>
+<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.2-beta.tgz">bonaluna-3.0.2-beta.tgz</a></p>
 <h1 id="lua">Lua</h1>
 <p>The original Lua interpretor and documentation is available at http://www.lua.org.</p>
 <p>BonaLuna is based on <a href="lua/contents.html">Lua 5.3</a>.</p>
@@ -181,6 +181,7 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <p><strong>crypt.shaXXX(data)</strong> computes an SHA digest of <code>data</code>. <code>XXX</code> is 1, 224 or 256.</p>
 <p><strong>crypt.AES(password [,keylen [,mode] ])</strong> returns an AES codec. <code>password</code> is the encryption/decryption key, <code>keylen</code> is the length of the key (128 (default), 192 or 256), <code>mode</code> is the encryption/decryption mode (“cbc” (default) or “ecb”). <code>crypt.AES</code> objects have two methods: <code>encrypt(data)</code> and <code>decrypt(data)</code>.</p>
 <p><strong>crypt.BTEA(password)</strong> returns a BTEA codec (a tiny cipher with reasonable security and efficiency, see http://en.wikipedia.org/wiki/XXTEA). <code>password</code> is the encryption/decryption key (only the first 16 bytes are used). <code>crypt.BTEA</code> objects have two methods: <code>encrypt(data)</code> and <code>decrypt(data)</code>. BTEA encrypts 32-bit words so the length of data should be a multiple of 4 (if not, BTEA will add null padding at the end of data).</p>
+<p><strong>crypt.RC4(password, drop)</strong> return a RC4 codec (a popular stream cypher, see http://en.wikipedia.org/wiki/RC4). <code>password</code> is the encryption/decryption key. <code>drop</code> is the numbre of bytes ignores before encoding (768 by default). <code>crypt.RC4</code> returns the encryption/decryption function.</p>
 <p><strong>crypt.random(bits)</strong> returns a string with <code>bits</code> random bits.</p>
 <h2 id="curl-libcurl-interface">curl: libcurl interface</h2>
 <p><a href="http://curl.haxx.se/">libcurl</a> is multiprotocol file transfer library. This package is a simple Lua interface to libcurl.</p>
