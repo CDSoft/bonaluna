@@ -28,7 +28,17 @@ do
     local RADIX = 10000000
     local RADIX_LEN = math.floor(math.log10(RADIX))
 
+    local _sep = nil
+
     assert(RADIX^2 < 2^53, "RADIX^2 shall be storable on a lua number")
+
+    function bn.sep(s)
+        if s == "_" or s == " " or not s then
+            _sep = s
+        else
+            error("bn separator shall be \"_\", \" \" or nil")
+        end
+    end
 
     int_trim = function(a)
         for i = #a, 1, -1 do
@@ -97,12 +107,12 @@ do
     local base_group = {[2]=4, [10]=3, [16]=4}
 
     local function groupby(s, n)
-        if n then
+        if n and _sep then
             s = s:reverse()
             s = s..(("0"):rep((n-1) - (s:len()-1)%n)) -- padding
-            s = s:gsub("("..("."):rep(n)..")", "%1_") -- group by n digits
+            s = s:gsub("("..("."):rep(n)..")", "%1".._sep) -- group by n digits
             s = s:reverse()
-            s = s:gsub("^_", "")
+            s = s:gsub("^".._sep, "")
         end
         return s
     end
@@ -144,7 +154,7 @@ do
                 s = string.gsub(s, "^0+", "")
                 if s == "" then s = "0" end
             end
-            if prefix then s = prefix .. "_" .. s end
+            if prefix then s = prefix .. (_sep or "") .. s end
         end
         if sign < 0 and not bits then s = "-" .. s end
         return s

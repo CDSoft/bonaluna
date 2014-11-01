@@ -1,6 +1,6 @@
 % BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Tue Oct 28 07:51:12 2014
+% Documentation date: Sat Nov  1 08:39:36 2014
 
 <!--
 BonaLuna
@@ -22,7 +22,7 @@ Abstract
 
 ![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
-The current version is 3.0.2-beta
+The current version is 3.0.3-beta
 
 Licenses
 --------
@@ -39,7 +39,7 @@ Licenses
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.2-beta.tgz](http://cdsoft.fr/bl/bonaluna-3.0.2-beta.tgz)
+[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.3-beta.tgz](http://cdsoft.fr/bl/bonaluna-3.0.3-beta.tgz)
 
 
 Lua
@@ -225,6 +225,8 @@ bn: arbitrary precision library for Lua written in pure Lua
 **bn.dec(x, bits)** returns a string representation of `x` in base 10 on `bits` bits
 
 **bn.hex(x, bits)** returns a string representation of `x` in base 16 on `bits` bits
+
+**bn.sep(s)** sets the digit separator ("_", " " or nil)
 
 ### Math and bitwise operators
 

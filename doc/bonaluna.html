@@ -13,7 +13,7 @@
 <div id="header">
 <h1 class="title">BonaLuna - A compact Lua extension</h1>
 <h2 class="author"><a href="http://cdsoft.fr/contact.html">Christophe Delord</a></h2>
-<h3 class="date">Documentation date: Tue Oct 28 07:51:12 2014</h3>
+<h3 class="date">Documentation date: Sat Nov 1 08:39:36 2014</h3>
 </div>
 <div id="TOC">
 <ul>
@@ -73,7 +73,7 @@ Freely available under the terms of the Lua license.
 
 <h1 id="abstract">Abstract</h1>
 <p><img src="bl.png" alt="logo" /> <a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> is a Lua interpretor plus a few packages in a single executable.</p>
-<p>The current version is 3.0.2-beta</p>
+<p>The current version is 3.0.3-beta</p>
 <h2 id="licenses">Licenses</h2>
 <ul>
 <li><img src="bl.png" alt="logo" /> <strong><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a></strong>: Copyright (C) 2010-2014 Christophe Delord, Freely available under the terms of the <a href="http://www.lua.org/license.html#5">Lua license</a></li>
@@ -86,7 +86,7 @@ Freely available under the terms of the Lua license.
 <li><strong>ser</strong>: MIT license</li>
 </ul>
 <h2 id="download">Download</h2>
-<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.2-beta.tgz">bonaluna-3.0.2-beta.tgz</a></p>
+<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.3-beta.tgz">bonaluna-3.0.3-beta.tgz</a></p>
 <h1 id="lua">Lua</h1>
 <p>The original Lua interpretor and documentation is available at http://www.lua.org.</p>
 <p>BonaLuna is based on <a href="lua/contents.html">Lua 5.3</a>.</p>
@@ -168,6 +168,7 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <p><strong>bn.oct(x, bits)</strong> returns a string representation of <code>x</code> in base 8 on <code>bits</code> bits</p>
 <p><strong>bn.dec(x, bits)</strong> returns a string representation of <code>x</code> in base 10 on <code>bits</code> bits</p>
 <p><strong>bn.hex(x, bits)</strong> returns a string representation of <code>x</code> in base 16 on <code>bits</code> bits</p>
+<p><strong>bn.sep(s)</strong> sets the digit separator (“_“,” &quot; or nil)</p>
 <h3 id="math-and-bitwise-operators-1">Math and bitwise operators</h3>
 <p>Functions of the math, mathx and bit32 modules also exist in the bn module. These functions produce bn numbers but may work internally with Lua numbers. Do not expect these functions to be precise.</p>
 <p>All the functions of mathx are in the math module.</p>

@@ -514,6 +514,8 @@ bn: arbitrary precision library for Lua written in pure Lua
 
 **bn.hex(x, bits)** returns a string representation of `x` in base 16 on `bits` bits
 
+**bn.sep(s)** sets the digit separator ("_", " " or nil)
+
 ### Math and bitwise operators
 
 Functions of the math, mathx and bit32 modules also exist in the bn module.
@@ -528,6 +530,8 @@ if bn then
 
     local x = bn.Int("0123456789012345678901234567890123456789")
     local y = bn.Int("9999999999999999999999999999999999999999")
+
+    bn.sep("_")
 
     assert(x:tostring() == "123_456_789_012_345_678_901_234_567_890_123_456_789")
     assert((-x):tostring() == "-123_456_789_012_345_678_901_234_567_890_123_456_789")
