@@ -33,7 +33,8 @@ do
     assert(RADIX^2 < 2^53, "RADIX^2 shall be storable on a lua number")
 
     function bn.sep(s)
-        if s == "_" or s == " " or not s then
+        if s == "_" or s == " " or s == "" or not s then
+            if s == "" then s = nil end
             _sep = s
         else
             error("bn separator shall be \"_\", \" \" or nil")
