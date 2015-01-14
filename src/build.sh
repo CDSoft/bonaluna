@@ -2,17 +2,16 @@
 
 # BonaLuna compilation script
 #
-# Copyright (C) 2010-2014 Christophe Delord
+# Copyright (C) 2010-2015 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
 # BonaLuna is based on Lua 5.3
-# Copyright (C) 1994-2013 Lua.org, PUC-Rio
+# Copyright (C) 1994-2015 Lua.org, PUC-Rio
 #
 # Freely available under the terms of the Lua license.
 
-LUA_SRC=lua-5.3.0-beta
-#LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
-LUA_URL=http://www.lua.org/work/$LUA_SRC.tar.gz
+LUA_SRC=lua-5.3.0
+LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
 
 LZO_SRC=lzo-2.08
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
@@ -129,7 +128,7 @@ $USE_LZO && $USE_MINILZO && {
 (which $CC > /dev/null) || error "Unknown compiler: $CC"
 [ "$BITS" = "32" ] || [ "$BITS" = "64" ] || error "Wrong integer size (should be 32 or 64)"
 
-CC_OPTS="-O2 -std=gnu99 -DLUA_COMPAT_5_2"
+CC_OPTS="-O2 -std=gnu99 -D__USE_GNU -DLUA_COMPAT_5_2"
 CC_LIBS2="-lm"
 BONALUNA_CONF="-DBL_VERSION=\"$(cat ../VERSION)\"" 
 CC_INC+=" -I. -I$TARGET"
@@ -254,7 +253,7 @@ esac
 
 awk '
     /LUA_COPYRIGHT/ {
-    print "  luai_writestring(BONALUNA_COPYRIGHT, strlen(BONALUNA_COPYRIGHT)); luai_writeline();"
+    print "  lua_writestring(BONALUNA_COPYRIGHT, strlen(BONALUNA_COPYRIGHT)); lua_writeline();"
         print
         next
     }
@@ -442,6 +441,9 @@ sed -i 's/pushclosure/lparser_pushclosure/g' $TARGET/lparser.c
     {print}
 ' $TARGET/linit.c > /tmp/linit.c
 [ $BITS = 64 ] && mv /tmp/linit.c $TARGET/linit.c
+
+sed -i 's/setkey/lua_setkey/g' $TARGET/lobject.h
+sed -i 's/setkey/lua_setkey/g' $TARGET/ltable.c
 
 # LZO patches
 #############

@@ -1,18 +1,20 @@
 /* BonaLuna
 
-Copyright (C) 2010-2014 Christophe Delord
+Copyright (C) 2010-2015 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
-Copyright (C) 1994-2013 Lua.org, PUC-Rio
+Copyright (C) 1994-2015 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
 */
 
+//#define __USE_GNU
+
 #include "lua.h"
 
 #define BONALUNA_VERSION    "BonaLuna " BL_VERSION
-#define BONALUNA_COPYRIGHT  BONALUNA_VERSION " Copyright (C) 2010-2014 cdsoft.fr, Christophe Delord"
+#define BONALUNA_COPYRIGHT  BONALUNA_VERSION " Copyright (C) 2010-2015 cdsoft.fr, Christophe Delord"
 #define BONALUNA_AUTHORS    "Christophe Delord"
 
 #if defined(USE_MINILZO) || defined(USE_LZO) || defined(USE_QLZ) || defined(USE_LZ4) || defined(USE_LZF) || defined(USE_ZLIB) || defined(USE_UCL) || defined(USE_LZMA)

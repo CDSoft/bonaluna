@@ -1,10 +1,10 @@
 /* BonaLuna
 
-Copyright (C) 2010-2014 Christophe Delord
+Copyright (C) 2010-2015 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
-Copyright (C) 1994-2013 Lua.org, PUC-Rio
+Copyright (C) 1994-2015 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
 */
@@ -13,10 +13,13 @@ Freely available under the terms of the Lua license.
 
 #include "dirent.h"
 #include "errno.h"
+#include "sys/types.h"
 #include "sys/stat.h"
 #include "unistd.h"
 #include "utime.h"
 #include <stdint.h>
+#include <stdlib.h>
+#include <fcntl.h>
 
 #ifdef __MINGW32__
 #include <io.h>
@@ -25,6 +28,7 @@ Freely available under the terms of the Lua license.
 #include <ws2tcpip.h>
 #else
 #include "glob.h"
+#include "sys/select.h"
 #endif
 
 #ifdef USE_ZLIB
@@ -283,7 +287,7 @@ static int fs_stat(lua_State *L)
 #define PERMISSION(MASK, ATTR) lua_pushboolean(L, buf.st_mode & MASK); lua_setfield(L, -2, ATTR);
         PERMISSION(S_IRUSR, "uR");
         PERMISSION(S_IWUSR, "uW");
-        PERMISSION(S_IEXEC, "uX");
+        PERMISSION(S_IXUSR, "uX");
 #ifndef __MINGW32__
         PERMISSION(S_IRGRP, "gR");
         PERMISSION(S_IWGRP, "gW");
@@ -510,15 +514,15 @@ LUAMOD_API int luaopen_fs (lua_State *L)
     /* File permission bits */
     INTEGER("uR", S_IRUSR);
     INTEGER("uW", S_IWUSR);
-    INTEGER("uX", S_IEXEC);
+    INTEGER("uX", S_IXUSR);
 #ifdef __MINGW32__
     INTEGER("aR", S_IRUSR);
     INTEGER("aW", S_IWUSR);
-    INTEGER("aX", S_IEXEC);
+    INTEGER("aX", S_IXUSR);
 #else
     INTEGER("aR", S_IRUSR|S_IRGRP|S_IROTH);
     INTEGER("aW", S_IWUSR|S_IWGRP|S_IWOTH);
-    INTEGER("aX", S_IEXEC|S_IXGRP|S_IXOTH);
+    INTEGER("aX", S_IXUSR|S_IXGRP|S_IXOTH);
     INTEGER("gR", S_IRGRP);
     INTEGER("gW", S_IWGRP);
     INTEGER("gX", S_IXGRP);

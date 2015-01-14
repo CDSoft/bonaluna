@@ -1,10 +1,10 @@
 --[[ BonaLuna test and documentation generator
 
-Copyright (C) 2010-2014 Christophe Delord
+Copyright (C) 2010-2015 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
-Copyright (C) 1994-2013 Lua.org, PUC-Rio
+Copyright (C) 1994-2015 Lua.org, PUC-Rio
 
 Freely available under the terms of the Lua license.
 
@@ -36,7 +36,7 @@ doc([[
 <!--
 BonaLuna
 
-Copyright (C) 2010-2014 Christophe Delord
+Copyright (C) 2010-2015 Christophe Delord
 http://www.cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
@@ -59,7 +59,7 @@ The current version is ]]..BONALUNA_VERSION..[[
 Licenses
 --------
 
-* ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2014 Christophe Delord, Freely available under the terms of the [Lua license](http://www.lua.org/license.html#5)
+* ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2015 Christophe Delord, Freely available under the terms of the [Lua license](http://www.lua.org/license.html#5)
 * ![logo_lua][] **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
 * **Lua**, **Lpeg**: [Lua license](http://www.lua.org/license.html#5)
 * **miniLZO**, **QuickLZ**: GPL v2
