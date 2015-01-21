@@ -13,7 +13,7 @@
 <div id="header">
 <h1 class="title">BonaLuna - A compact Lua extension</h1>
 <h2 class="author"><a href="http://cdsoft.fr/contact.html">Christophe Delord</a></h2>
-<h3 class="date">Documentation date: Wed Jan 14 06:43:26 2015</h3>
+<h3 class="date">Documentation date: Wed Jan 21 23:58:46 2015</h3>
 </div>
 <div id="TOC">
 <ul>
@@ -72,7 +72,7 @@ Freely available under the terms of the Lua license.
 -->
 <h1 id="abstract">Abstract</h1>
 <p><img src="bl.png" alt="logo" /> <a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> is a Lua interpretor plus a few packages in a single executable.</p>
-<p>The current version is 3.0.4</p>
+<p>The current version is 3.0.5</p>
 <h2 id="licenses">Licenses</h2>
 <ul>
 <li><img src="bl.png" alt="logo" /> <strong><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a></strong>: Copyright (C) 2010-2015 Christophe Delord, Freely available under the terms of the <a href="http://www.lua.org/license.html#5">Lua license</a></li>
@@ -85,7 +85,7 @@ Freely available under the terms of the Lua license.
 <li><strong>ser</strong>: MIT license</li>
 </ul>
 <h2 id="download">Download</h2>
-<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.4.tgz">bonaluna-3.0.4.tgz</a></p>
+<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.5.tgz">bonaluna-3.0.5.tgz</a></p>
 <h1 id="lua">Lua</h1>
 <p>The original Lua interpretor and documentation is available at http://www.lua.org.</p>
 <p>BonaLuna is based on <a href="lua/contents.html">Lua 5.3</a>.</p>
@@ -310,10 +310,9 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <li><p><code>list(path)</code> returns an iterator listing the directory <code>path</code>.</p></li>
 </ul>
 <h2 id="struct-unpack-structures">struct: (un)pack structures</h2>
-<p>The struct package is taken from <a href="http://www.inf.puc-rio.br/~roberto/struct/">Library for Converting Data to and from C Structs for Lua 5.1</a> and adapted for BonaLuna.</p>
-<p><strong>struct.pack(fmt, d1, d2, …)</strong> returns a string containing the values <code>d1</code>, <code>d2</code>, etc. packed according to the format string <code>fmt</code>.</p>
-<p><strong>struct.unpack(fmt, s, [i])</strong> returns the values packed in string <code>s</code> according to the format string <code>fmt</code>. An optional <code>i</code> marks where in <code>s</code> to start reading (default is 1). After the read values, this function also returns the index in <code>s</code> where it stopped reading, which is also where you should start to read the rest of the string.</p>
-<p><strong>struct.size(fmt)</strong> returns the size of a string formatted according to the format string <code>fmt</code>. For obvious reasons, the format string cannot contain neither the option <code>s</code> nor the option <code>c0</code>.</p>
+<p>This package was redundant with <code>string.pack</code> and <code>string.unpack</code> since Lua 5.3. It has been removed.</p>
+<p>One can add <code>struct = string</code> to make old scripts compatible. Some formats are different (<code>s</code> becomes <code>z</code>, <code>c0</code> doesn’t exist).</p>
+<p>The struct package was taken from <a href="http://www.inf.puc-rio.br/~roberto/struct/">Library for Converting Data to and from C Structs for Lua 5.1</a> and adapted for BonaLuna.</p>
 <h2 id="sys-system-management">sys: System management</h2>
 <p><strong>sys.hostname()</strong> returns the host name.</p>
 <p><strong>sys.domainname()</strong> returns the domain name.</p>

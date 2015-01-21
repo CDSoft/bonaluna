@@ -14,13 +14,13 @@ Freely available under the terms of the Lua license.
 
 do
 
-    local START_SIG     = struct.unpack("<I4", "GLUE")
-    local END_SIG       = struct.unpack("<I4", "#END")
+    local START_SIG     = string.unpack("<I4", "GLUE")
+    local END_SIG       = string.unpack("<I4", "#END")
 
-    local LUA_BLOCK     = struct.unpack("<I4", "#LUA")
-    local STRING_BLOCK  = struct.unpack("<I4", "#STR")
-    local FILE_BLOCK    = struct.unpack("<I4", "#RES")
-    local DIR_BLOCK     = struct.unpack("<I4", "#DIR")
+    local LUA_BLOCK     = string.unpack("<I4", "#LUA")
+    local STRING_BLOCK  = string.unpack("<I4", "#STR")
+    local FILE_BLOCK    = string.unpack("<I4", "#RES")
+    local DIR_BLOCK     = string.unpack("<I4", "#DIR")
 
     local z = z
     if not z then
@@ -62,8 +62,8 @@ do
             local f = assert(io.open(exe, "rb"))
             local data = assert(f:read "*a")
             f:close()
-            local end_sig, size = struct.unpack("I4I4", string.sub(data, #data-8+1))
-            glue = struct.pack("I4", START_SIG)
+            local end_sig, size = string.unpack("I4I4", string.sub(data, #data-8+1))
+            glue = string.pack("I4", START_SIG)
             if end_sig ~= END_SIG then
                 log("", exe.." is empty")
                 stub = data
@@ -71,11 +71,11 @@ do
             end
             stub = string.sub(data, 1, #data-size)
             data = string.sub(data, #data-size+1)
-            local start_sig = struct.unpack("I4", data)
+            local start_sig = string.unpack("I4", data)
             if start_sig ~= START_SIG then error("Unrecognized start signature in "..exe) end
             data = string.sub(data, 4+1)
             while #data > 8 do
-                local block_type, name_len, data_len, name = struct.unpack("I4I4I4s", data)
+                local block_type, name_len, data_len, name = string.unpack("I4I4I4z", data)
                 if block_type == LUA_BLOCK then log("", "lua", name)
                 elseif block_type == STRING_BLOCK then log("", "str", name)
                 elseif block_type == FILE_BLOCK then log("", "file", name)
@@ -84,7 +84,7 @@ do
                 glue = glue .. string.sub(data, 1, 4*3+name_len+data_len)
                 data = string.sub(data, 4*3+name_len+data_len+1)
             end
-            local end_sig, size = struct.unpack("I4I4", string.sub(data, #data-8))
+            local end_sig, size = string.unpack("I4I4", string.sub(data, #data-8))
             if end_sig ~= END_SIG then error("Unrecognized end signature in "..exe) end
             if size ~= #glue+4*2 then error("Invalid size in "..exe) end
             return self
@@ -96,7 +96,7 @@ do
             local f = assert(io.open(exe, "wb"))
             assert(f:write(stub))
             assert(f:write(glue))
-            assert(f:write(struct.pack("I4I4", END_SIG, #glue+4*2)))
+            assert(f:write(string.pack("I4I4", END_SIG, #glue+4*2)))
             f:close()
             fs.chmod(exe, fs.aR, fs.aX, fs.uW)
             return self
@@ -133,7 +133,7 @@ do
 
             content = smallest[_compile][_compress]
 
-            glue = glue .. struct.pack("I4I4I4sc0", LUA_BLOCK, #script_name+1, #content, script_name, content)
+            glue = glue .. string.pack("I4I4I4zc"..#content, LUA_BLOCK, #script_name+1, #content, script_name, content)
             return self
         end
 
@@ -147,7 +147,7 @@ do
                 min = min(value, compressed_value),
             }
             value = smallest[_compress]
-            glue = glue .. struct.pack("I4I4I4sc0", STRING_BLOCK, #name+1, #value, name, value)
+            glue = glue .. string.pack("I4I4I4zc"..#value, STRING_BLOCK, #name+1, #value, name, value)
             return self
         end
 
@@ -173,14 +173,14 @@ do
                 min = min(content, compressed_content),
             }
             content = smallest[_compress]
-            glue = glue .. struct.pack("I4I4I4sc0", FILE_BLOCK, #name+1, #content, name, content)
+            glue = glue .. string.pack("I4I4I4zc"..#content, FILE_BLOCK, #name+1, #content, name, content)
             return self
         end
 
         function self.dir(name)
             log("dir", name)
             if not stub then self.read() end
-            glue = glue .. struct.pack("I4I4I4s", DIR_BLOCK, #name+1, 0, name)
+            glue = glue .. string.pack("I4I4I4z", DIR_BLOCK, #name+1, 0, name)
             return self
         end
 

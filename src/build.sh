@@ -289,7 +289,6 @@ awk '
         print "  {LUA_FSLIBNAME,  luaopen_fs},"
         print "  {LUA_PSLIBNAME,  luaopen_ps},"
         print "  {LUA_SYSLIBNAME, luaopen_sys},"
-        print "  {LUA_STRUCTLIBNAME, luaopen_struct},"
         print "  {LUA_RLLIBNAME, luaopen_readline},"
         print "#if defined(USE_Z)"
         print "  {LUA_ZLIBNAME, luaopen_z},"

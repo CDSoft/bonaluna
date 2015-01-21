@@ -76,7 +76,6 @@ Freely available under the terms of the Lua license.
 #include "lzf_d.c"
 #endif
 #include "bonaluna.c"
-#include "struct.c"
 #include "readline.c"
 #ifdef USE_CURL
 #include "curl.c"

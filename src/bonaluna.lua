@@ -1394,20 +1394,20 @@ doc [[
 struct: (un)pack structures
 ---------------------------
 
-The struct package is taken from
+This package was redundant with `string.pack` and `string.unpack` since Lua 5.3.
+It has been removed.
+
+One can add `struct = string` to make old scripts compatible.
+Some formats are different (`s` becomes `z`, `c0` doesn't exist).
+
+The struct package was taken from
 [Library for Converting Data to and from C Structs for Lua 5.1](http://www.inf.puc-rio.br/~roberto/struct/)
 and adapted for BonaLuna.
-
-**struct.pack(fmt, d1, d2, ...)** returns a string containing the values `d1`, `d2`, etc. packed according to the format string `fmt`.
-
-**struct.unpack(fmt, s, [i])** returns the values packed in string `s` according to the format string `fmt`. An optional `i` marks where in `s` to start reading (default is 1). After the read values, this function also returns the index in `s` where it stopped reading, which is also where you should start to read the rest of the string.
-
-**struct.size(fmt)** returns the size of a string formatted according to the format string `fmt`. For obvious reasons, the format string cannot contain neither the option `s` nor the option `c0`.
 ]]
 
 do
-    assert(struct.unpack("f", struct.pack("f", 1.0)) == 1.0)
-    assert(struct.unpack("I4", struct.pack("f", 1.0)) == 0x3F800000)
+    assert(string.unpack("f", string.pack("f", 1.0)) == 1.0)
+    assert(string.unpack("I4", string.pack("f", 1.0)) == 0x3F800000)
 end
 
 doc [[
