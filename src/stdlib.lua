@@ -13,6 +13,16 @@ Freely available under the terms of the Lua license.
 -- This is an addendum to the C-coded libraries
 
 -----------------------------------------------------------------------------
+-- mathx functions shall also be in math
+-----------------------------------------------------------------------------
+
+for k,v in pairs(mathx) do
+    if not rawget(math, k) then
+        rawset(math, k, v)
+    end
+end
+
+-----------------------------------------------------------------------------
 -- iterator functions
 -----------------------------------------------------------------------------
 
