@@ -56,7 +56,7 @@ do
                 end
             end
         else
-            local bits_per_digit = math.log(base, 2)
+            local bits_per_digit = math.log(base) / math.log(2)
             n = bc.mod(n, bc_two ^ bits)
             for i = 1, math.ceil(bits/bits_per_digit) do
                 n, d = bc.divmod(n, base)

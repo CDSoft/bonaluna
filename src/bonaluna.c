@@ -39,6 +39,11 @@ Freely available under the terms of the Lua license.
 #include "ucl.h"
 #endif
 
+#ifdef USE_LZ4
+#include "lz4.h"
+#include "lz4hc.h"
+#endif
+
 #ifdef USE_LZO
 #include "lzo1x.h"
 #endif

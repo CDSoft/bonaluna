@@ -67,10 +67,6 @@ Freely available under the terms of the Lua license.
 #ifdef USE_QLZ
 #include "quicklz.c"
 #endif
-#ifdef USE_LZ4
-#include "lz4.c"
-#include "lz4hc.c"
-#endif
 #ifdef USE_LZF
 #include "lzf_c.c"
 #include "lzf_d.c"

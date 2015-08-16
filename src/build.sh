@@ -10,14 +10,14 @@
 #
 # Freely available under the terms of the Lua license.
 
-LUA_SRC=lua-5.3.0
+LUA_SRC=lua-5.3.1
 LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
 
-LZO_SRC=lzo-2.08
+LZO_SRC=lzo-2.09
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
-LZ4_REV=r123
+LZ4_REV=r131
 LZ4_SRC=lz4-$LZ4_REV
 LZ4_URL=https://github.com/Cyan4973/lz4/archive/$LZ4_REV.tar.gz
 LZF_SRC=liblzf-3.6
@@ -26,9 +26,9 @@ ZLIB_SRC=zlib-1.2.8
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
-LZMA_SRC=xz-5.0.7
+LZMA_SRC=xz-5.2.1
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
-CURL_SRC=curl-7.38.0
+CURL_SRC=curl-7.44.0
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 SOCKET_SRC=luasocket-2.0.2
 SOCKET_URL=http://files.luaforge.net/releases/luasocket/luasocket/$SOCKET_SRC/$SOCKET_SRC.tar.gz
@@ -233,7 +233,8 @@ cp -f $MATHX_SRC/lmathx.c $TARGET/
     cp -f $TARGET/$LZO_SRC/include/lzo/*.h $TARGET/
 }
 $USE_QLZ && cp -f $QLZ_SRC/*.{c,h} $TARGET/
-$USE_LZ4 && cp -f "$LZ4_SRC"/{lz4,lz4hc,lz4frame}.{c,h} $TARGET/
+$USE_LZ4 && cp -f "$LZ4_SRC"/lib/{lz4,lz4hc,lz4frame}.{c,h} $TARGET/
+$USE_LZ4 && ! [ -e $TARGET/$LZ4_SRC ] && cp -rf $LZ4_SRC $TARGET/
 $USE_LZF && cp -f "$LZF_SRC"/{lzf_c.c,lzf_d.c,lzf.h,lzfP.h} $TARGET/
 $USE_ZLIB && ! [ -e $TARGET/$ZLIB_SRC ] && cp -rf $ZLIB_SRC $TARGET/
 $USE_UCL && ! [ -e $TARGET/$UCL_SRC ] && cp -rf $UCL_SRC $TARGET/
@@ -463,17 +464,17 @@ $USE_QLZ && (
 # LZ4 patches
 #############
 
-$USE_LZ4 && (
-    for name in STEPSIZE ALLOCATOR U16_S U32_S U64_S MAX_DISTANCE A64 A32 A16 \
-                HASHTABLESIZE ML_MASK LZ4_COPYSTEP AARCH \
-                LZ4_READ_LITTLEENDIAN_16 LZ4_WRITE_LITTLEENDIAN_16 \
-                LZ4_WILDCOPY LZ4_NbCommonBytes limitedOutput_directive \
-                U16 U32 U64 S32 limitedOutput
-    do
-        sed -i "s/\b$name\b/LZ4_$name/g" $TARGET/lz4.c
-        sed -i "s/\b$name\b/LZ4HC_$name/g" $TARGET/lz4hc.c
-    done
-)
+#$USE_LZ4 && (
+#    for name in STEPSIZE ALLOCATOR U16_S U32_S U64_S MAX_DISTANCE A64 A32 A16 \
+#                HASHTABLESIZE ML_MASK LZ4_COPYSTEP AARCH \
+#                LZ4_READ_LITTLEENDIAN_16 LZ4_WRITE_LITTLEENDIAN_16 \
+#                LZ4_WILDCOPY LZ4_NbCommonBytes limitedOutput_directive \
+#                U16 U32 U64 S32 limitedOutput
+#    do
+#        sed -i "s/\b$name\b/LZ4_$name/g" $TARGET/lz4.c
+#        sed -i "s/\b$name\b/LZ4HC_$name/g" $TARGET/lz4hc.c
+#    done
+#)
 
 # LZF patches
 #############
@@ -597,6 +598,7 @@ $USE_BC && (
         -e 's/MYNAME/LUA_BCLIBNAME/g' \
         -e 's/MYVERSION/BCLIBVERSION/g' \
         -e 's/MYTYPE/BCLIBTYPE/g' \
+        -e 's/\bR\b/BCLIBR/g' \
         $TARGET/lbc.c
 )
 
@@ -623,6 +625,18 @@ export LIBRARY_PATH=$EXTLIBS/lib
 mkdir -p $INCLUDE_PATH $LIBRARY_PATH
 CC_INC+=" -I$INCLUDE_PATH"
 CC_LIBS+=" -L$LIBRARY_PATH"
+
+# LZ4 configuration
+###################
+
+LIB_LZ4=$TARGET/$LZ4_SRC/lib/liblz4.a
+$USE_LZ4 && ! [ -e $LIB_LZ4 ] && (
+    cd $TARGET/$LZ4_SRC/lib
+    make
+)
+$USE_LZ4 && cp -f $LIB_LZ4 $LIBRARY_PATH/
+$USE_LZ4 && cp -f $TARGET/$LZ4_SRC/lib/*.h $INCLUDE_PATH/
+$USE_LZ4 && CC_LIBS2+=" $LIBRARY_PATH/liblz4.a"
 
 # LZO configuration
 ###################
