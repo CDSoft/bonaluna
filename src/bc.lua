@@ -1,12 +1,12 @@
 --[[ BonaLuna lbc addendum
 
-Copyright (C) 2010-2015 Christophe Delord
+Copyright (C) 2010-2016 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2015 Lua.org, PUC-Rio
 
-Freely available under the terms of the Lua license.
+Freely available under the terms of the MIT license.
 
 --]]
 
@@ -296,7 +296,7 @@ do
     end
 
     bc.pi = bc.number(math.pi)
-    
+
     local bc_pow = bc.pow
     function bc.pow(x, y)
         local ok, z = pcall(bc_pow(x, y))
@@ -597,4 +597,3 @@ do
     end
 
 end
-

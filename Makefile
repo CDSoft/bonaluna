@@ -1,12 +1,12 @@
 # BonaLuna Makefile
 #
-# Copyright (C) 2010-2015 Christophe Delord
+# Copyright (C) 2010-2016 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
 # BonaLuna is based on Lua 5.3
 # Copyright (C) 1994-2015 Lua.org, PUC-Rio
 #
-# Freely available under the terms of the Lua license.
+# Freely available under the terms of the MIT license.
 
 BUILD = build.sh
 DEPENDENCIES = Makefile VERSION setup src/$(BUILD) $(wildcard src/*.c) $(wildcard src/*.h) $(wildcard src/*.lua) $(wildcard tools/*.lua)

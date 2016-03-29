@@ -1,0 +1,65 @@
+Version 3.0.2-beta
+
+- based on Lua 5.3.0-beta
+- RC4 encryption algorithm added
+- updates:
+    - LZO 2.06
+    - LZ4 r123
+    - LZMA 5.0.7
+    - CURL 7.38
+
+
+
+et pcre
+
+
+* calcul 64 bit
+bl64
+modifier struct.c pour traiter les long long et long double
+
+http://lua-users.org/lists/lua-l/2010-11/msg00098.html
+
+
+
+
+
+
+
+
+
+
+* make.lua
+    module pour écrire des "makefile"
+
+    rule "toto.o" "toto.c" {
+        "gcc $< -o $@"
+    }
+
+    chaine <=> liste à 1 élément
+
+    rule {targets} {dependencies} {commands}
+        si une dépendence est plus récente qu'une cible :
+        - supprime les fichiers targets (paramétrable ?, erreur si cible read only)
+        - exécute les commandes (erreur si une plante, effacer les cibles ?)
+        - erreur s'il manque une cible
+
+    commande :
+        chaine de caractères => commande shell
+            $@ remplacé par la cible (si unique)
+            $@1, ... $@n remplacé par la ième cible
+            $<, $<1, $<n : dépendances
+            $\w+ remplacé par la variable (globale) \w+
+        function (targets, dependencies) ... end
+
+    targets, dependencies : avec patterns
+        "*.c" "*.h"
+
+    make "target" (ou {targets})
+        pour chaque cible :
+        cherche une règle qui matche la cible (et si plusieurs règles ? prendre la première (supposée moins générique))
+            parcourir les dependences (ie make {dependencies})
+            s'il reste une dépendence plus récente qu'une cible de la règle
+            ou si une cible de la règle n'existe pas
+                exécuter les commandes
+
+* ou embarquer Lake : https://github.com/stevedonovan/Lake

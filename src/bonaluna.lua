@@ -1,12 +1,12 @@
 --[[ BonaLuna test and documentation generator
 
-Copyright (C) 2010-2015 Christophe Delord
+Copyright (C) 2010-2016 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2015 Lua.org, PUC-Rio
 
-Freely available under the terms of the Lua license.
+Freely available under the terms of the MIT license.
 
 --]]
 
@@ -36,13 +36,13 @@ doc([[
 <!--
 BonaLuna
 
-Copyright (C) 2010-2015 Christophe Delord
+Copyright (C) 2010-2016 Christophe Delord
 http://www.cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
 Copyright (C) 2010 Lua.org, PUC-Rio.
 
-Freely available under the terms of the Lua license.
+Freely available under the terms of the MIT license.
 -->
 
 [logo]: bl.png
@@ -55,13 +55,14 @@ Abstract
 
 The current version is ]]..BONALUNA_VERSION..[[
 
+BonaLuna is open source software. Contribution can be made on GitHub: <https://github.com/CDSoft.fr/bonaluna>.
 
 Licenses
 --------
 
-* ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2015 Christophe Delord, Freely available under the terms of the [Lua license](http://www.lua.org/license.html#5)
+* ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the [MIT license](http://www.lua.org/license.html)
 * ![logo_lua][] **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
-* **Lua**, **Lpeg**: [Lua license](http://www.lua.org/license.html#5)
+* **Lua**, **Lpeg**: [MIT license](http://www.lua.org/license.html)
 * **miniLZO**, **QuickLZ**: GPL v2
 * **LZ4**: BSD
 * **LZF**: GPL
@@ -312,7 +313,7 @@ doc [[
 bc, m: arbitrary precision library for Lua based on GNU bc
 ----------------------------------------------------------
 
-lbc is a public domain package written by Luiz Henrique de Figueiredo and available at 
+lbc is a public domain package written by Luiz Henrique de Figueiredo and available at
 [Libraries and tools for Lua](http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lbc)
 
 This is a big-number library for Lua 5.3. It is based on the arbitrary
