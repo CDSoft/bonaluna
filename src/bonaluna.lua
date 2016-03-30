@@ -55,7 +55,7 @@ Abstract
 
 The current version is ]]..BONALUNA_VERSION..[[
 
-BonaLuna is open source software. Contribution can be made on GitHub: <https://github.com/CDSoft.fr/bonaluna>.
+BonaLuna is open source software. Contribution can be made on GitHub: <https://github.com/CDSoft/bonaluna>.
 
 Licenses
 --------
