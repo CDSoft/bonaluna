@@ -2,39 +2,39 @@
 
 # BonaLuna compilation script
 #
-# Copyright (C) 2010-2016 Christophe Delord
+# Copyright (C) 2010-2017 Christophe Delord
 # http://cdsoft.fr/bl/bonaluna.html
 #
 # BonaLuna is based on Lua 5.3
-# Copyright (C) 1994-2015 Lua.org, PUC-Rio
+# Copyright (C) 1994-2017 Lua.org, PUC-Rio
 #
 # Freely available under the terms of the MIT license.
 
-LUA_SRC=lua-5.3.1
+LUA_SRC=lua-5.3.4
 LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
 
-LZO_SRC=lzo-2.09
+LZO_SRC=lzo-2.10
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
-LZ4_REV=r131
+LZ4_REV=1.7.5
 LZ4_SRC=lz4-$LZ4_REV
-LZ4_URL=https://github.com/Cyan4973/lz4/archive/$LZ4_REV.tar.gz
+LZ4_URL=https://github.com/lz4/lz4/archive/v$LZ4_REV.tar.gz
 LZF_SRC=liblzf-3.6
 LZF_URL=http://dist.schmorp.de/liblzf/$LZF_SRC.tar.gz
-ZLIB_SRC=zlib-1.2.8
+ZLIB_SRC=zlib-1.2.11
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
-LZMA_SRC=xz-5.2.1
+LZMA_SRC=xz-5.2.3
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
-CURL_SRC=curl-7.44.0
+CURL_SRC=curl-7.53.1
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
 SOCKET_SRC=luasocket-2.0.2
 SOCKET_URL=http://files.luaforge.net/releases/luasocket/luasocket/$SOCKET_SRC/$SOCKET_SRC.tar.gz
 BC_SRC=bc
-BC_URL=http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/5.2/lbc.tar.gz
-LPEG_SRC=lpeg-0.12
+BC_URL=http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/5.3/lbc.tar.gz
+LPEG_SRC=lpeg-1.0.1
 LPEG_URL=http://www.inf.puc-rio.br/~roberto/lpeg/${LPEG_SRC}.tar.gz
 MATHX_SRC=mathx
 MATHX_URL=http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/5.3/lmathx.tar.gz
@@ -182,8 +182,8 @@ $USE_QLZ && (
 )
 
 $USE_LZ4 && (
-    [ -e "$LZ4_REV".tar.gz ] || wget $LZ4_URL
-    [ -e "$LZ4_SRC" ] || tar xzf "$LZ4_REV.tar.gz"
+    [ -e "v$LZ4_REV".tar.gz ] || wget $LZ4_URL
+    [ -e "$LZ4_SRC" ] || tar xzf "v$LZ4_REV.tar.gz"
 )
 
 $USE_LZF && (
@@ -231,6 +231,8 @@ cp -f $MATHX_SRC/lmathx.c $TARGET/
     ! [ -e $TARGET/$LZO_SRC ] && cp -rf $LZO_SRC $TARGET/
     cp -f $TARGET/$LZO_SRC/minilzo/*.{c,h} $TARGET/
     cp -f $TARGET/$LZO_SRC/include/lzo/*.h $TARGET/
+    mkdir -p $TARGET/lzo
+    cp -f $TARGET/$LZO_SRC/include/lzo/*.h $TARGET/lzo/
 }
 $USE_QLZ && cp -f $QLZ_SRC/*.{c,h} $TARGET/
 $USE_LZ4 && cp -f "$LZ4_SRC"/lib/{lz4,lz4hc,lz4frame}.{c,h} $TARGET/

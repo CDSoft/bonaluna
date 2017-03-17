@@ -1,10 +1,10 @@
 /* BonaLuna
 
-Copyright (C) 2010-2016 Christophe Delord
+Copyright (C) 2010-2017 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
-Copyright (C) 1994-2015 Lua.org, PUC-Rio
+Copyright (C) 1994-2017 Lua.org, PUC-Rio
 
 Freely available under the terms of the MIT license.
 */
@@ -938,8 +938,9 @@ LUAMOD_API int luaopen_qlz (lua_State *L)
 
 int bl_lz4_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-    char *lz4_dst = (char*)malloc(LZ4_COMPRESSBOUND(src_len) + sizeof(t_z_header));
-    int lz4_dst_len = LZ4_compress((char*)src, lz4_dst+sizeof(t_z_header), src_len);
+    int lz4_max_dst_len = LZ4_COMPRESSBOUND(src_len);
+    char *lz4_dst = (char*)malloc(lz4_max_dst_len + sizeof(t_z_header));
+    int lz4_dst_len = LZ4_compress_default((char*)src, lz4_dst+sizeof(t_z_header), src_len, lz4_max_dst_len);
     ((t_z_header*)lz4_dst)->sig = LZ4_SIG;
     ((t_z_header*)lz4_dst)->len = src_len;
     *dst = lz4_dst;
@@ -950,8 +951,9 @@ int bl_lz4_compress_core(lua_State *L, const char *src, size_t src_len, char **d
 
 int bl_lz4hc_compress_core(lua_State *L, const char *src, size_t src_len, char **dst, size_t *dst_len)
 {
-    char *lz4_dst = (char*)malloc(LZ4_COMPRESSBOUND(src_len) + sizeof(t_z_header));
-    int lz4_dst_len = LZ4_compressHC((char*)src, lz4_dst+sizeof(t_z_header), src_len);
+    int lz4_max_dst_len = LZ4_COMPRESSBOUND(src_len);
+    char *lz4_dst = (char*)malloc(lz4_max_dst_len + sizeof(t_z_header));
+    int lz4_dst_len = LZ4_compress_HC((char*)src, lz4_dst+sizeof(t_z_header), src_len, lz4_max_dst_len, 9);
     ((t_z_header*)lz4_dst)->sig = LZ4_SIG;
     ((t_z_header*)lz4_dst)->len = src_len;
     *dst = lz4_dst;

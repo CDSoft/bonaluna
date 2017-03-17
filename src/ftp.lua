@@ -1,10 +1,10 @@
 --[[ FTP library
 
-Copyright (C) 2010-2016 Christophe Delord
+Copyright (C) 2010-2017 Christophe Delord
 http://cdsoft.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
-Copyright (C) 1994-2015 Lua.org, PUC-Rio
+Copyright (C) 1994-2017 Lua.org, PUC-Rio
 
 Freely available under the terms of the MIT license.
 

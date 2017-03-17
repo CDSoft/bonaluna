@@ -1,2 +1,16 @@
 dist
 build
+*.swp
+bl
+doc/lua/index.css
+doc/lua/lua.1
+doc/lua/luac.1
+src/*.o
+src/*.rc
+src/*.tar.gz
+src/lpeg-*/
+src/lua-*/
+src/luasocket-*/
+src/lz4-*/
+src/mathx/
+test/
