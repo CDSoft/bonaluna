@@ -119,7 +119,7 @@ static int glue(lua_State *L, char **argv, int argc, int script)
             path_end = p+1;
 
     /* search for the start block */
-    if (fseek(f, -sizeof(t_end_block), SEEK_END) != 0) cant("seek", argv[0]);
+    if (fseek(f, -(ssize_t)sizeof(t_end_block), SEEK_END) != 0) cant("seek", argv[0]);
     end = ftell(f);
     //printf("%08X - %d - %d\n", ftell(f), sizeof(t_end_block), feof(f));
     if (fread(&end_block, sizeof(t_end_block), 1, f) != 1) cant("read", argv[0]);

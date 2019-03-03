@@ -1,21 +1,29 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Christophe Delord" />
   <title>BonaLuna - A compact Lua extension</title>
-  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
   <link rel="icon" href="bl.png"/>
 </head>
 <body>
-<div id="header">
+<header id="title-block-header">
 <h1 class="title">BonaLuna - A compact Lua extension</h1>
-<h2 class="author"><a href="http://cdsoft.fr/contact.html">Christophe Delord</a></h2>
-<h3 class="date">Documentation date: Fri Mar 17 06:06:24 2017</h3>
-</div>
-<div id="TOC">
+<p class="author"><a href="http://cdsoft.fr/contact.html">Christophe Delord</a></p>
+<p class="date">Documentation date: Sun Mar 3 11:03:12 2019</p>
+</header>
+<nav id="TOC">
 <ul>
 <li><a href="#abstract">Abstract</a><ul>
 <li><a href="#licenses">Licenses</a></li>
@@ -58,7 +66,7 @@
 <li><a href="#external-modules">External modules</a></li>
 <li><a href="#examples">Examples</a></li>
 </ul>
-</div>
+</nav>
 <!--
 BonaLuna
 
@@ -72,7 +80,7 @@ Freely available under the terms of the MIT license.
 -->
 <h1 id="abstract">Abstract</h1>
 <p><img src="bl.png" alt="logo" /> <a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> is a Lua interpretor plus a few packages in a single executable.</p>
-<p>The current version is 3.0.8 BonaLuna is open source software. Contribution can be made on GitHub: <a href="https://github.com/CDSoft/bonaluna" class="uri">https://github.com/CDSoft/bonaluna</a>.</p>
+<p>The current version is 3.0.9 BonaLuna is open source software. Contribution can be made on GitHub: <a href="https://github.com/CDSoft/bonaluna" class="uri">https://github.com/CDSoft/bonaluna</a>.</p>
 <h2 id="licenses">Licenses</h2>
 <ul>
 <li><img src="bl.png" alt="logo" /> <strong><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a></strong>: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the <a href="http://www.lua.org/license.html">MIT license</a></li>
@@ -85,7 +93,7 @@ Freely available under the terms of the MIT license.
 <li><strong>ser</strong>: MIT license</li>
 </ul>
 <h2 id="download">Download</h2>
-<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.8.tgz">bonaluna-3.0.8.tgz</a></p>
+<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.9.tgz">bonaluna-3.0.9.tgz</a></p>
 <h1 id="lua">Lua</h1>
 <p>The original Lua interpretor and documentation is available at http://www.lua.org.</p>
 <p>BonaLuna is based on <a href="lua/contents.html">Lua 5.3</a>.</p>
@@ -108,7 +116,7 @@ Freely available under the terms of the MIT license.
 <p><strong>memoize(f)</strong> returns a memoized function.</p>
 <h1 id="bonaluna-packages">BonaLuna packages</h1>
 <h2 id="note-about-objects">Note about objects</h2>
-<p>Objects defined in these packages uses closures <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> to store internal data. No <em>self</em> is required and methods are called with a single dot (<code>.</code>), not with a colon (<code>:</code>).</p>
+<p>Objects defined in these packages uses closures <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> to store internal data. No <em>self</em> is required and methods are called with a single dot (<code>.</code>), not with a colon (<code>:</code>).</p>
 <p>Example:</p>
 <pre><code>aes = crypt.AES(&quot;my key&quot;, 128)
 encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
@@ -167,7 +175,7 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <p><strong>bn.oct(x, bits)</strong> returns a string representation of <code>x</code> in base 8 on <code>bits</code> bits</p>
 <p><strong>bn.dec(x, bits)</strong> returns a string representation of <code>x</code> in base 10 on <code>bits</code> bits</p>
 <p><strong>bn.hex(x, bits)</strong> returns a string representation of <code>x</code> in base 16 on <code>bits</code> bits</p>
-<p><strong>bn.sep(s)</strong> sets the digit separator (“_“,” &quot; or nil)</p>
+<p><strong>bn.sep(s)</strong> sets the digit separator ("_“,” " or nil)</p>
 <h3 id="math-and-bitwise-operators-1">Math and bitwise operators</h3>
 <p>Functions of the math, mathx and bit32 modules also exist in the bn module. These functions produce bn numbers but may work internally with Lua numbers. Do not expect these functions to be precise.</p>
 <p>All the functions of mathx are in the math module.</p>
@@ -317,7 +325,7 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <p><strong>sys.hostname()</strong> returns the host name.</p>
 <p><strong>sys.domainname()</strong> returns the domain name.</p>
 <p><strong>sys.hostid()</strong> returns the host id.</p>
-<p><strong>sys.platform</strong> is <code>&quot;Linux&quot;</code> or <code>&quot;Windows&quot;</code></p>
+<p><strong>sys.platform</strong> is <code>"Linux"</code> or <code>"Windows"</code></p>
 <h1 id="self-running-scripts">Self running scripts</h1>
 <p>It is possible to add scripts to the BonaLuna interpretor to make a single executable file containing the interpretor and some BonaLuna scripts.</p>
 <p>This feature is inspired by <a href="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#srlua">srlua</a>.</p>
@@ -328,7 +336,7 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <p><strong>lua:script.lua</strong> adds a script to be executed at runtime</p>
 <p><strong>lua:script.lua=realname.lua</strong> as above but stored under a different name</p>
 <p><strong>str:name=value</strong> creates a global variable holding a string</p>
-<p><strong>str:name=<span class="citation">@filename</span></strong> as above but the string is the content of a file</p>
+<p><strong>str:name=<span class="citation" data-cites="filename">@filename</span></strong> as above but the string is the content of a file</p>
 <p><strong>file:name</strong> adds a file to be created at runtime (the file is not overwritten if it already exists)</p>
 <p><strong>file:name=realname</strong> as above but stored under a different name</p>
 <p><strong>dir:name</strong> creates a directory at runtime</p>
@@ -352,12 +360,12 @@ encrypted = aes.encrypt(&quot;some text&quot;)</code></pre>
 <li><a href="https://github.com/uleelx/TCP-DNS-proxy">Tasks</a>: TCP DNS proxy which can get the RIGHT IP address. It includes a multi tasking package</li>
 </ul>
 <h1 id="examples">Examples</h1>
-<p>This documentation has been generated by a BonaLuna script. <a href="bonaluna.lua" class="uri">bonaluna.lua</a> also contains some tests.</p>
-<div class="footnotes">
+<p>This documentation has been generated by a BonaLuna script. <a href="bonaluna.lua">bonaluna.lua</a> also contains some tests.</p>
+<section class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>See <a href="http://lua-users.org/wiki/ObjectOrientationClosureApproach">Object Orientation Closure Approach</a>.<a href="#fnref1">↩</a></p></li>
+<li id="fn1"><p>See <a href="http://lua-users.org/wiki/ObjectOrientationClosureApproach">Object Orientation Closure Approach</a>.<a href="#fnref1" class="footnote-back">↩</a></p></li>
 </ol>
-</div>
+</section>
 </body>
 </html>

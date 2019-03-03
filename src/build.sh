@@ -10,14 +10,14 @@
 #
 # Freely available under the terms of the MIT license.
 
-LUA_SRC=lua-5.3.4
+LUA_SRC=lua-5.3.5
 LUA_URL=http://www.lua.org/ftp/$LUA_SRC.tar.gz
 
 LZO_SRC=lzo-2.10
 LZO_URL=http://www.oberhumer.com/opensource/lzo/download/$LZO_SRC.tar.gz
 QLZ_SRC=quicklz
 QLZ_URL=http://www.quicklz.com/
-LZ4_REV=1.7.5
+LZ4_REV=1.8.2
 LZ4_SRC=lz4-$LZ4_REV
 LZ4_URL=https://github.com/lz4/lz4/archive/v$LZ4_REV.tar.gz
 LZF_SRC=liblzf-3.6
@@ -26,7 +26,7 @@ ZLIB_SRC=zlib-1.2.11
 ZLIB_URL=http://zlib.net/$ZLIB_SRC.tar.gz
 UCL_SRC=ucl-1.03
 UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL_SRC.tar.gz
-LZMA_SRC=xz-5.2.3
+LZMA_SRC=xz-5.2.4
 LZMA_URL=http://tukaani.org/xz/$LZMA_SRC.tar.gz
 CURL_SRC=curl-7.53.1
 CURL_URL=http://curl.haxx.se/download/$CURL_SRC.tar.gz
@@ -835,7 +835,7 @@ $WINE $TARGET/$BL ../tools/pegar.lua read:$TARGET/$BL $PEGAR_CONF write:$BL
 
 $WINE ./$BL bonaluna.lua || error "Non regression tests failed"
 PANDOC=$(which pandoc 2>/dev/null)
-PANDOC_OPT="-S -s --toc -H icon.i"
+PANDOC_OPT="-s --toc -H icon.i"
 if [ -x "$PANDOC" ]
 then
     echo '<link rel="icon" href="bl.png"/>' > icon.i
