@@ -1,6 +1,6 @@
 % BonaLuna - A compact Lua extension
 % [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Sun Mar  3 11:03:12 2019
+% Documentation date: Tue Dec 10 04:57:13 2019
 
 <!--
 BonaLuna
@@ -22,14 +22,14 @@ Abstract
 
 ![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
-The current version is 3.0.9
+The current version is 3.0.10
 BonaLuna is open source software. Contribution can be made on GitHub: <https://github.com/CDSoft/bonaluna>.
 
 Licenses
 --------
 
 * ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the [MIT license](http://www.lua.org/license.html)
-* ![logo_lua][] **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
+* ![logo_lua][] **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org), PUC-Rio.
 * **Lua**, **Lpeg**: [MIT license](http://www.lua.org/license.html)
 * **miniLZO**, **QuickLZ**: GPL v2
 * **LZ4**: BSD
@@ -40,7 +40,7 @@ Licenses
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.9.tgz](http://cdsoft.fr/bl/bonaluna-3.0.9.tgz)
+[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.10.tgz](http://cdsoft.fr/bl/bonaluna-3.0.10.tgz)
 
 
 Lua
