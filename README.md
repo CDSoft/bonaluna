@@ -1,14 +1,14 @@
 BonaLuna - A compact Lua extension
 ==================================
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
+[BonaLuna](http://cdelord.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
 The current version is 3.0.7
 
 Licenses
 --------
 
-* **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2017 Christophe Delord, Freely available under the terms of the [MIT license](http://www.lua.org/license.html)
+* **[BonaLuna](http://cdelord.fr/bl/bonaluna.html)**: Copyright (C) 2010-2020 Christophe Delord, Freely available under the terms of the [MIT license](http://www.lua.org/license.html)
 * **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org>), PUC-Rio.
 * **Lua**, **Lpeg**: [MIT license](http://www.lua.org/license.html)
 * **miniLZO**, **QuickLZ**: GPL v2
@@ -20,7 +20,7 @@ Licenses
 Download
 --------
 
-Binaries can be downloaded here: <http://cdsoft.fr/bl/bonaluna.html>
+Binaries can be downloaded here: <http://cdelord.fr/bl/bonaluna.html>
 
 Lua
 ===

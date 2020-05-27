@@ -1,7 +1,7 @@
 --[[ BonaLuna test and documentation generator
 
-Copyright (C) 2010-2017 Christophe Delord
-http://cdsoft.fr/bl/bonaluna.html
+Copyright (C) 2010-2020 Christophe Delord
+http://cdelord.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
 Copyright (C) 1994-2017 Lua.org, PUC-Rio
@@ -29,7 +29,7 @@ BONALUNA_VERSION = _BL_VERSION:split(" ")[2]
 
 doc([[
 % BonaLuna - A compact Lua extension
-% [Christophe Delord](http://cdsoft.fr/contact.html)
+% [Christophe Delord](http://cdelord.fr/contact.html)
 % Documentation date: ]] .. os.date() .. [[
 
 
@@ -37,7 +37,7 @@ doc([[
 BonaLuna
 
 Copyright (C) 2010-2016 Christophe Delord
-http://www.cdsoft.fr/bl/bonaluna.html
+http://www.cdelord.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
 Copyright (C) 2010 Lua.org, PUC-Rio.
@@ -51,7 +51,7 @@ Freely available under the terms of the MIT license.
 Abstract
 ========
 
-![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
+![logo][] [BonaLuna](http://cdelord.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
 The current version is ]]..BONALUNA_VERSION..[[
 
@@ -60,7 +60,7 @@ BonaLuna is open source software. Contribution can be made on GitHub: <https://g
 Licenses
 --------
 
-* ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the [MIT license](http://www.lua.org/license.html)
+* ![logo][] **[BonaLuna](http://cdelord.fr/bl/bonaluna.html)**: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the [MIT license](http://www.lua.org/license.html)
 * ![logo_lua][] **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org), PUC-Rio.
 * **Lua**, **Lpeg**: [MIT license](http://www.lua.org/license.html)
 * **miniLZO**, **QuickLZ**: GPL v2
@@ -72,7 +72,7 @@ Licenses
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-]]..BONALUNA_VERSION..[[.tgz](http://cdsoft.fr/bl/bonaluna-]]..BONALUNA_VERSION..[[.tgz)
+[BonaLuna](http://cdelord.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-]]..BONALUNA_VERSION..[[.tgz](http://cdelord.fr/bl/bonaluna-]]..BONALUNA_VERSION..[[.tgz)
 
 ]])
 

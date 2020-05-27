@@ -7,10 +7,12 @@
   <meta name="author" content="Christophe Delord" />
   <title>BonaLuna - A compact Lua extension</title>
   <style>
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
   </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
@@ -20,29 +22,34 @@
 <body>
 <header id="title-block-header">
 <h1 class="title">BonaLuna - A compact Lua extension</h1>
-<p class="author"><a href="http://cdsoft.fr/contact.html">Christophe Delord</a></p>
-<p class="date">Documentation date: Tue Dec 10 04:57:13 2019</p>
+<p class="author"><a href="http://cdelord.fr/contact.html">Christophe Delord</a></p>
+<p class="date">Documentation date: Wed May 27 19:53:23 2020</p>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#abstract">Abstract</a><ul>
+<li><a href="#abstract">Abstract</a>
+<ul>
 <li><a href="#licenses">Licenses</a></li>
 <li><a href="#download">Download</a></li>
 </ul></li>
 <li><a href="#lua">Lua</a></li>
-<li><a href="#global-functions">Global functions</a><ul>
+<li><a href="#global-functions">Global functions</a>
+<ul>
 <li><a href="#iterators">Iterators</a></li>
 <li><a href="#higher-order-functions">Higher order functions</a></li>
 </ul></li>
-<li><a href="#bonaluna-packages">BonaLuna packages</a><ul>
+<li><a href="#bonaluna-packages">BonaLuna packages</a>
+<ul>
 <li><a href="#note-about-objects">Note about objects</a></li>
-<li><a href="#bc-m-arbitrary-precision-library-for-lua-based-on-gnu-bc">bc, m: arbitrary precision library for Lua based on GNU bc</a><ul>
+<li><a href="#bc-m-arbitrary-precision-library-for-lua-based-on-gnu-bc">bc, m: arbitrary precision library for Lua based on GNU bc</a>
+<ul>
 <li><a href="#basic-bc-functions">basic bc functions</a></li>
 <li><a href="#functions-added-by-bonaluna">Functions added by BonaLuna</a></li>
 <li><a href="#math-and-bitwise-operators">Math and bitwise operators</a></li>
 <li><a href="#m-package">m package</a></li>
 </ul></li>
-<li><a href="#bn-arbitrary-precision-library-for-lua-written-in-pure-lua">bn: arbitrary precision library for Lua written in pure Lua</a><ul>
+<li><a href="#bn-arbitrary-precision-library-for-lua-written-in-pure-lua">bn: arbitrary precision library for Lua written in pure Lua</a>
+<ul>
 <li><a href="#basic-bn-functions">basic bn functions</a></li>
 <li><a href="#math-and-bitwise-operators-1">Math and bitwise operators</a></li>
 </ul></li>
@@ -59,7 +66,8 @@
 <li><a href="#struct-unpack-structures">struct: (un)pack structures</a></li>
 <li><a href="#sys-system-management">sys: System management</a></li>
 </ul></li>
-<li><a href="#self-running-scripts">Self running scripts</a><ul>
+<li><a href="#self-running-scripts">Self running scripts</a>
+<ul>
 <li><a href="#pegar.lua-parameters-command-line-interface"><code>pegar.lua</code> parameters (command line interface)</a></li>
 <li><a href="#pegar-class-useable-in-bonaluna-scripts"><code>Pegar</code> class (useable in BonaLuna scripts)</a></li>
 </ul></li>
@@ -71,7 +79,7 @@
 BonaLuna
 
 Copyright (C) 2010-2016 Christophe Delord
-http://www.cdsoft.fr/bl/bonaluna.html
+http://www.cdelord.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
 Copyright (C) 2010 Lua.org, PUC-Rio.
@@ -79,11 +87,11 @@ Copyright (C) 2010 Lua.org, PUC-Rio.
 Freely available under the terms of the MIT license.
 -->
 <h1 id="abstract">Abstract</h1>
-<p><img src="bl.png" alt="logo" /> <a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> is a Lua interpretor plus a few packages in a single executable.</p>
-<p>The current version is 3.0.10 BonaLuna is open source software. Contribution can be made on GitHub: <a href="https://github.com/CDSoft/bonaluna" class="uri">https://github.com/CDSoft/bonaluna</a>.</p>
+<p><img src="bl.png" alt="logo" /> <a href="http://cdelord.fr/bl/bonaluna.html">BonaLuna</a> is a Lua interpretor plus a few packages in a single executable.</p>
+<p>The current version is 3.0.11 BonaLuna is open source software. Contribution can be made on GitHub: <a href="https://github.com/CDSoft/bonaluna" class="uri">https://github.com/CDSoft/bonaluna</a>.</p>
 <h2 id="licenses">Licenses</h2>
 <ul>
-<li><img src="bl.png" alt="logo" /> <strong><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a></strong>: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the <a href="http://www.lua.org/license.html">MIT license</a></li>
+<li><img src="bl.png" alt="logo" /> <strong><a href="http://cdelord.fr/bl/bonaluna.html">BonaLuna</a></strong>: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the <a href="http://www.lua.org/license.html">MIT license</a></li>
 <li><img src="http://www.andreas-rozek.de/Lua/Lua-Logo_64x64.png" alt="logo_lua" /> <strong><a href="http://www.lua.org">Lua 5.3</a></strong>: Copyright (C) 2010 <a href="http://www.lua.org">Lua.org</a>, PUC-Rio.</li>
 <li><strong>Lua</strong>, <strong>Lpeg</strong>: <a href="http://www.lua.org/license.html">MIT license</a></li>
 <li><strong>miniLZO</strong>, <strong>QuickLZ</strong>: GPL v2</li>
@@ -93,7 +101,7 @@ Freely available under the terms of the MIT license.
 <li><strong>ser</strong>: MIT license</li>
 </ul>
 <h2 id="download">Download</h2>
-<p><a href="http://cdsoft.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdsoft.fr/bl/bonaluna-3.0.10.tgz">bonaluna-3.0.10.tgz</a></p>
+<p><a href="http://cdelord.fr/bl/bonaluna.html">BonaLuna</a> can be downloaded here: <a href="http://cdelord.fr/bl/bonaluna-3.0.11.tgz">bonaluna-3.0.11.tgz</a></p>
 <h1 id="lua">Lua</h1>
 <p>The original Lua interpretor and documentation is available at http://www.lua.org.</p>
 <p>BonaLuna is based on <a href="lua/contents.html">Lua 5.3</a>.</p>
