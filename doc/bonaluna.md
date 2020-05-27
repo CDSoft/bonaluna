@@ -1,12 +1,12 @@
 % BonaLuna - A compact Lua extension
-% [Christophe Delord](http://cdsoft.fr/contact.html)
-% Documentation date: Tue Dec 10 04:57:13 2019
+% [Christophe Delord](http://cdelord.fr/contact.html)
+% Documentation date: Wed May 27 19:50:23 2020
 
 <!--
 BonaLuna
 
 Copyright (C) 2010-2016 Christophe Delord
-http://www.cdsoft.fr/bl/bonaluna.html
+http://www.cdelord.fr/bl/bonaluna.html
 
 BonaLuna is based on Lua 5.3
 Copyright (C) 2010 Lua.org, PUC-Rio.
@@ -20,7 +20,7 @@ Freely available under the terms of the MIT license.
 Abstract
 ========
 
-![logo][] [BonaLuna](http://cdsoft.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
+![logo][] [BonaLuna](http://cdelord.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
 The current version is 3.0.10
 BonaLuna is open source software. Contribution can be made on GitHub: <https://github.com/CDSoft/bonaluna>.
@@ -28,7 +28,7 @@ BonaLuna is open source software. Contribution can be made on GitHub: <https://g
 Licenses
 --------
 
-* ![logo][] **[BonaLuna](http://cdsoft.fr/bl/bonaluna.html)**: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the [MIT license](http://www.lua.org/license.html)
+* ![logo][] **[BonaLuna](http://cdelord.fr/bl/bonaluna.html)**: Copyright (C) 2010-2016 Christophe Delord, Freely available under the terms of the [MIT license](http://www.lua.org/license.html)
 * ![logo_lua][] **[Lua 5.3](http://www.lua.org)**: Copyright (C) 2010 [Lua.org](http://www.lua.org), PUC-Rio.
 * **Lua**, **Lpeg**: [MIT license](http://www.lua.org/license.html)
 * **miniLZO**, **QuickLZ**: GPL v2
@@ -40,7 +40,7 @@ Licenses
 Download
 --------
 
-[BonaLuna](http://cdsoft.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.10.tgz](http://cdsoft.fr/bl/bonaluna-3.0.10.tgz)
+[BonaLuna](http://cdelord.fr/bl/bonaluna.html) can be downloaded here: [bonaluna-3.0.10.tgz](http://cdelord.fr/bl/bonaluna-3.0.10.tgz)
 
 
 Lua
