@@ -20,7 +20,7 @@ Licenses
 Download
 --------
 
-Binaries can be downloaded here: <http://cdelord.fr/bl/bonaluna.html>
+Bonaluna sources can be downloaded here: <https://github.com/CDSoft/bonaluna>.
 
 Lua
 ===
