@@ -1,6 +1,11 @@
 BonaLuna - A compact Lua extension
 ==================================
 
+> [!WARNING]
+> This repository is no longer maintained and has been archived.
+>
+> Please consider using [LuaX](https://github.com/CDSoft/luax) instead.
+
 [BonaLuna](http://cdelord.fr/bl/bonaluna.html) is a Lua interpretor plus a few packages in a single executable.
 
 The current version is 3.0.7
